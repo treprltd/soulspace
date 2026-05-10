@@ -6,8 +6,6 @@ import { BRANCH_B_PROMPT } from './prompts/branchB'
 import { BRANCH_C_PROMPT } from './prompts/branchC'
 import { BRANCH_D_PROMPT } from './prompts/branchD'
 
-const client = new Anthropic()
-
 const PROMPT_VERSION = '1.0.0'
 
 const BRANCH_PROMPTS: Record<Branch, string> = {
@@ -67,6 +65,8 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
   if (safety.flagged) {
     throw new SafetyFlagError(safety.flagType, safety.confidence)
   }
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const systemPrompt = BRANCH_PROMPTS[input.branch]
   const userMessage = [

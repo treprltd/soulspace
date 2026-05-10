@@ -1,8 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { SafetyResult, FlagType } from '@/types'
 
-const client = new Anthropic()
-
 const SAFETY_SYSTEM_PROMPT = `You are a safety classifier for Soul Space, an emotional support application. Your job is to detect if user input contains any of these crisis indicators:
 
 MUST FLAG (return flagged: true):
@@ -31,6 +29,7 @@ Respond ONLY with a JSON object in this exact format:
 Do not include any other text. If flagged is false, flagType must be null.`
 
 export async function classifySafety(text: string): Promise<SafetyResult> {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const response = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 128,
