@@ -28,7 +28,7 @@ export default function MirrorLoading() {
           }),
         })
 
-        const data = await res.json() as { crisis?: boolean; mirror?: MirrorOutput; error?: unknown }
+        const data = await res.json() as { crisis?: boolean; mirror?: MirrorOutput; error?: unknown; detail?: string }
 
         if (data.crisis) {
           router.push('/crisis')
@@ -41,7 +41,7 @@ export default function MirrorLoading() {
           return
         }
 
-        setError('Something went wrong. Please try again.')
+        setError(data.detail ? `Error: ${data.detail}` : 'Something went wrong. Please try again.')
       } catch {
         setError('Connection error. Please check your internet and try again.')
       }

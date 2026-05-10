@@ -95,7 +95,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err.issues }, { status: 400 })
     }
 
+    const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
     console.error('Mirror API error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal server error', detail }, { status: 500 })
   }
 }
