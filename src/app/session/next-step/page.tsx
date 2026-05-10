@@ -8,7 +8,7 @@ const NEXT_STEPS = [
   'Write down the two things that are in tension, side by side, without trying to resolve them yet.',
   'Give yourself permission to not decide anything today — just for the next 24 hours.',
   'Talk to one person you trust — not to get advice, just to say it out loud.',
-  'Take a 10-minute walk without your phone. Notice what rises up when you're quiet.',
+  'Take a 10-minute walk without your phone. Notice what rises up when you\'re quiet.',
   'Write one sentence about what you actually want — not what you think you should want.',
   'Set aside 15 minutes tomorrow morning to sit with this — not to decide, just to notice.',
   'Notice where in your body this feels heaviest. Name it without trying to move it.',
