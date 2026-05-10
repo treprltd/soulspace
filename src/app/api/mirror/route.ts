@@ -20,11 +20,9 @@ export async function POST(req: NextRequest) {
   try {
     const input = MirrorSchema.parse(rawBody)
 
+    // Auth is optional — unauthenticated users get the mirror but no persistence
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { data: { user } } = await supabase.auth.getUser()
 
     const mirrorOutput = await runMirror({
       branch: input.branch,
@@ -35,54 +33,60 @@ export async function POST(req: NextRequest) {
 
     const responseMs = Date.now() - startTime
 
-    // Encrypt and store session content
-    const { ciphertext: encryptedContext, keyRef } = encrypt(input.contextText)
-    const { ciphertext: encryptedMirror } = encrypt(JSON.stringify(mirrorOutput))
+    // Only persist to Supabase when the user is authenticated
+    if (user) {
+      // Encrypt and store session content
+      const { ciphertext: encryptedContext, keyRef } = encrypt(input.contextText)
+      const { ciphertext: encryptedMirror } = encrypt(JSON.stringify(mirrorOutput))
 
-    await supabase.from('session_content').insert({
-      session_id: input.sessionId,
-      encrypted_context: encryptedContext,
-      encrypted_mirror_output: encryptedMirror,
-      encryption_key_ref: keyRef,
-    })
-
-    // Update session with season and char count
-    await supabase
-      .from('sessions')
-      .update({
-        season_assigned: mirrorOutput.season,
-        char_count: input.contextText.length,
-        intensity: input.intensity,
+      await supabase.from('session_content').insert({
+        session_id: input.sessionId,
+        encrypted_context: encryptedContext,
+        encrypted_mirror_output: encryptedMirror,
+        encryption_key_ref: keyRef,
       })
-      .eq('id', input.sessionId)
-      .eq('user_id', user.id)
 
-    // Log mirror_rendered event
-    await supabase.from('events').insert({
-      session_id: input.sessionId,
-      user_hash: user.id.slice(0, 8),
-      event_name: 'mirror_rendered',
-      properties: { branch: input.branch, response_ms: responseMs },
-    })
+      // Update session with season and char count
+      await supabase
+        .from('sessions')
+        .update({
+          season_assigned: mirrorOutput.season,
+          char_count: input.contextText.length,
+          intensity: input.intensity,
+        })
+        .eq('id', input.sessionId)
+        .eq('user_id', user.id)
+
+      // Log mirror_rendered event
+      await supabase.from('events').insert({
+        session_id: input.sessionId,
+        user_hash: user.id.slice(0, 8),
+        event_name: 'mirror_rendered',
+        properties: { branch: input.branch, response_ms: responseMs },
+      })
+    }
 
     return NextResponse.json({ mirror: mirrorOutput })
   } catch (err) {
     if (err instanceof SafetyFlagError) {
-      // Log safety event then route to crisis
+      // Log safety event then route to crisis (best-effort — may fail if unauthenticated)
       try {
         const parsed = rawBody as { sessionId?: string; branch?: string }
         const supabase = await createClient()
-        await supabase.from('safety_events').insert({
-          session_id: parsed.sessionId ?? null,
-          flag_type: err.flagType,
-          branch: parsed.branch ?? null,
-          action: 'crisis_routed',
-          season_suppressed: true,
-        })
-        await supabase
-          .from('sessions')
-          .update({ safety_flagged: true })
-          .eq('id', parsed.sessionId ?? '')
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          await supabase.from('safety_events').insert({
+            session_id: parsed.sessionId ?? null,
+            flag_type: err.flagType,
+            branch: parsed.branch ?? null,
+            action: 'crisis_routed',
+            season_suppressed: true,
+          })
+          await supabase
+            .from('sessions')
+            .update({ safety_flagged: true })
+            .eq('id', parsed.sessionId ?? '')
+        }
       } catch {}
       return NextResponse.json({ crisis: true }, { status: 200 })
     }
