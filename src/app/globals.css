@@ -64,27 +64,42 @@ html, body {
     @apply px-6 py-3 bg-gold text-ink text-sm font-semibold rounded-lg border-none cursor-pointer transition-opacity hover:opacity-90 active:opacity-80;
   }
   .btn-outline {
-    @apply px-4 py-2.5 bg-transparent text-gold text-sm border border-gold/25 rounded-lg cursor-pointer transition-colors hover:border-gold/50;
+    @apply px-4 py-2.5 bg-transparent text-gold text-sm rounded-lg cursor-pointer transition-colors;
+    border: 1px solid rgba(201,168,76,0.25);
+  }
+  .btn-outline:hover {
+    border-color: rgba(201,168,76,0.5);
   }
 
   .mirror-card {
     background: var(--ink2);
-    @apply border border-gold/10 rounded-xl p-4 mb-2.5;
+    @apply rounded-xl p-4 mb-2.5;
+    border: 1px solid rgba(201,168,76,0.1);
   }
 
   .resonance-phrase {
-    @apply px-4 py-4 border border-gold/12 rounded-xl font-serif text-sm text-sand italic cursor-pointer mb-2.5 relative transition-all hover:border-gold/35 hover:bg-gold/[.04];
+    @apply px-4 py-4 rounded-xl font-serif text-sm text-sand italic cursor-pointer mb-2.5 relative transition-all;
+    border: 1px solid rgba(201,168,76,0.12);
     line-height: 1.5;
   }
+  .resonance-phrase:hover {
+    border-color: rgba(201,168,76,0.35);
+    background: rgba(201,168,76,0.04);
+  }
   .resonance-phrase.selected {
-    @apply border-gold bg-gold/[.08] text-gold2;
+    @apply text-gold2;
+    border-color: rgba(201,168,76,1);
+    background: rgba(201,168,76,0.08);
   }
 
   .emotion-tag {
-    @apply px-2.5 py-1 rounded-full text-[10px] border border-gold/18 text-mist cursor-pointer transition-all;
+    @apply px-2.5 py-1 rounded-full text-[10px] text-mist cursor-pointer transition-all;
+    border: 1px solid rgba(201,168,76,0.18);
   }
   .emotion-tag.selected {
-    @apply border-gold/55 text-gold2 bg-gold/[.08];
+    @apply text-gold2;
+    border-color: rgba(201,168,76,0.55);
+    background: rgba(201,168,76,0.08);
   }
 
   .progress-bar { @apply h-0.5 rounded-sm flex-1; }
@@ -93,7 +108,8 @@ html, body {
   .progress-bar.todo { background: rgba(245,237,216,.06); }
 
   .scope-row {
-    @apply flex items-start gap-2 py-1.5 border-b border-white/[.04] last:border-0;
+    @apply flex items-start gap-2 py-1.5 last:border-0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
   }
 }
 
