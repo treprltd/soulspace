@@ -41,7 +41,7 @@ export default function MirrorLoading() {
           return
         }
 
-        setError('Something went wrong. Please try again.')
+        setError(data.detail ? `Error: ${data.detail}` : 'Something went wrong. Please try again.')
       } catch {
         setError('Connection error. Please check your internet and try again.')
       }

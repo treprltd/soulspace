@@ -77,7 +77,7 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
   ].join('\n')
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-sonnet-4-5-20251022',
     max_tokens: 512,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
