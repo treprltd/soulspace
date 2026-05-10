@@ -8,10 +8,10 @@ const ResonanceSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const { id } = params
     const body = await req.json()
     const { result } = ResonanceSchema.parse(body)
 
