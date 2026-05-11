@@ -28,10 +28,15 @@ export default function MirrorLoading() {
           }),
         })
 
-        const data = await res.json() as { crisis?: boolean; mirror?: MirrorOutput; error?: unknown; detail?: string }
+        const data = await res.json() as { crisis?: boolean; mirror?: MirrorOutput; paywall?: boolean; error?: unknown; detail?: string }
 
         if (data.crisis) {
           router.push('/crisis')
+          return
+        }
+
+        if (data.paywall) {
+          router.push('/pricing')
           return
         }
 

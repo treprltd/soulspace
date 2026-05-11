@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { runMirror, SafetyFlagError } from '@/lib/mirror'
 import { encrypt } from '@/lib/encryption'
+import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
 const MirrorSchema = z.object({
   sessionId: z.string().uuid(),
@@ -23,6 +24,33 @@ export async function POST(req: NextRequest) {
     // Auth is optional — unauthenticated users get the mirror but no persistence
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
+    // ── Session gating ────────────────────────────────────────────────────────
+    // Authenticated free-tier users are limited to FREE_SESSIONS_PER_MONTH/month
+    if (user) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('plan_tier')
+        .eq('id', user.id)
+        .single()
+
+      if (!userData?.plan_tier || userData.plan_tier === 'free') {
+        const startOfMonth = new Date()
+        startOfMonth.setDate(1)
+        startOfMonth.setHours(0, 0, 0, 0)
+
+        const { count } = await supabase
+          .from('sessions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('created_at', startOfMonth.toISOString())
+
+        if ((count ?? 0) >= FREE_SESSIONS_PER_MONTH) {
+          return NextResponse.json({ paywall: true }, { status: 200 })
+        }
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const mirrorOutput = await runMirror({
       branch: input.branch,

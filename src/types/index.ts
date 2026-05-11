@@ -1,4 +1,6 @@
 export type Branch = 'A' | 'B' | 'C' | 'D'
+export type PlanTier = 'free' | 'essentials' | 'insights'
+export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'unpaid' | 'trialing'
 export type Season = 'W' | 'Sp' | 'Su' | 'Au'
 export type ResonanceTap = 'accurate' | 'not_quite'
 export type FlagType = 'suicidal_ideation' | 'self_harm' | 'harm_to_others' | 'acute_crisis'

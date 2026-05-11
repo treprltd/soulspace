@@ -1,14 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
+import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+
+interface SubscriptionStatus {
+  planTier: 'free' | 'essentials' | 'insights'
+  sessionsThisMonth: number | null
+  limit: number | null
+  authenticated: boolean
+  subscription?: {
+    status: string
+    current_period_end: string
+    cancel_at_period_end: boolean
+  } | null
+}
+
+const PLAN_LABELS: Record<string, string> = {
+  free: 'Free',
+  essentials: 'Essentials',
+  insights: 'Insights',
+}
 
 export default function Settings() {
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null)
+  const [portalLoading, setPortalLoading] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/subscription')
+      .then(r => r.json())
+      .then(d => setSubStatus(d as SubscriptionStatus))
+      .catch(() => {})
+  }, [])
 
   const handleDelete = async () => {
     if (!confirmDelete) { setConfirmDelete(true); return }
@@ -23,14 +52,106 @@ export default function Settings() {
     }
   }
 
+  const handleManageBilling = async () => {
+    setPortalLoading(true)
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const data = await res.json() as { url?: string }
+      if (data.url) window.location.href = data.url
+    } catch {
+      // noop
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
+  const isPaid = subStatus && subStatus.planTier !== 'free'
+  const periodEnd = subStatus?.subscription?.current_period_end
+    ? new Date(subStatus.subscription.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : null
+
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right="Settings" />
       <div className="px-6 py-5 max-w-lg mx-auto animate-fade-in">
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
-          Your <em className="text-gold2">data.</em>
+          Your <em className="text-gold2">account.</em>
         </h2>
-        <p className="text-xs text-mist mb-6">You control what is stored and when it is deleted.</p>
+        <p className="text-xs text-mist mb-6">Manage your plan and data.</p>
+
+        {/* Plan & Subscription */}
+        <div
+          className="rounded-xl p-4 mb-4"
+          style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+        >
+          <div
+            className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+          >
+            Subscription
+          </div>
+
+          {subStatus ? (
+            <>
+              <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
+                <div>
+                  <div className="text-sm text-sand">Current plan</div>
+                  <div className="text-[9px] text-mist mt-0.5">
+                    {isPaid ? 'Unlimited sessions' : `${FREE_SESSIONS_PER_MONTH} sessions per month`}
+                  </div>
+                </div>
+                <div
+                  className="px-2.5 py-1 rounded-full text-[9px] font-medium"
+                  style={{
+                    background: isPaid ? 'rgba(201,168,76,.1)' : 'rgba(139,167,184,.08)',
+                    color: isPaid ? 'var(--gold2)' : 'var(--mist)',
+                    border: isPaid ? '1px solid rgba(201,168,76,.2)' : '1px solid rgba(139,167,184,.15)',
+                  }}
+                >
+                  {PLAN_LABELS[subStatus.planTier] ?? 'Free'}
+                </div>
+              </div>
+
+              {subStatus.authenticated && subStatus.planTier === 'free' && (
+                <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
+                  <div className="text-sm text-sand">Sessions this month</div>
+                  <div className="text-sm text-mist">
+                    {subStatus.sessionsThisMonth ?? 0} / {FREE_SESSIONS_PER_MONTH}
+                  </div>
+                </div>
+              )}
+
+              {isPaid && periodEnd && (
+                <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
+                  <div className="text-sm text-sand">
+                    {subStatus.subscription?.cancel_at_period_end ? 'Cancels on' : 'Renews on'}
+                  </div>
+                  <div className="text-sm text-mist">{periodEnd}</div>
+                </div>
+              )}
+
+              <div className="pt-3">
+                {isPaid ? (
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={portalLoading}
+                    className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                  >
+                    {portalLoading ? 'Opening…' : 'Manage billing & subscription →'}
+                  </button>
+                ) : (
+                  <Link href="/pricing" className="btn-primary text-xs block text-center w-full py-2.5">
+                    Upgrade plan →
+                  </Link>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="py-3 text-center">
+              <div className="w-5 h-5 rounded-full animate-spin-slow mx-auto" style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }} />
+            </div>
+          )}
+        </div>
 
         {/* What is stored */}
         <div

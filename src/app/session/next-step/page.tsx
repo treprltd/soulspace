@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
+import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
 const NEXT_STEPS = [
   'Write down the two things that are in tension, side by side, without trying to resolve them yet.',
@@ -27,11 +29,26 @@ const NEXT_STEPS = [
   'Return to Soul Space in a few days. Your season may already be shifting.',
 ]
 
+interface SubStatus {
+  planTier: string
+  sessionsThisMonth: number | null
+  limit: number | null
+  authenticated: boolean
+}
+
 export default function NextStep() {
   const router = useRouter()
   const [selected, setSelected] = useState<number | null>(null)
   const [custom, setCustom] = useState('')
   const [done, setDone] = useState(false)
+  const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
+
+  useEffect(() => {
+    fetch('/api/subscription')
+      .then(r => r.json())
+      .then(d => setSubStatus(d as SubStatus))
+      .catch(() => {})
+  }, [])
 
   const handleDone = async () => {
     setDone(true)
@@ -119,10 +136,41 @@ export default function NextStep() {
           </button>
         </div>
 
-        <p className="text-[9px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
-          Session saved. Session count tracked for 7-day return measurement.<br />
-          No subscription prompt in Phase 1.
-        </p>
+        {/* Upgrade nudge — shown when free user has used 2 or more sessions this month */}
+        {subStatus && subStatus.planTier === 'free' && subStatus.authenticated &&
+          (subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH - 1 && (
+          <div
+            className="mt-5 rounded-xl p-4"
+            style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.15)' }}
+          >
+            <div className="text-[8px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
+            <p className="text-xs text-sand leading-relaxed mb-3">
+              {(subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
+                ? "You've used all your free sessions this month."
+                : "You have 1 free session left this month."}
+              {' '}Unlimited sessions from $9.99/month.
+            </p>
+            <Link href="/pricing" className="btn-primary text-xs py-2 px-4 inline-block">
+              See plans →
+            </Link>
+          </div>
+        )}
+
+        {/* Unauthenticated nudge — shown after completing a session without an account */}
+        {subStatus && !subStatus.authenticated && (
+          <div
+            className="mt-5 rounded-xl p-4"
+            style={{ background: 'rgba(15,30,46,.7)', border: '1px solid rgba(245,237,216,.06)' }}
+          >
+            <div className="text-[8px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
+            <p className="text-xs text-mist leading-relaxed mb-3">
+              Create a free account to save this session and access 3 sessions per month.
+            </p>
+            <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
+              Create free account →
+            </Link>
+          </div>
+        )}
       </div>
     </main>
   )

@@ -1,0 +1,92 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
+import { getStripe, PaidPlan } from '@/lib/stripe'
+
+const CheckoutSchema = z.object({
+  planTier: z.enum(['essentials', 'insights']),
+})
+
+export async function POST(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Sign in required to subscribe' }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const { planTier } = CheckoutSchema.parse(body)
+
+    const priceId = planTier === 'essentials'
+      ? process.env.STRIPE_ESSENTIALS_PRICE_ID
+      : process.env.STRIPE_INSIGHTS_PRICE_ID
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Stripe price ID for ${planTier} is not configured` },
+        { status: 500 }
+      )
+    }
+
+    const stripe = getStripe()
+    const serviceClient = createServiceClient()
+
+    // Get or create Stripe customer
+    const { data: userData } = await serviceClient
+      .from('users')
+      .select('stripe_customer_id, email')
+      .eq('id', user.id)
+      .single()
+
+    let customerId = userData?.stripe_customer_id as string | undefined
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email ?? userData?.email ?? undefined,
+        metadata: { supabase_user_id: user.id },
+      })
+      customerId = customer.id
+
+      // Persist customer ID
+      await serviceClient
+        .from('users')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', user.id)
+    }
+
+    // Build absolute URLs from the request
+    const origin = req.headers.get('origin') ?? `https://${req.headers.get('host')}`
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      metadata: {
+        supabase_user_id: user.id,
+        plan_tier: planTier,
+      },
+      subscription_data: {
+        metadata: {
+          supabase_user_id: user.id,
+          plan_tier: planTier,
+        },
+      },
+      success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing`,
+      allow_promotion_codes: true,
+    })
+
+    return NextResponse.json({ url: session.url })
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: err.issues }, { status: 400 })
+    }
+    const detail = err instanceof Error ? err.message : String(err)
+    console.error('Stripe checkout error:', detail)
+    return NextResponse.json({ error: 'Failed to create checkout session', detail }, { status: 500 })
+  }
+}
