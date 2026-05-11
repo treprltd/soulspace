@@ -31,7 +31,7 @@ Do not include any other text. If flagged is false, flagType must be null.`
 export async function classifySafety(text: string): Promise<SafetyResult> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const response = await client.messages.create({
-    model: 'claude-haiku-4-5-20251022',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 128,
     system: SAFETY_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: text }],
