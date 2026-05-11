@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { sendEmail, subscriptionConfirmationEmail } from '@/lib/email'
 
 // Must read raw body for Stripe signature verification
 export async function POST(req: NextRequest) {
@@ -63,6 +64,22 @@ export async function POST(req: NextRequest) {
 
         // Upgrade user plan tier
         await db.from('users').update({ plan_tier: planTier }).eq('id', userId)
+
+        // Send subscription confirmation email (best-effort)
+        try {
+          const { data: userData } = await db
+            .from('users')
+            .select('email')
+            .eq('id', userId)
+            .single()
+          if (userData?.email) {
+            const planLabel = planTier === 'insights' ? 'Insights' : 'Essentials'
+            const template = subscriptionConfirmationEmail(planLabel)
+            await sendEmail({ to: userData.email, ...template })
+          }
+        } catch (emailErr) {
+          console.error('Subscription confirmation email failed (non-fatal):', emailErr)
+        }
 
         console.log(`Subscription activated: user=${userId} plan=${planTier}`)
         break

@@ -21,7 +21,8 @@
     "@anthropic-ai/sdk": "^0.24.3",
     "resend": "^3.2.0",
     "zod": "^3.23.8",
-    "stripe": "^16.2.0"
+    "stripe": "^16.2.0",
+    "@getbrevo/brevo": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^5",
