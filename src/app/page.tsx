@@ -70,16 +70,16 @@ export default function Home() {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '40px 24px 64px',
+          padding: '20px 24px 36px',
         }}
       >
-        <div className="eyebrow" style={{ marginBottom: '20px', justifyContent: 'center' }}>
+        <div className="eyebrow" style={{ marginBottom: '12px', justifyContent: 'center' }}>
           Phase 1 · Behavior validation · April 2026
         </div>
 
         <h1
           className="h-display"
-          style={{ maxWidth: '720px', marginBottom: '16px' }}
+          style={{ maxWidth: '720px', marginBottom: '12px' }}
         >
           The structured pause between<br />
           <em>emotional overload</em> and consequential action.
@@ -91,7 +91,7 @@ export default function Home() {
             fontSize: '14px',
             color: 'var(--mist)',
             maxWidth: '400px',
-            marginBottom: '12px',
+            marginBottom: '8px',
             lineHeight: 1.7,
           }}
         >
@@ -99,7 +99,7 @@ export default function Home() {
           The pause before the decision that changes things.
         </p>
 
-        <p className="affirm-copy" style={{ marginBottom: '32px' }}>
+        <p className="affirm-copy" style={{ marginBottom: '20px' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
 
@@ -107,7 +107,7 @@ export default function Home() {
           Begin your session →
         </Link>
 
-        <p style={{ fontSize: 'var(--fs-3xs)', marginTop: '12px', color: 'var(--mist-35)' }}>
+        <p style={{ fontSize: 'var(--fs-3xs)', marginTop: '10px', color: 'var(--mist-35)' }}>
           Free · No account required · 3–5 minutes
         </p>
       </section>
