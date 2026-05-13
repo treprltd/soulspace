@@ -6,7 +6,7 @@ export default function CrisisPage() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-12 text-center"
-      style={{ background: 'var(--bg)' }}
+      style={{ background: '#060E18' }}
     >
       <div className="animate-fade-in">
         {/* Icon */}
@@ -22,15 +22,15 @@ export default function CrisisPage() {
           </svg>
         </div>
 
-        <p className="text-[12px] tracking-[.14em] uppercase mb-3" style={{ color: 'rgba(212,64,64,.7)' }}>
+        <p className="text-[8px] tracking-[.14em] uppercase mb-3" style={{ color: 'rgba(212,64,64,.7)' }}>
           Outside Soul Space&apos;s scope
         </p>
 
-        <h1 className="font-serif font-light text-sand2 text-3xl mb-2.5 max-w-sm leading-snug">
+        <h1 className="font-serif font-light text-sand2 text-2xl mb-2.5 max-w-sm leading-snug">
           We noticed something outside the scope of Soul Space.
         </h1>
 
-        <p className="text-base text-mist max-w-sm mb-6 leading-relaxed">
+        <p className="text-sm text-mist max-w-sm mb-6 leading-relaxed">
           If you are in crisis or having thoughts of harming yourself or others, please reach out now:
         </p>
 
@@ -41,18 +41,18 @@ export default function CrisisPage() {
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
             <div className="text-sm font-semibold text-sand2 mb-0.5">988 Suicide &amp; Crisis Lifeline</div>
-            <div className="text-[14px] text-mist">Call or text 988 · Available 24/7</div>
+            <div className="text-[11px] text-mist">Call or text 988 · Available 24/7</div>
           </a>
           <div
             className="px-4 py-3.5 rounded-xl text-left"
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
             <div className="text-sm font-semibold text-sand2 mb-0.5">Crisis Text Line</div>
-            <div className="text-[14px] text-mist">Text HOME to 741741</div>
+            <div className="text-[11px] text-mist">Text HOME to 741741</div>
           </div>
         </div>
 
-        <p className="text-[13px] italic mb-1.5" style={{ color: 'rgba(107,140,174,.5)' }}>
+        <p className="text-[9px] italic mb-1.5" style={{ color: 'rgba(107,140,174,.5)' }}>
           No Season is shown when this screen appears. Hard constraint — zero exceptions.
         </p>
 
@@ -60,7 +60,7 @@ export default function CrisisPage() {
           Soul Space will be here when you are ready to return.
         </p>
 
-        <Link href="/" className="btn-outline text-sm">
+        <Link href="/" className="btn-outline text-xs">
           Return to Soul Space
         </Link>
       </div>

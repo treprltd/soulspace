@@ -63,7 +63,7 @@ export default function NextStep() {
   }
 
   return (
-    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+    <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right="Your next step" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* AFFIRMATION MOMENT 5 — frozen copy */}
@@ -72,17 +72,17 @@ export default function NextStep() {
           One small thing is enough.
         </div>
 
-        <h2 className="font-serif font-light text-sand2 text-3xl mb-1.5 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
           Choose one action <em className="text-gold2">for today.</em>
         </h2>
-        <p className="text-base text-mist mb-4">No prescription. This is entirely yours.</p>
+        <p className="text-xs text-mist mb-4">No prescription. This is entirely yours.</p>
 
         <div className="mb-5">
           {NEXT_STEPS.slice(0, 4).map((step, i) => (
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`w-full text-left flex items-start gap-2 rounded-xl px-3.5 py-3 mb-2 text-[14px] leading-relaxed cursor-pointer transition-all ${
+              className={`w-full text-left flex items-start gap-2 rounded-xl px-3.5 py-3 mb-2 text-[11px] leading-relaxed cursor-pointer transition-all ${
                 selected === i ? 'text-gold2' : 'text-sand'
               }`}
               style={{
@@ -113,7 +113,7 @@ export default function NextStep() {
                 value={custom}
                 onChange={e => setCustom(e.target.value)}
                 placeholder="Write your own — what would actually feel right?"
-                className="w-full bg-transparent text-[14px] text-mist placeholder:text-mist/40 focus:outline-none"
+                className="w-full bg-transparent text-[11px] text-mist placeholder:text-mist/40 focus:outline-none"
               />
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function NextStep() {
           <button
             onClick={handleDone}
             disabled={done}
-            className="btn-outline text-sm disabled:opacity-50"
+            className="btn-outline text-xs disabled:opacity-50"
           >
             Save session
           </button>
@@ -143,14 +143,14 @@ export default function NextStep() {
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.15)' }}
           >
-            <div className="text-[12px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
-            <p className="text-base text-sand leading-relaxed mb-3">
+            <div className="text-[8px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
+            <p className="text-xs text-sand leading-relaxed mb-3">
               {(subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
                 ? "You've used all your free sessions this month."
                 : "You have 1 free session left this month."}
               {' '}Unlimited sessions from $9.99/month.
             </p>
-            <Link href="/pricing" className="btn-primary text-sm py-2 px-4 inline-block">
+            <Link href="/pricing" className="btn-primary text-xs py-2 px-4 inline-block">
               See plans →
             </Link>
           </div>
@@ -162,11 +162,11 @@ export default function NextStep() {
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(15,30,46,.7)', border: '1px solid rgba(245,237,216,.06)' }}
           >
-            <div className="text-[12px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
-            <p className="text-base text-mist leading-relaxed mb-3">
+            <div className="text-[8px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
+            <p className="text-xs text-mist leading-relaxed mb-3">
               Create a free account to save this session and access 3 sessions per month.
             </p>
-            <Link href="/auth/signin" className="btn-outline text-sm py-2 px-4 inline-block">
+            <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
               Create free account →
             </Link>
           </div>

@@ -47,10 +47,10 @@ function SuccessContent() {
             <span style={{ color: 'var(--gold2)', fontSize: '20px' }}>✓</span>
           </div>
 
-          <h1 className="font-serif font-light text-sand2 text-3xl mb-3 leading-tight">
+          <h1 className="font-serif font-light text-sand2 text-2xl mb-3 leading-tight">
             Welcome to <em className="text-gold2">{planName}.</em>
           </h1>
-          <p className="text-base text-mist leading-relaxed mb-7">
+          <p className="text-xs text-mist leading-relaxed mb-7">
             Your subscription is active. Unlimited sessions are now available.<br />
             Everything you share is still encrypted and private.
           </p>
@@ -64,8 +64,8 @@ function SuccessContent() {
 
           <button
             onClick={() => router.push('/settings')}
-            className="block mt-3 text-[13px] mx-auto hover:text-mist transition-colors"
-            style={{ color: 'rgba(139,167,184,.72)', background: 'none', border: 'none', cursor: 'pointer' }}
+            className="block mt-3 text-[9px] mx-auto hover:text-mist transition-colors"
+            style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             View settings & subscription →
           </button>
@@ -76,7 +76,7 @@ function SuccessContent() {
             className="w-8 h-8 rounded-full animate-spin-slow"
             style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }}
           />
-          <p className="text-base text-mist">Confirming your subscription…</p>
+          <p className="text-xs text-mist">Confirming your subscription…</p>
         </div>
       )}
     </div>
@@ -87,12 +87,12 @@ export default function SubscribeSuccess() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: 'var(--bg)' }}
+      style={{ background: '#060E18' }}
     >
       <Suspense fallback={
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full animate-spin-slow" style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }} />
-          <p className="text-base text-mist">Loading…</p>
+          <p className="text-xs text-mist">Loading…</p>
         </div>
       }>
         <SuccessContent />
