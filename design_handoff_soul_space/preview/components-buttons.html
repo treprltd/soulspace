@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.row { display:flex; align-items:center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--hairline); }
+.row:last-child { border: 0; }
+.lbl { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--mist); width: 72px; flex-shrink: 0; }
+.btn-primary {
+  padding: 12px 24px; background: var(--gold); color: var(--ink); font-size: 13px; font-weight: 600;
+  border-radius: 8px; border: 0; cursor: pointer; transition: opacity .15s;
+  font-family: var(--font-sans);
+}
+.btn-primary:hover  { opacity: .9; }
+.btn-outline {
+  padding: 10px 16px; background: transparent; color: var(--gold); font-size: 13px;
+  border-radius: 8px; cursor: pointer; transition: border-color .15s;
+  border: 1px solid rgba(201,168,76,.25);
+  font-family: var(--font-sans);
+}
+.btn-outline:hover { border-color: rgba(201,168,76,.5); }
+</style></head><body>
+<div class="row"><div class="lbl">primary</div><button class="btn-primary">Begin →</button><span style="font-size:10px;color:var(--mist-55);">gold solid · ink text · hover opacity 0.9 / active 0.8</span></div>
+<div class="row"><div class="lbl">outline</div><button class="btn-outline">Back</button><span style="font-size:10px;color:var(--mist-55);">transparent · gold border 25% → 50% on hover</span></div>
+<div class="row"><div class="lbl">disabled</div><button class="btn-primary" style="opacity:.4;cursor:not-allowed;">Continue →</button><span style="font-size:10px;color:var(--mist-55);">opacity 40 · cursor not-allowed</span></div>
+</body></html>

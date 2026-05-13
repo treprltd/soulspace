@@ -6,7 +6,7 @@ export default function CrisisPage() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-12 text-center"
-      style={{ background: '#060E18' }}
+      style={{ background: 'var(--bg)' }}
     >
       <div className="animate-fade-in">
         {/* Icon */}

@@ -63,7 +63,7 @@ export default function NextStep() {
   }
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Your next step" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* AFFIRMATION MOMENT 5 — frozen copy */}

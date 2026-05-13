@@ -29,7 +29,7 @@ export default function SignIn() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: '#060E18' }}>
+    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-sm text-center animate-fade-in">
         <Logo size="md" />
         <div className="w-8 h-px mx-auto mt-4 mb-6" style={{ background: 'rgba(201,168,76,.2)' }} />
@@ -58,10 +58,18 @@ export default function SignIn() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-xl text-sm text-sand2 focus:outline-none focus:border-gold/40 transition-colors"
+                className="w-full focus:outline-none transition-colors"
                 style={{
+                  padding: '14px 16px',
+                  fontSize: '15px',
+                  lineHeight: 1.4,
+                  fontFamily: 'var(--font-sans)',
+                  color: 'var(--sand)',
+                  borderRadius: '10px',
                   background: 'rgba(245,237,216,.04)',
-                  border: '1px solid rgba(245,237,216,.08)',
+                  border: '1px solid rgba(245,237,216,.18)',
+                  boxSizing: 'border-box',
+                  width: '100%',
                 }}
               />
               {error && <p className="text-[11px]" style={{ color: 'var(--danger)' }}>{error}</p>}

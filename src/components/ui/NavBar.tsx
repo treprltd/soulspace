@@ -4,16 +4,35 @@ import { Logo } from './Logo'
 
 interface NavBarProps {
   right?: React.ReactNode
+  variant?: 'marketing' | 'session'
 }
 
-export function NavBar({ right }: NavBarProps) {
+export function NavBar({ right, variant = 'session' }: NavBarProps) {
+  const isMarketing = variant === 'marketing'
   return (
     <nav
-      className="h-12 flex items-center justify-between px-6"
-      style={{ background: 'rgba(8,17,28,.98)', borderBottom: '1px solid rgba(245,237,216,.04)' }}
+      style={{
+        height: isMarketing ? '64px' : '52px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: isMarketing ? '0 28px' : '0 24px',
+        background: 'rgba(8,17,28,.98)',
+        borderBottom: '1px solid rgba(245,237,216,.06)',
+      }}
     >
-      <Logo size="sm" />
-      {right && <div className="text-[9px] text-mist">{right}</div>}
+      <Logo size={isMarketing ? 'md' : 'sm'} />
+      {right && (
+        <div
+          style={{
+            fontSize: '12px',
+            color: 'var(--mist)',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          {right}
+        </div>
+      )}
     </nav>
   )
 }

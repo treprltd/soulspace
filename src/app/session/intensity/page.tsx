@@ -17,7 +17,7 @@ export default function Intensity() {
   const fillPercent = ((intensity - 1) / 9) * 100
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Step 2 of 3" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={2} total={3} />

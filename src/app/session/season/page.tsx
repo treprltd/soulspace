@@ -52,7 +52,7 @@ export default function SeasonCard() {
   const season = getSeason(mirror.season)
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: season.color }}>Your season</span>} />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* Clinical badge */}

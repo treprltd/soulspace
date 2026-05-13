@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.scope {
+  background: rgba(15,30,46,.7);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.row:first-child { padding-top: 4px; }
+.row:last-child { border: 0; padding-bottom: 4px; }
+.mark {
+  width: 18px;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 1px;
+}
+.text {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.is .mark, .is .text { color: var(--teal2); }
+.isnot .mark, .isnot .text { color: rgba(212,64,64,.8); }
+</style></head><body>
+<div class="scope">
+  <div class="row is"><span class="mark">✓</span><span class="text">Recognise emotional patterns before important decisions</span></div>
+  <div class="row is"><span class="mark">✓</span><span class="text">Seasonal emotional language — clinically reviewed, non-diagnostic</span></div>
+  <div class="row isnot"><span class="mark">✕</span><span class="text">Not a crisis service — call 988 if you are in immediate danger</span></div>
+  <div class="row isnot"><span class="mark">✕</span><span class="text">Not diagnostic — no clinical conclusions, no treatment plans</span></div>
+</div>
+</body></html>

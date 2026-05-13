@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.wrap {
+  background: rgba(15,30,46,.8);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: 12px;
+  padding: 18px;
+}
+.head {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.badge {
+  font-size: 9px; letter-spacing: .1em;
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(201,168,76,.14);
+  border: 1px solid rgba(201,168,76,.4);
+  color: var(--gold2);
+}
+.btns { display: flex; gap: 10px; }
+button {
+  flex: 1; padding: 14px 16px; border-radius: 10px;
+  font-size: 14px; cursor: pointer; font-family: var(--font-sans);
+  font-weight: 500;
+}
+/* ACCURATE = clearly teal-saturated affirmative state */
+.acc {
+  color: #5FD4BA;
+  border: 1px solid rgba(42,140,122,.85);
+  background: rgba(42,140,122,.22);
+}
+/* NOT QUITE = clearly neutral / quieter / cooler */
+.notq {
+  color: rgba(190,210,225,.7);
+  border: 1px dashed rgba(139,167,184,.35);
+  background: transparent;
+}
+.note { font-size: 12px; color: var(--mist); margin: 14px 0 0; line-height: 1.55; }
+</style></head><body>
+<div class="wrap">
+  <div class="head">Did this feel accurate? <span class="badge">KEY METRIC</span></div>
+  <div class="btns">
+    <button class="acc">This felt accurate</button>
+    <button class="notq">Not quite</button>
+  </div>
+  <p class="note">One tap. No text required. The most important data point in Phase 1.</p>
+</div>
+</body></html>

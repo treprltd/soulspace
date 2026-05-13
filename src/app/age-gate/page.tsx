@@ -24,7 +24,7 @@ export default function AgeGate() {
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5"
-      style={{ background: '#060E18' }}
+      style={{ background: 'var(--bg)' }}
     >
       <div className="w-full max-w-sm text-center animate-fade-in">
         <Logo size="lg" />

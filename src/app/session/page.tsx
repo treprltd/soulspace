@@ -25,7 +25,7 @@ export default function ResonanceEntry() {
   }
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar />
       <div className="flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-lg animate-fade-in">

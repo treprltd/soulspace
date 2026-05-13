@@ -3,7 +3,7 @@ import { Logo } from '@/components/ui/Logo'
 
 export default function Under13() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: '#060E18' }}>
+    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-sm text-center animate-fade-in">
         <Logo size="md" />
         <div className="w-8 h-px mx-auto mt-4 mb-5" style={{ background: 'rgba(201,168,76,.2)' }} />

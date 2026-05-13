@@ -1,0 +1,186 @@
+/* ============================================================
+   Soul Space — Colors & Type
+   Source of truth for tokens. Mirror of src/app/globals.css
+   plus tailwind.config.ts from the production codebase.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  /* ---------- INK (deep navy backgrounds) ---------- */
+  --bg:    #060E18;   /* page background — almost-black blue */
+  --ink:   #08111C;   /* surface 1 (nav, panels) */
+  --ink2:  #0F1E2E;   /* surface 2 (cards) */
+  --ink3:  #162638;   /* surface 3 (raised) */
+
+  /* ---------- GOLD (primary accent — candlelight) ---------- */
+  --gold:  #C9A84C;   /* primary gold — CTAs, eyebrows, accents */
+  --gold2: #E8C97A;   /* warmer gold — em / headlines */
+  --gold3: #F5DFA0;   /* lightest gold — rare emphasis */
+
+  /* ---------- SAND (warm neutrals on dark) ---------- */
+  --sand:  #F5EDD8;   /* body text on dark */
+  --sand2: #FAF7F0;   /* high-emphasis on dark (titles) */
+  --mist:  #8BA7B8;   /* secondary text, captions */
+
+  /* ---------- SIGNAL ---------- */
+  --teal:   #2A8C7A;  /* affirmative / "Spring" */
+  --teal2:  #3DAF96;  /* lighter teal — hover, accents */
+  --danger: #D44040;  /* destructive / crisis */
+
+  /* ---------- SEASONS (Verbatim — clinically reviewed) ---------- */
+  --W:  #6B8CAE;  --WB: rgba(20,32,50,.97);  --WT: #C8DCF0;  --WS: #8AAAC8;
+  --Sp: #2A8C7A;  --SpB: rgba(18,38,32,.97); --SpT: #B8E8D4; --SpS: #7ABDA0;
+  --Su: #C9A84C;  --SuB: rgba(38,30,12,.97); --SuT: #F2DFA0; --SuS: #C8A860;
+  --Au: #C4784A;  --AuB: rgba(36,20,12,.97); --AuT: #F0C8A0; --AuS: #C88060;
+
+  /* ---------- ALPHA UTILITIES (recurring border / surface tints) ---------- */
+  --gold-04:  rgba(201,168,76,.04);
+  --gold-08:  rgba(201,168,76,.08);
+  --gold-12:  rgba(201,168,76,.12);
+  --gold-25:  rgba(201,168,76,.25);
+  --gold-45:  rgba(201,168,76,.45);
+  --hairline: rgba(245,237,216,.04);
+  --hairline-2: rgba(245,237,216,.07);
+  --mist-55: rgba(139,167,184,.55);
+  --mist-35: rgba(139,167,184,.35);
+
+  /* ---------- TYPE ---------- */
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Display sizes (serif, light weight, italic for emphasis) */
+  --fs-display: clamp(32px, 5vw, 58px);
+  --fs-h1:      26px;
+  --fs-h2:      24px;
+  --fs-h3:      20px;
+
+  /* Body + utility */
+  --fs-body:    13px;   /* sm: copy default */
+  --fs-sm:      12px;   /* xs: secondary */
+  --fs-xs:      11px;
+  --fs-2xs:     10px;
+  --fs-3xs:     9px;    /* affirmation / fine print */
+  --fs-eyebrow: 8px;    /* tracked tiny labels */
+  --fs-micro:   7px;    /* tracked micro labels inside cards */
+
+  /* Spacing scale (gap / padding values seen in the codebase) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 10px;
+  --sp-4: 12px;
+  --sp-5: 14px;
+  --sp-6: 16px;
+  --sp-8: 20px;
+  --sp-10: 24px;
+  --sp-12: 32px;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 8px;     /* btn-primary, btn-outline */
+  --r-lg: 12px;    /* cards, mirror-card, resonance-phrase */
+  --r-xl: 16px;    /* season card */
+  --r-pill: 999px;
+}
+
+/* ============================================================
+   SEMANTIC TYPE — match production component styles
+   ============================================================ */
+
+html, body {
+  background: var(--bg);
+  color: var(--sand2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-serif, .serif { font-family: var(--font-serif); }
+.font-sans          { font-family: var(--font-sans); }
+
+/* Hero / display heading — serif light, italic accent in <em> */
+.h-display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--fs-display);
+  line-height: 1.1;
+  color: var(--sand2);
+  letter-spacing: -0.005em;
+}
+.h-display em { font-style: italic; color: var(--gold2); }
+
+/* Section / page heading */
+h1, .h1 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--fs-h1);
+  line-height: 1.15;
+  color: var(--sand2);
+}
+h1 em, .h1 em { font-style: italic; color: var(--gold2); }
+
+h2, .h2 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--fs-h2);
+  line-height: 1.2;
+  color: var(--sand2);
+}
+h2 em, .h2 em { font-style: italic; color: var(--gold2); }
+
+/* Body */
+p, .p {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--mist);
+  line-height: 1.7;
+}
+
+/* Eyebrow — small tracked uppercase, gold, optional leading rule */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 1px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* Affirmation copy — serif italic mist, the most recognisable Soul Space voice */
+.affirm-copy {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-sm);
+  color: var(--mist-55);
+  line-height: 1.85;
+}
+
+/* Inline / micro labels inside cards (e.g. "What you're carrying") */
+.micro-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Code / mono — not used in product UI; reserved for docs */
+code, .code {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--gold2);
+  background: rgba(201,168,76,.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+}

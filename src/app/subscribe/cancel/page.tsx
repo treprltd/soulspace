@@ -9,7 +9,7 @@ export default function SubscribeCancel() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: '#060E18' }}
+      style={{ background: 'var(--bg)' }}
     >
       <div className="animate-fade-in max-w-sm w-full">
         <Logo size="md" />

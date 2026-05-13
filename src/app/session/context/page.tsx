@@ -20,7 +20,7 @@ export default function ContextField() {
   }
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Step 3 of 3" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={3} total={3} />
@@ -38,12 +38,19 @@ export default function ContextField() {
             onChange={e => setText(e.target.value.slice(0, MAX_CHARS))}
             placeholder="Start wherever feels natural..."
             rows={5}
-            className="w-full rounded-xl p-3 text-xs text-mist leading-relaxed resize-none focus:outline-none focus:border-gold/30 transition-colors italic"
+            className="w-full resize-none focus:outline-none transition-colors"
             style={{
+              padding: '14px 16px',
+              fontSize: '15px',
+              lineHeight: 1.55,
+              fontStyle: 'italic',
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--sand)',
+              borderRadius: 'var(--r-lg)',
               background: 'rgba(245,237,216,.03)',
-              border: '1px solid rgba(245,237,216,.07)',
-              color: 'var(--mist)',
-              fontFamily: 'inherit',
+              border: '1px solid rgba(245,237,216,.18)',
+              boxSizing: 'border-box',
+              width: '100%',
             }}
           />
         </div>

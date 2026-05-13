@@ -28,7 +28,7 @@ export default function Emotions() {
   }
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Step 1 of 3" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={1} total={3} />

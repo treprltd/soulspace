@@ -80,7 +80,7 @@ export default function Pricing() {
   const isCurrentPlan = (plan: string) => currentPlan === plan
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       {/* Nav */}
       <nav
         className="h-14 flex items-center justify-between px-8"

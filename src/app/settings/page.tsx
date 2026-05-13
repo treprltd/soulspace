@@ -71,7 +71,7 @@ export default function Settings() {
     : null
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Settings" />
       <div className="px-6 py-5 max-w-lg mx-auto animate-fade-in">
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">

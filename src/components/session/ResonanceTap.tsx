@@ -10,52 +10,102 @@ interface ResonanceTapProps {
 export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
   return (
     <div
-      className="rounded-xl p-3.5 mb-3"
-      style={{ background: 'rgba(15,30,46,.8)', border: '1px solid rgba(201,168,76,.14)' }}
+      style={{
+        background: 'rgba(15,30,46,.8)',
+        border: '1px solid rgba(201,168,76,.18)',
+        borderRadius: 'var(--r-lg)',
+        padding: '18px',
+        marginBottom: '12px',
+      }}
     >
+      {/* Header */}
       <div
-        className="text-[8px] tracking-[.12em] uppercase text-gold mb-2.5 flex items-center gap-1"
-        style={{ position: 'relative' }}
+        style={{
+          fontSize: '11px',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--gold)',
+          marginBottom: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
       >
         Did this feel accurate?
         <span
-          className="text-[7px] text-gold2 ml-1 px-1.5 py-0.5 rounded"
-          style={{ background: 'rgba(201,168,76,.12)', border: '1px solid rgba(201,168,76,.25)' }}
+          style={{
+            fontSize: '9px',
+            letterSpacing: '0.10em',
+            padding: '3px 8px',
+            borderRadius: '4px',
+            background: 'rgba(201,168,76,.14)',
+            border: '1px solid rgba(201,168,76,.40)',
+            color: 'var(--gold2)',
+          }}
         >
           KEY METRIC
         </span>
       </div>
-      <div className="flex gap-2">
+
+      {/* Buttons */}
+      <div style={{ display: 'flex', gap: '10px' }}>
         <button
           onClick={() => onTap('accurate')}
-          className="flex-1 py-2.5 rounded-lg text-[11px] transition-all cursor-pointer"
           style={{
+            flex: 1,
+            padding: '14px 16px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all .15s',
+            color: '#5FD4BA',
             border: selected === 'accurate'
-              ? '1px solid rgba(42,140,122,.7)'
-              : '1px solid rgba(42,140,122,.35)',
+              ? '1px solid rgba(42,140,122,.85)'
+              : '1px solid rgba(42,140,122,.45)',
             background: selected === 'accurate'
-              ? 'rgba(42,140,122,.18)'
-              : 'rgba(42,140,122,.08)',
-            color: 'var(--teal2)',
+              ? 'rgba(42,140,122,.22)'
+              : 'rgba(42,140,122,.10)',
           }}
         >
           This felt accurate
         </button>
         <button
           onClick={() => onTap('not_quite')}
-          className="flex-1 py-2.5 rounded-lg text-[11px] transition-all cursor-pointer"
           style={{
+            flex: 1,
+            padding: '14px 16px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all .15s',
+            color: selected === 'not_quite'
+              ? 'rgba(190,210,225,.9)'
+              : 'rgba(190,210,225,.7)',
             border: selected === 'not_quite'
-              ? '1px solid rgba(245,237,216,.25)'
-              : '1px solid rgba(245,237,216,.08)',
-            background: selected === 'not_quite' ? 'rgba(245,237,216,.05)' : 'transparent',
-            color: 'var(--mist)',
+              ? '1px solid rgba(139,167,184,.5)'
+              : '1px dashed rgba(139,167,184,.35)',
+            background: selected === 'not_quite'
+              ? 'rgba(139,167,184,.06)'
+              : 'transparent',
           }}
         >
           Not quite
         </button>
       </div>
-      <p className="text-[9px] mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+
+      {/* Note */}
+      <p
+        style={{
+          fontSize: '12px',
+          color: 'var(--mist)',
+          marginTop: '14px',
+          lineHeight: 1.55,
+        }}
+      >
         One tap. No text required. The most important data point in Phase 1.
       </p>
     </div>

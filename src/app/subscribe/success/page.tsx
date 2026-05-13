@@ -87,7 +87,7 @@ export default function SubscribeSuccess() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: '#060E18' }}
+      style={{ background: 'var(--bg)' }}
     >
       <Suspense fallback={
         <div className="flex flex-col items-center gap-3">

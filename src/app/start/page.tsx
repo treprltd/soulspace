@@ -7,7 +7,7 @@ export default function Welcome() {
   const router = useRouter()
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: '#060E18' }}>
+    <main className="min-h-screen flex items-center justify-center px-5" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-lg text-center animate-fade-in">
         {/* Pre-session affirmation — not one of the 5 session moments */}
         <div className="affirm-copy mb-6">

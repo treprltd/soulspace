@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.bars { display: flex; gap: 4px; margin-bottom: 14px; }
+.b { height: 2px; border-radius: 2px; flex: 1; }
+.done { background: var(--gold); }
+.cur { background: rgba(201,168,76,.38); }
+.todo { background: rgba(245,237,216,.06); }
+.lbl { font-size: 10px; color: var(--mist); }
+.set { margin-bottom: 18px; }
+</style></head><body>
+<div class="set">
+  <div class="bars"><div class="b cur"></div><div class="b todo"></div><div class="b todo"></div></div>
+  <div class="lbl">Step 1 of 3 · Emotions</div>
+</div>
+<div class="set">
+  <div class="bars"><div class="b done"></div><div class="b cur"></div><div class="b todo"></div></div>
+  <div class="lbl">Step 2 of 3 · Intensity</div>
+</div>
+<div class="set">
+  <div class="bars"><div class="b done"></div><div class="b done"></div><div class="b cur"></div></div>
+  <div class="lbl">Step 3 of 3 · Context</div>
+</div>
+</body></html>

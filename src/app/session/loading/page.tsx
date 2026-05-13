@@ -57,7 +57,7 @@ export default function MirrorLoading() {
 
   if (error) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center px-5 text-center" style={{ background: '#060E18' }}>
+      <main className="min-h-screen flex flex-col items-center justify-center px-5 text-center" style={{ background: 'var(--bg)' }}>
         <p className="text-sm text-mist mb-4">{error}</p>
         <button onClick={() => router.back()} className="btn-outline text-xs">Go back</button>
       </main>
@@ -67,7 +67,7 @@ export default function MirrorLoading() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center gap-6 px-8 text-center"
-      style={{ background: '#060E18' }}
+      style={{ background: 'var(--bg)' }}
     >
       {/* Spinner */}
       <div

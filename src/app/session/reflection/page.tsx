@@ -41,7 +41,7 @@ export default function MirrorOutputPage() {
   if (!mirror) return null
 
   return (
-    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: 'var(--gold)' }}>Your reflection</span>} />
       <div className="px-6 py-5 max-w-2xl mx-auto animate-fade-in">
         {/* AFFIRMATION MOMENT 4 — frozen copy */}
@@ -67,7 +67,7 @@ export default function MirrorOutputPage() {
           {/* Left: Mirror cards */}
           <div>
             <div className="mirror-card">
-              <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-1.5">
+              <div className="micro-label" style={{ marginBottom: '8px' }}>
                 What you&apos;re carrying
               </div>
               <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
@@ -76,7 +76,7 @@ export default function MirrorOutputPage() {
             </div>
 
             <div className="mirror-card">
-              <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-1.5">
+              <div className="micro-label" style={{ marginBottom: '8px' }}>
                 What appears underneath
               </div>
               <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
@@ -85,7 +85,7 @@ export default function MirrorOutputPage() {
             </div>
 
             <div className="rounded-xl p-3 mb-2.5" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
-              <div className="text-[7px] tracking-[.12em] uppercase mb-1.5" style={{ color: 'var(--teal2)' }}>
+              <div className="micro-label" style={{ marginBottom: '8px', color: 'var(--teal2)' }}>
                 One question back to you
               </div>
               <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '12px' }}>
