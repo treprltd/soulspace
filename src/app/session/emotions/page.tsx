@@ -28,7 +28,7 @@ export default function Emotions() {
   }
 
   return (
-    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+    <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right="Step 1 of 3" />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={1} total={3} />
@@ -39,10 +39,10 @@ export default function Emotions() {
           You do not have to name all of it.
         </div>
 
-        <h2 className="font-serif font-light text-sand2 text-3xl mb-1.5 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
           What are you carrying <em className="text-gold2">right now?</em>
         </h2>
-        <p className="text-base text-mist mb-4">
+        <p className="text-xs text-mist mb-4">
           Choose what feels most present. More than one can be true.
         </p>
 
@@ -59,7 +59,7 @@ export default function Emotions() {
         </div>
 
         {selected.length > 0 && (
-          <p className="text-[13px] mb-5" style={{ color: 'rgba(139,167,184,.72)' }}>
+          <p className="text-[9px] mb-5" style={{ color: 'rgba(139,167,184,.4)' }}>
             {selected.length} selected
           </p>
         )}

@@ -63,12 +63,12 @@ export default function AuthCallback() {
     return (
       <main
         className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-        style={{ background: 'var(--bg)' }}
+        style={{ background: '#060E18' }}
       >
         <div className="animate-fade-in max-w-sm w-full">
           <Logo size="md" />
           <div className="w-8 h-px mx-auto mt-5 mb-6" style={{ background: 'rgba(201,168,76,.2)' }} />
-          <p className="text-base text-mist mb-5 leading-relaxed">{error}</p>
+          <p className="text-sm text-mist mb-5 leading-relaxed">{error}</p>
           <button
             onClick={() => router.push('/auth/signin')}
             className="btn-primary text-sm px-6 py-2.5"
@@ -83,13 +83,13 @@ export default function AuthCallback() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center gap-4"
-      style={{ background: 'var(--bg)' }}
+      style={{ background: '#060E18' }}
     >
       <div
         className="w-10 h-10 rounded-full animate-spin-slow"
         style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }}
       />
-      <p className="text-base text-mist">Signing you in…</p>
+      <p className="text-xs text-mist">Signing you in…</p>
     </main>
   )
 }
