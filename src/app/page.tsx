@@ -70,7 +70,7 @@ export default function Home() {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '96px 24px 80px',
+          padding: '40px 24px 64px',
         }}
       >
         <div className="eyebrow" style={{ marginBottom: '20px', justifyContent: 'center' }}>
