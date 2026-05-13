@@ -44,7 +44,7 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-24 pb-20">
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-16">
         <div className="eyebrow mb-4 justify-center">
           <span>Phase 1 · Behavior validation · April 2026</span>
         </div>
