@@ -57,7 +57,7 @@ export default function SeasonCard() {
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* Clinical badge */}
         <div
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] mb-4"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] mb-4"
           style={{ background: 'rgba(42,140,122,.07)', border: '1px solid rgba(42,140,122,.22)', color: 'var(--teal2)' }}
         >
           <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
@@ -78,13 +78,13 @@ export default function SeasonCard() {
 
           <div className="flex justify-center mb-3">{SEASON_ICONS[mirror.season]}</div>
 
-          <div className="text-[7px] tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
+          <div className="text-[11px] tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
             Your current season
           </div>
           <h2 className="font-serif font-light text-center text-3xl mb-2 leading-tight" style={{ color: season.textColor }}>
             This may feel like <em>{season.name}.</em>
           </h2>
-          <p className="text-[11px] text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ color: season.secondaryColor }}>
+          <p className="text-[14px] text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ color: season.secondaryColor }}>
             {season.description}
           </p>
 
@@ -102,10 +102,10 @@ export default function SeasonCard() {
                   border: `1px solid ${season.color}22`,
                 }}
               >
-                <div className="text-[7px] tracking-[.1em] uppercase mb-1.5" style={{ color: season.color }}>
+                <div className="text-[11px] tracking-[.1em] uppercase mb-1.5" style={{ color: season.color }}>
                   {label}
                 </div>
-                <p className="text-[10px] text-sand leading-relaxed">{text}</p>
+                <p className="text-[13px] text-sand leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

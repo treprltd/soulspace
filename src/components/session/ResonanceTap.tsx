@@ -21,7 +21,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
       {/* Header */}
       <div
         style={{
-          fontSize: '11px',
+          fontSize: '14px',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: 'var(--gold)',
@@ -34,9 +34,9 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
         Did this feel accurate?
         <span
           style={{
-            fontSize: '9px',
+            fontSize: '14px',
             letterSpacing: '0.10em',
-            padding: '3px 8px',
+            padding: '4px 10px',
             borderRadius: '4px',
             background: 'rgba(201,168,76,.14)',
             border: '1px solid rgba(201,168,76,.40)',
@@ -86,8 +86,8 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
               ? 'rgba(190,210,225,.9)'
               : 'rgba(190,210,225,.7)',
             border: selected === 'not_quite'
-              ? '1px solid rgba(139,167,184,.5)'
-              : '1px dashed rgba(139,167,184,.35)',
+              ? '1px solid rgba(139,167,184,.78)'
+              : '1px dashed rgba(139,167,184,.68)',
             background: selected === 'not_quite'
               ? 'rgba(139,167,184,.06)'
               : 'transparent',
@@ -100,7 +100,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
       {/* Note */}
       <p
         style={{
-          fontSize: '12px',
+          fontSize: '15px',
           color: 'var(--mist)',
           marginTop: '14px',
           lineHeight: 1.55,

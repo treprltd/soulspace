@@ -16,7 +16,7 @@ export function ProgressBar({ step, total, label }: ProgressBarProps) {
         })}
       </div>
       {label && (
-        <div style={{ fontSize: '10px', color: 'var(--mist)', fontFamily: 'var(--font-sans)' }}>
+        <div style={{ fontSize: '13px', color: 'var(--mist)', fontFamily: 'var(--font-sans)' }}>
           {label}
         </div>
       )}

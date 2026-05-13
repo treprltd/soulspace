@@ -25,10 +25,10 @@ export default function ContextField() {
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={3} total={3} />
 
-        <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-3xl mb-2 leading-tight">
           What&apos;s <em className="text-gold2">happening?</em>
         </h2>
-        <p className="text-xs text-mist mb-3">
+        <p className="text-base text-mist mb-3">
           In your own words. As much or as little as feels right.
         </p>
 
@@ -56,16 +56,16 @@ export default function ContextField() {
         </div>
 
         <div className="flex justify-between items-center mb-4">
-          <span className="text-[8px] italic" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <span className="text-[12px] italic" style={{ color: 'rgba(139,167,184,.68)' }}>
             Just start — no minimum
           </span>
-          <span className="text-[8px]" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <span className="text-[12px]" style={{ color: 'rgba(139,167,184,.68)' }}>
             {text.length} / {MAX_CHARS}
           </span>
         </div>
 
         <div className="flex gap-2.5">
-          <button onClick={() => router.back()} className="btn-outline text-xs">Back</button>
+          <button onClick={() => router.back()} className="btn-outline text-sm">Back</button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
@@ -75,7 +75,7 @@ export default function ContextField() {
           </button>
         </div>
 
-        <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
+        <p className="text-[13px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.62)' }}>
           Note: Voice input is approved clinically but not built in Phase 1.
         </p>
       </div>

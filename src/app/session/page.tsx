@@ -35,11 +35,11 @@ export default function ResonanceEntry() {
               You do not need to explain everything right away.<br />
               Let&rsquo;s begin with what feels closest.
             </div>
-            <h1 className="font-serif font-light text-sand2 leading-tight mb-2" style={{ fontSize: '26px' }}>
+            <h1 className="font-serif font-light text-sand2 leading-tight mb-2" style={{ fontSize: '36px' }}>
               Right now, something feels<br />
               <em className="text-gold2">like this —</em>
             </h1>
-            <p className="text-[11px] text-mist">
+            <p className="text-[14px] text-mist">
               You may be carrying more than one thing. Tap the one that fits most.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function ResonanceEntry() {
               >
                 &ldquo;{text}&rdquo;
                 <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 font-sans not-italic text-[11px]"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 font-sans not-italic text-[14px]"
                   style={{ color: 'rgba(201,168,76,.3)' }}
                 >
                   →
@@ -62,7 +62,7 @@ export default function ResonanceEntry() {
             ))}
           </div>
 
-          <p className="text-center text-[9px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <p className="text-center text-[13px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.68)' }}>
             No need to get it perfect. No wrong answer.<br />
             Everything that follows adapts to your selection.
           </p>

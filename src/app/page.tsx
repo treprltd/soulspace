@@ -135,7 +135,7 @@ export default function Home() {
                 lineHeight: 1.5,
                 border: '1px solid var(--gold-12)',
                 color: 'var(--sand)',
-                fontSize: '13px',
+                fontSize: '16px',
                 background: 'var(--gold-04)',
               }}
             >
@@ -173,7 +173,7 @@ export default function Home() {
           {/* Carrying */}
           <div className="mirror-card">
             <div className="micro-label" style={{ marginBottom: '8px' }}>What you&apos;re carrying</div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '13px' }}>
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '16px' }}>
               {MIRROR_EXAMPLE.carrying}
             </p>
           </div>
@@ -181,7 +181,7 @@ export default function Home() {
           {/* Underneath */}
           <div className="mirror-card">
             <div className="micro-label" style={{ marginBottom: '8px' }}>What appears underneath</div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '13px' }}>
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '16px' }}>
               {MIRROR_EXAMPLE.underneath}
             </p>
           </div>
@@ -201,7 +201,7 @@ export default function Home() {
             >
               One question back to you
             </div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand2)', lineHeight: 1.5, fontSize: '13px' }}>
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand2)', lineHeight: 1.5, fontSize: '16px' }}>
               {MIRROR_EXAMPLE.question}
             </p>
           </div>
@@ -300,7 +300,7 @@ export default function Home() {
           <Link href="/settings" style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist-55)', textDecoration: 'none' }}>
             Settings
           </Link>
-          <span style={{ fontSize: 'var(--fs-3xs)', color: 'rgba(139,167,184,.2)' }}>·</span>
+          <span style={{ fontSize: 'var(--fs-3xs)', color: 'rgba(139,167,184,.52)' }}>·</span>
           <Link href="/crisis" style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist-55)', textDecoration: 'none' }}>
             Crisis resources
           </Link>

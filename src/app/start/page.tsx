@@ -14,12 +14,12 @@ export default function Welcome() {
           Whatever brought you here —<br />you do not need to have it figured out yet.
         </div>
 
-        <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '26px' }}>
+        <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '36px' }}>
           A quiet place to understand yourself<br />
           <em className="text-gold2">before you decide.</em>
         </h1>
 
-        <p className="text-xs text-mist mb-8 leading-loose">
+        <p className="text-base text-mist mb-8 leading-loose">
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
@@ -31,26 +31,26 @@ export default function Welcome() {
           style={{ background: 'rgba(15,30,46,.7)' }}
         >
           <div className="scope-row">
-            <span className="text-[11px] flex-shrink-0" style={{ color: 'var(--teal2)', width: '16px' }}>✓</span>
-            <span className="text-[11px] leading-relaxed" style={{ color: 'var(--teal2)' }}>
+            <span className="text-[14px] flex-shrink-0" style={{ color: 'var(--teal2)', width: '16px' }}>✓</span>
+            <span className="text-[14px] leading-relaxed" style={{ color: 'var(--teal2)' }}>
               Recognise emotional patterns before important decisions
             </span>
           </div>
           <div className="scope-row">
-            <span className="text-[11px] flex-shrink-0" style={{ color: 'var(--teal2)', width: '16px' }}>✓</span>
-            <span className="text-[11px] leading-relaxed" style={{ color: 'var(--teal2)' }}>
+            <span className="text-[14px] flex-shrink-0" style={{ color: 'var(--teal2)', width: '16px' }}>✓</span>
+            <span className="text-[14px] leading-relaxed" style={{ color: 'var(--teal2)' }}>
               Seasonal emotional language — clinically reviewed, non-diagnostic
             </span>
           </div>
           <div className="scope-row">
-            <span className="text-[11px] flex-shrink-0" style={{ color: 'rgba(212,64,64,.6)', width: '16px' }}>✕</span>
-            <span className="text-[11px] leading-relaxed" style={{ color: 'rgba(212,64,64,.6)' }}>
+            <span className="text-[14px] flex-shrink-0" style={{ color: 'rgba(212,64,64,.6)', width: '16px' }}>✕</span>
+            <span className="text-[14px] leading-relaxed" style={{ color: 'rgba(212,64,64,.6)' }}>
               Not a crisis service — call 988 if you are in immediate danger
             </span>
           </div>
           <div className="scope-row">
-            <span className="text-[11px] flex-shrink-0" style={{ color: 'rgba(212,64,64,.6)', width: '16px' }}>✕</span>
-            <span className="text-[11px] leading-relaxed" style={{ color: 'rgba(212,64,64,.6)' }}>
+            <span className="text-[14px] flex-shrink-0" style={{ color: 'rgba(212,64,64,.6)', width: '16px' }}>✕</span>
+            <span className="text-[14px] leading-relaxed" style={{ color: 'rgba(212,64,64,.6)' }}>
               Not diagnostic — no clinical conclusions, no treatment plans
             </span>
           </div>
@@ -58,7 +58,7 @@ export default function Welcome() {
 
         <button
           onClick={() => router.push('/session')}
-          className="btn-primary w-full py-3.5 text-[13px]"
+          className="btn-primary w-full py-3.5 text-[16px]"
         >
           Begin →
         </button>

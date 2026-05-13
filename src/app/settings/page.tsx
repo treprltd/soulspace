@@ -74,10 +74,10 @@ export default function Settings() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <NavBar right="Settings" />
       <div className="px-6 py-5 max-w-lg mx-auto animate-fade-in">
-        <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-3xl mb-1.5 leading-tight">
           Your <em className="text-gold2">account.</em>
         </h2>
-        <p className="text-xs text-mist mb-6">Manage your plan and data.</p>
+        <p className="text-base text-mist mb-6">Manage your plan and data.</p>
 
         {/* Plan & Subscription */}
         <div
@@ -85,7 +85,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[11px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Subscription
@@ -95,13 +95,13 @@ export default function Settings() {
             <>
               <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
                 <div>
-                  <div className="text-sm text-sand">Current plan</div>
-                  <div className="text-[9px] text-mist mt-0.5">
+                  <div className="text-base text-sand">Current plan</div>
+                  <div className="text-[13px] text-mist mt-0.5">
                     {isPaid ? 'Unlimited sessions' : `${FREE_SESSIONS_PER_MONTH} sessions per month`}
                   </div>
                 </div>
                 <div
-                  className="px-2.5 py-1 rounded-full text-[9px] font-medium"
+                  className="px-2.5 py-1 rounded-full text-[13px] font-medium"
                   style={{
                     background: isPaid ? 'rgba(201,168,76,.1)' : 'rgba(139,167,184,.08)',
                     color: isPaid ? 'var(--gold2)' : 'var(--mist)',
@@ -114,8 +114,8 @@ export default function Settings() {
 
               {subStatus.authenticated && subStatus.planTier === 'free' && (
                 <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
-                  <div className="text-sm text-sand">Sessions this month</div>
-                  <div className="text-sm text-mist">
+                  <div className="text-base text-sand">Sessions this month</div>
+                  <div className="text-base text-mist">
                     {subStatus.sessionsThisMonth ?? 0} / {FREE_SESSIONS_PER_MONTH}
                   </div>
                 </div>
@@ -123,10 +123,10 @@ export default function Settings() {
 
               {isPaid && periodEnd && (
                 <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
-                  <div className="text-sm text-sand">
+                  <div className="text-base text-sand">
                     {subStatus.subscription?.cancel_at_period_end ? 'Cancels on' : 'Renews on'}
                   </div>
-                  <div className="text-sm text-mist">{periodEnd}</div>
+                  <div className="text-base text-mist">{periodEnd}</div>
                 </div>
               )}
 
@@ -135,12 +135,12 @@ export default function Settings() {
                   <button
                     onClick={handleManageBilling}
                     disabled={portalLoading}
-                    className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                    className="btn-outline text-sm w-full py-2.5 disabled:opacity-50"
                   >
                     {portalLoading ? 'Opening…' : 'Manage billing & subscription →'}
                   </button>
                 ) : (
-                  <Link href="/pricing" className="btn-primary text-xs block text-center w-full py-2.5">
+                  <Link href="/pricing" className="btn-primary text-sm block text-center w-full py-2.5">
                     Upgrade plan →
                   </Link>
                 )}
@@ -159,7 +159,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
+            className="text-[11px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Phase 1 — what is stored
@@ -171,8 +171,8 @@ export default function Settings() {
           ].map(({ label, sub }) => (
             <div key={label} className="flex justify-between items-center py-2.5 border-b border-white/[.04] last:border-0">
               <div>
-                <div className="text-sm text-sand">{label}</div>
-                <div className="text-[9px] text-mist mt-0.5">{sub}</div>
+                <div className="text-base text-sand">{label}</div>
+                <div className="text-[13px] text-mist mt-0.5">{sub}</div>
               </div>
               <div
                 className="w-7 h-4 rounded-full relative flex-shrink-0"
@@ -190,27 +190,27 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[11px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Delete your data
           </div>
 
           {deleted ? (
-            <p className="text-sm text-mist text-center py-2">All data deleted. Redirecting…</p>
+            <p className="text-base text-mist text-center py-2">All data deleted. Redirecting…</p>
           ) : (
             <>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="w-full py-2.5 text-xs rounded-lg text-center mb-2 transition-opacity hover:opacity-80 disabled:opacity-50"
+                className="w-full py-2.5 text-sm rounded-lg text-center mb-2 transition-opacity hover:opacity-80 disabled:opacity-50"
                 style={{ border: '1px solid rgba(212,64,64,.3)', color: 'rgba(212,64,64,.75)', background: 'transparent' }}
               >
                 {confirmDelete
                   ? 'Tap again to confirm — this is permanent'
                   : 'Delete all my sessions and data →'}
               </button>
-              <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.68)' }}>
                 Permanent. Encrypted. No recycle bin. CPRA compliant.<br />
                 Full privacy dashboard ships in Phase 2.
               </p>
@@ -218,7 +218,7 @@ export default function Settings() {
           )}
         </div>
 
-        <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
+        <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.62)' }}>
           Phase 2 will add: toggle controls per data type, export, assessment reset, notification preferences.
         </p>
       </div>

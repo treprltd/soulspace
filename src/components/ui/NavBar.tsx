@@ -25,7 +25,7 @@ export function NavBar({ right, variant = 'session' }: NavBarProps) {
       {right && (
         <div
           style={{
-            fontSize: '12px',
+            fontSize: '15px',
             color: 'var(--mist)',
             fontFamily: 'var(--font-sans)',
           }}

@@ -36,19 +36,19 @@ export default function SignIn() {
 
         {sent ? (
           <>
-            <h2 className="font-serif font-light text-sand2 text-xl mb-3">Check your email.</h2>
-            <p className="text-sm text-mist leading-relaxed">
+            <h2 className="font-serif font-light text-sand2 text-2xl mb-3">Check your email.</h2>
+            <p className="text-base text-mist leading-relaxed">
               We sent a link to <strong className="text-sand">{email}</strong>.<br />
               Click it to sign in — no password needed.
             </p>
-            <p className="text-[9px] mt-4" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <p className="text-[13px] mt-4" style={{ color: 'rgba(139,167,184,.72)' }}>
               The link expires in 1 hour.
             </p>
           </>
         ) : (
           <>
-            <h2 className="font-serif font-light text-sand2 text-xl mb-2">Sign in to Soul Space</h2>
-            <p className="text-xs text-mist mb-6 leading-relaxed">
+            <h2 className="font-serif font-light text-sand2 text-2xl mb-2">Sign in to Soul Space</h2>
+            <p className="text-base text-mist mb-6 leading-relaxed">
               No password. We&rsquo;ll send a link to your email.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -72,12 +72,12 @@ export default function SignIn() {
                   width: '100%',
                 }}
               />
-              {error && <p className="text-[11px]" style={{ color: 'var(--danger)' }}>{error}</p>}
+              {error && <p className="text-[14px]" style={{ color: 'var(--danger)' }}>{error}</p>}
               <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
-            <p className="text-[9px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+            <p className="text-[13px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.68)' }}>
               Your email is used only to send this link.<br />
               No marketing. No password. CPRA compliant.
             </p>
@@ -86,8 +86,8 @@ export default function SignIn() {
 
         <button
           onClick={() => router.push('/start')}
-          className="text-[9px] mt-4 underline underline-offset-4"
-          style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+          className="text-[13px] mt-4 underline underline-offset-4"
+          style={{ color: 'rgba(139,167,184,.72)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           Continue without signing in
         </button>

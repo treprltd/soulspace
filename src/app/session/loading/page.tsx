@@ -58,8 +58,8 @@ export default function MirrorLoading() {
   if (error) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-5 text-center" style={{ background: 'var(--bg)' }}>
-        <p className="text-sm text-mist mb-4">{error}</p>
-        <button onClick={() => router.back()} className="btn-outline text-xs">Go back</button>
+        <p className="text-base text-mist mb-4">{error}</p>
+        <button onClick={() => router.back()} className="btn-outline text-sm">Go back</button>
       </main>
     )
   }
@@ -80,11 +80,11 @@ export default function MirrorLoading() {
       />
 
       <div className="animate-fade-in">
-        <h2 className="font-serif font-light text-sand2 text-xl mb-3.5 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-2xl mb-3.5 leading-tight">
           Finding the <em className="text-gold2">shape</em><br />of what you shared.
         </h2>
         {/* AFFIRMATION MOMENT 3 — frozen copy */}
-        <p className="font-serif italic leading-loose" style={{ fontSize: '13px', color: 'rgba(139,167,184,.5)' }}>
+        <p className="font-serif italic leading-loose" style={{ fontSize: '16px', color: 'rgba(139,167,184,.78)' }}>
           Not judging. Just trying to find<br />what sits underneath it.
         </p>
       </div>

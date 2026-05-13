@@ -22,7 +22,7 @@ export default function Intensity() {
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={2} total={3} />
 
-        <h2 className="font-serif font-light text-sand2 text-2xl mb-6 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-3xl mb-6 leading-tight">
           How <em className="text-gold2">heavy</em> does this feel right now?
         </h2>
 
@@ -31,8 +31,8 @@ export default function Intensity() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.06)' }}
         >
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs text-mist">Weight</span>
-            <span className="font-serif text-gold2 text-xl">{intensity} / 10</span>
+            <span className="text-base text-mist">Weight</span>
+            <span className="font-serif text-gold2 text-2xl">{intensity} / 10</span>
           </div>
 
           <div
@@ -64,7 +64,7 @@ export default function Intensity() {
             />
           </div>
 
-          <div className="flex justify-between text-[9px] mt-1.5">
+          <div className="flex justify-between text-[13px] mt-1.5">
             <span className="text-mist">Barely there</span>
             <span className="text-gold2 italic">Hard to think clearly</span>
             <span className="text-mist">Overwhelming</span>
@@ -72,7 +72,7 @@ export default function Intensity() {
         </div>
 
         <div className="flex gap-2.5">
-          <button onClick={() => router.back()} className="btn-outline text-xs">Back</button>
+          <button onClick={() => router.back()} className="btn-outline text-sm">Back</button>
           <button onClick={handleContinue} className="btn-primary">Continue →</button>
         </div>
       </div>

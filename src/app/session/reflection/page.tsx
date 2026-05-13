@@ -50,7 +50,7 @@ export default function MirrorOutputPage() {
           It is what seems to be here, from what you shared.
         </div>
 
-        <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-3xl mb-2 leading-tight">
           Here is what <em className="text-gold2">seems to be present.</em>
         </h2>
 
@@ -70,7 +70,7 @@ export default function MirrorOutputPage() {
               <div className="micro-label" style={{ marginBottom: '8px' }}>
                 What you&apos;re carrying
               </div>
-              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
+              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '16px' }}>
                 {mirror.carrying}
               </p>
             </div>
@@ -79,7 +79,7 @@ export default function MirrorOutputPage() {
               <div className="micro-label" style={{ marginBottom: '8px' }}>
                 What appears underneath
               </div>
-              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
+              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '16px' }}>
                 {mirror.underneath}
               </p>
             </div>
@@ -88,7 +88,7 @@ export default function MirrorOutputPage() {
               <div className="micro-label" style={{ marginBottom: '8px', color: 'var(--teal2)' }}>
                 One question back to you
               </div>
-              <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '12px' }}>
+              <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>
                 {mirror.question}
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function MirrorOutputPage() {
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#3DAF96" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 flex-shrink-0">
                 <path d="M6 1l3.5 1.75v3.5C9.5 8.75 7.9 10.5 6 11c-1.9-.5-3.5-2.25-3.5-4.75v-3.5L6 1z" />
               </svg>
-              <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.82)' }}>
                 Descriptive only — not diagnostic. If you&apos;re in distress,{' '}
                 <span style={{ color: 'var(--teal2)' }}>please reach out for human support.</span>
               </p>
@@ -116,15 +116,15 @@ export default function MirrorOutputPage() {
               className="rounded-xl p-3 mb-3"
               style={{ background: 'var(--SpB)', border: '1px solid rgba(42,140,122,.2)' }}
             >
-              <div className="text-[7px] tracking-[.1em] uppercase mb-1" style={{ color: 'var(--Sp)' }}>
+              <div className="text-[11px] tracking-[.1em] uppercase mb-1" style={{ color: 'var(--Sp)' }}>
                 What comes next
               </div>
-              <p className="text-[11px] leading-relaxed" style={{ color: 'var(--SpS)' }}>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--SpS)' }}>
                 Soul Space will show you which season this may feel like — simple language, clinically reviewed.
               </p>
             </div>
 
-            <button onClick={handleSeason} className="btn-primary w-full text-xs">
+            <button onClick={handleSeason} className="btn-primary w-full text-sm">
               See your season →
             </button>
           </div>
