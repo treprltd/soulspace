@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
@@ -13,7 +15,8 @@ const SIZES = {
 
 export function Logo({ size = 'md', className = '' }: LogoProps) {
   return (
-    <span
+    <Link
+      href="/"
       className={className}
       style={{
         fontFamily: 'var(--font-serif)',
@@ -21,6 +24,8 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
         fontSize: SIZES[size],
         color: 'var(--sand2)',
         letterSpacing: '-0.01em',
+        textDecoration: 'none',
+        display: 'inline-block',
       }}
     >
       Soul{' '}
@@ -33,6 +38,6 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
       >
         Space
       </em>
-    </span>
+    </Link>
   )
 }
