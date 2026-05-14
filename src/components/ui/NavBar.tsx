@@ -8,38 +8,31 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 interface NavBarProps {
+  /** Optional page-context label shown only during session flow */
   right?: React.ReactNode
 }
 
 export function NavBar({ right }: NavBarProps) {
   const router = useRouter()
-  const [user, setUser] = useState<User | null | undefined>(undefined) // undefined = loading
+  const [user, setUser] = useState<User | null | undefined>(undefined)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const supabase = createClient()
-
-    // Get initial auth state
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user ?? null))
-
-    // Keep in sync with auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null)
     })
-
     return () => subscription.unsubscribe()
   }, [])
 
-  // Close menu when clicking outside
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
   }, [])
 
   const handleSignOut = async () => {
@@ -61,8 +54,10 @@ export function NavBar({ right }: NavBarProps) {
       <Logo size="sm" />
 
       <div className="flex items-center gap-3">
-        {/* user === undefined means we're still loading — show nothing to prevent flash */}
+
+        {/* Loading — show nothing to prevent flash */}
         {user === undefined ? null : user ? (
+
           /* ── Authenticated: avatar + dropdown ── */
           <div className="relative" ref={menuRef}>
             <button
@@ -88,64 +83,52 @@ export function NavBar({ right }: NavBarProps) {
                   boxShadow: '0 8px 32px rgba(0,0,0,.5)',
                 }}
               >
-                {/* Email label */}
-                <div
-                  className="px-3.5 py-2.5"
-                  style={{ borderBottom: '1px solid rgba(245,237,216,.05)' }}
-                >
+                <div className="px-3.5 py-2.5" style={{ borderBottom: '1px solid rgba(245,237,216,.05)' }}>
                   <div className="text-[9px] text-mist truncate">{user.email}</div>
                 </div>
-
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors"
-                >
+                <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors">
                   Dashboard
                 </Link>
-                <Link
-                  href="/settings"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors"
-                >
+                <Link href="/settings" onClick={() => setMenuOpen(false)}
+                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors">
                   Account &amp; settings
                 </Link>
-                <Link
-                  href="/age-gate"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors"
-                >
+                <Link href="/age-gate" onClick={() => setMenuOpen(false)}
+                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors">
                   Begin a session
                 </Link>
-
                 <div style={{ borderTop: '1px solid rgba(245,237,216,.05)', margin: '4px 0' }} />
-
-                <button
-                  onClick={handleSignOut}
-                  className="w-full text-left flex items-center px-3.5 py-2.5 text-[11px] transition-colors hover:opacity-80"
-                  style={{ color: 'rgba(212,64,64,.75)' }}
-                >
+                <button onClick={handleSignOut}
+                  className="w-full text-left flex items-center px-3.5 py-2.5 text-[11px] hover:opacity-80 transition-opacity"
+                  style={{ color: 'rgba(212,64,64,.75)' }}>
                   Sign out
                 </button>
               </div>
             )}
           </div>
+
         ) : (
+
           /* ── Not authenticated ── */
-          <>
-            {right && (
-              <div className="text-[9px] text-mist">{right}</div>
-            )}
-            {!right && (
-              <Link
-                href="/auth/signin"
-                className="text-[10px] transition-opacity hover:opacity-70"
-                style={{ color: 'rgba(201,168,76,.65)' }}
-              >
-                Sign in →
-              </Link>
-            )}
-          </>
+          <div className="flex items-center gap-2">
+            {/* Page context label (shown only during session flow) */}
+            {right && <div className="text-[9px] text-mist mr-1">{right}</div>}
+
+            {/* Always-visible sign-in button */}
+            <Link
+              href="/auth/signin"
+              className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all hover:opacity-90"
+              style={{
+                border: '1px solid rgba(201,168,76,.35)',
+                color: 'var(--gold2)',
+                background: 'rgba(201,168,76,.06)',
+              }}
+            >
+              Sign in
+            </Link>
+          </div>
+
         )}
       </div>
     </nav>
