@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
+import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
 const NEXT_STEPS = [
@@ -33,7 +34,6 @@ interface SubStatus {
   planTier: string
   sessionsThisMonth: number | null
   limit: number | null
-  authenticated: boolean
 }
 
 export default function NextStep() {
@@ -41,13 +41,32 @@ export default function NextStep() {
   const [selected, setSelected] = useState<number | null>(null)
   const [custom, setCustom] = useState('')
   const [done, setDone] = useState(false)
+
+  // Auth state — checked directly via browser client (not subscription API)
+  // to avoid server-side cookie sync timing issues
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
 
   useEffect(() => {
+    const supabase = createClient()
+
+    // Check auth via browser client — reliable regardless of cookie state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user)
+    })
+
+    // Keep in sync if auth changes mid-page
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsAuthenticated(!!session?.user)
+    })
+
+    // Fetch plan/usage data separately (only needed for upgrade nudge)
     fetch('/api/subscription')
       .then(r => r.json())
       .then(d => setSubStatus(d as SubStatus))
       .catch(() => {})
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const handleDone = async () => {
@@ -57,10 +76,21 @@ export default function NextStep() {
       await fetch(`/api/sessions/${sessionId}/complete`, { method: 'POST' }).catch(() => {})
     }
     // Clear session state
-    ;['ss_branch','ss_emotions','ss_intensity','ss_context','ss_mirror','ss_resonance','ss_session_id']
+    ;['ss_branch', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']
       .forEach(k => sessionStorage.removeItem(k))
-    router.push('/')
+
+    // Authenticated users go to their dashboard; others go home
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    } else {
+      router.push('/')
+    }
   }
+
+  const showUpgradeNudge = isAuthenticated &&
+    subStatus &&
+    subStatus.planTier === 'free' &&
+    (subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH - 1
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
@@ -136,16 +166,15 @@ export default function NextStep() {
           </button>
         </div>
 
-        {/* Upgrade nudge — shown when free user has used 2 or more sessions this month */}
-        {subStatus && subStatus.planTier === 'free' && subStatus.authenticated &&
-          (subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH - 1 && (
+        {/* Upgrade nudge — only for authenticated free users near their limit */}
+        {showUpgradeNudge && (
           <div
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.15)' }}
           >
             <div className="text-[8px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
             <p className="text-xs text-sand leading-relaxed mb-3">
-              {(subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
+              {(subStatus?.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
                 ? "You've used all your free sessions this month."
                 : "You have 1 free session left this month."}
               {' '}Unlimited sessions from $9.99/month.
@@ -156,15 +185,15 @@ export default function NextStep() {
           </div>
         )}
 
-        {/* Unauthenticated nudge — shown after completing a session without an account */}
-        {subStatus && !subStatus.authenticated && (
+        {/* Sign-up nudge — only for definitively unauthenticated users */}
+        {isAuthenticated === false && (
           <div
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(15,30,46,.7)', border: '1px solid rgba(245,237,216,.06)' }}
           >
             <div className="text-[8px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
             <p className="text-xs text-mist leading-relaxed mb-3">
-              Create a free account to save this session and access 3 sessions per month.
+              Create a free account to save this session and track your return over time.
             </p>
             <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
               Create free account →

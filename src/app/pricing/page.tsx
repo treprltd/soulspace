@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Logo } from '@/components/ui/Logo'
+import { NavBar } from '@/components/ui/NavBar'
+import { createClient } from '@/lib/supabase/client'
 import { PLANS } from '@/lib/stripe/plans'
 import type { PaidPlan } from '@/lib/stripe/plans'
 
@@ -22,13 +23,18 @@ export default function Pricing() {
   const [currentPlan, setCurrentPlan] = useState<string>('free')
 
   useEffect(() => {
+    const supabase = createClient()
+
+    // Check auth directly via browser client — reliable for implicit flow
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setAuthenticated(!!user)
+    })
+
+    // Fetch plan tier separately
     fetch('/api/subscription')
       .then(r => r.json())
-      .then(d => {
-        setAuthenticated(d.authenticated)
-        setCurrentPlan(d.planTier ?? 'free')
-      })
-      .catch(() => setAuthenticated(false))
+      .then(d => { setCurrentPlan(d.planTier ?? 'free') })
+      .catch(() => {})
   }, [])
 
   const handleSubscribe = async (plan: PaidPlan) => {
@@ -81,14 +87,7 @@ export default function Pricing() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      {/* Nav */}
-      <nav
-        className="h-14 flex items-center justify-between px-8"
-        style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
-      >
-        <Logo size="md" />
-        <Link href="/" className="text-xs text-mist hover:text-sand2 transition-colors">← Back</Link>
-      </nav>
+      <NavBar />
 
       <div className="px-6 py-12 max-w-3xl mx-auto animate-fade-in">
         {/* Header */}
@@ -261,7 +260,7 @@ export default function Pricing() {
           <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
             Secure payment via Stripe. Soul Space does not store card details.
           </p>
-          {!authenticated && (
+          {authenticated === false && (
             <p className="text-[9px] mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>
               Signing in is required to subscribe.{' '}
               <Link href="/auth/signin?next=/pricing" className="underline underline-offset-2 hover:text-mist">
