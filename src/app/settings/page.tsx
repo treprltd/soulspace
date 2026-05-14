@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
+import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+import type { User } from '@supabase/supabase-js'
 
 interface SubscriptionStatus {
   planTier: 'free' | 'essentials' | 'insights'
@@ -26,18 +28,30 @@ const PLAN_LABELS: Record<string, string> = {
 
 export default function Settings() {
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
   const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
 
   useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
     fetch('/api/subscription')
       .then(r => r.json())
       .then(d => setSubStatus(d as SubscriptionStatus))
       .catch(() => {})
   }, [])
+
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+    router.refresh()
+  }
 
   const handleDelete = async () => {
     if (!confirmDelete) { setConfirmDelete(true); return }
@@ -67,19 +81,86 @@ export default function Settings() {
 
   const isPaid = subStatus && subStatus.planTier !== 'free'
   const periodEnd = subStatus?.subscription?.current_period_end
-    ? new Date(subStatus.subscription.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    ? new Date(subStatus.subscription.current_period_end).toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+      })
+    : null
+  const joinedDate = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+      })
     : null
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right="Settings" />
+      <NavBar />
       <div className="px-6 py-5 max-w-lg mx-auto animate-fade-in">
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
           Your <em className="text-gold2">account.</em>
         </h2>
-        <p className="text-xs text-mist mb-6">Manage your plan and data.</p>
+        <p className="text-xs text-mist mb-6">Manage your plan, profile, and data.</p>
 
-        {/* Plan & Subscription */}
+        {/* ── Profile ── */}
+        {user ? (
+          <div
+            className="rounded-xl p-4 mb-4"
+            style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+          >
+            <div
+              className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+            >
+              Profile
+            </div>
+
+            <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
+              <div className="text-sm text-sand">Email</div>
+              <div className="text-xs text-mist truncate max-w-[200px]">{user.email}</div>
+            </div>
+
+            {joinedDate && (
+              <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
+                <div className="text-sm text-sand">Member since</div>
+                <div className="text-xs text-mist">{joinedDate}</div>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center pt-3">
+              <div>
+                <div className="text-sm text-sand">Sign out</div>
+                <div className="text-[9px] text-mist mt-0.5">Sign out of this device</div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="text-xs px-3 py-1.5 rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
+                style={{ border: '1px solid rgba(212,64,64,.3)', color: 'rgba(212,64,64,.75)', background: 'transparent' }}
+              >
+                {signingOut ? 'Signing out…' : 'Sign out →'}
+              </button>
+            </div>
+          </div>
+        ) : subStatus && !subStatus.authenticated ? (
+          <div
+            className="rounded-xl p-4 mb-4"
+            style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+          >
+            <div
+              className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+            >
+              Profile
+            </div>
+            <p className="text-xs text-mist mb-3 leading-relaxed">
+              You&apos;re browsing without an account. Sign in to save sessions and access your history.
+            </p>
+            <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
+              Sign in →
+            </Link>
+          </div>
+        ) : null}
+
+        {/* ── Subscription ── */}
         <div
           className="rounded-xl p-4 mb-4"
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
@@ -148,12 +229,15 @@ export default function Settings() {
             </>
           ) : (
             <div className="py-3 text-center">
-              <div className="w-5 h-5 rounded-full animate-spin-slow mx-auto" style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }} />
+              <div
+                className="w-5 h-5 rounded-full animate-spin-slow mx-auto"
+                style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }}
+              />
             </div>
           )}
         </div>
 
-        {/* What is stored */}
+        {/* ── What is stored ── */}
         <div
           className="rounded-xl p-4 mb-4"
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
@@ -184,7 +268,7 @@ export default function Settings() {
           ))}
         </div>
 
-        {/* Delete */}
+        {/* ── Delete data ── */}
         <div
           className="rounded-xl p-4 mb-4"
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
