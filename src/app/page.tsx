@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { Logo } from '@/components/ui/Logo'
+import { NavBar } from '@/components/ui/NavBar'
 
 const EMOTIONAL_STATES = [
   'Something keeps pulling you back to a decision you thought you\'d made.',
@@ -31,17 +33,7 @@ const MIRROR_EXAMPLE = {
 export default function Home() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      {/* Nav */}
-      <nav
-        className="h-14 flex items-center justify-between px-8"
-        style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
-      >
-        <Logo size="md" />
-        <div className="flex items-center gap-4">
-          <Link href="/settings" className="text-xs text-mist hover:text-sand2 transition-colors">Settings</Link>
-          <Link href="/age-gate" className="btn-primary text-xs py-2 px-4">Begin →</Link>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-16">
@@ -158,8 +150,8 @@ export default function Home() {
         className="px-8 py-8 text-center"
         style={{ borderTop: '1px solid rgba(245,237,216,.04)' }}
       >
-        <Logo size="sm" />
-        <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="font-serif font-light text-sand2 text-sm no-underline mb-1">Soul <em className="not-italic text-gold font-normal">Space</em></p>
+        <p className="text-[9px] mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
           Affirm. Ask. Reflect. · Non-clinical · Non-diagnostic · Not a crisis service<br />
           If you are in immediate danger, call or text 988.
         </p>
@@ -167,6 +159,8 @@ export default function Home() {
           <Link href="/settings" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Settings</Link>
           <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
           <Link href="/crisis" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Crisis resources</Link>
+          <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <Link href="/pricing" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Pricing</Link>
         </div>
       </footer>
     </main>
