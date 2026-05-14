@@ -1,8 +1,9 @@
 'use client'
 
-// Client-side auth callback — handles PKCE code exchange in the browser
-// so the code_verifier cookie is always accessible (same origin, no third-party
-// cookie restrictions from the Supabase redirect chain).
+// Auth callback — handles implicit flow.
+// With implicit flow, Supabase returns the access_token in the URL hash fragment.
+// The Supabase browser client detects this automatically via detectSessionInUrl.
+// We just listen for the SIGNED_IN event and redirect.
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -15,48 +16,42 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const supabase = createClient()
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/start'
 
-    async function handleCallback() {
-      // Read code and next from the URL
-      const params = new URLSearchParams(window.location.search)
-      const code = params.get('code')
-      const next = params.get('next') ?? '/start'
-      const errorParam = params.get('error')
-      const errorDescription = params.get('error_description')
+    // Check for error params Supabase may pass in the URL
+    const hash = window.location.hash
+    const hashParams = new URLSearchParams(hash.replace('#', ''))
+    const errorInHash = hashParams.get('error')
+    const errorDesc = hashParams.get('error_description')
 
-      // Surface any error Supabase passed back in the URL
-      if (errorParam) {
-        const msg = errorDescription
-          ? decodeURIComponent(errorDescription.replace(/\+/g, ' '))
+    if (errorInHash) {
+      setError(
+        errorDesc
+          ? decodeURIComponent(errorDesc.replace(/\+/g, ' '))
           : 'Sign-in link is invalid or has expired.'
-        setError(msg)
-        return
-      }
-
-      if (!code) {
-        // No code — check if we already have a session (e.g. navigated here directly)
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          router.replace(next)
-        } else {
-          setError('No sign-in code found. Please request a new link.')
-        }
-        return
-      }
-
-      // Exchange the PKCE code for a session — client-side, so code_verifier is accessible
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-
-      if (exchangeError) {
-        console.error('Code exchange error:', exchangeError.message)
-        setError('Sign-in link has expired or already been used. Please request a new one.')
-        return
-      }
-
-      router.replace(next)
+      )
+      return
     }
 
-    handleCallback()
+    // With implicit flow, onAuthStateChange fires with SIGNED_IN
+    // as soon as the client detects the token in the URL hash.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        router.replace(next)
+        return
+      }
+      // INITIAL_SESSION fires first — if no session and no hash token, something went wrong
+      if (event === 'INITIAL_SESSION' && !session && !hash.includes('access_token')) {
+        // Give it 2s for the hash processing, then error out
+        setTimeout(async () => {
+          const { data: { session: s } } = await supabase.auth.getSession()
+          if (!s) setError('Sign-in link has expired or already been used. Please request a new one.')
+          else router.replace(next)
+        }, 2000)
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [router])
 
   if (error) {
