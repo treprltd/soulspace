@@ -1,16 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/ui/Logo'
 
 export default function SignIn() {
   const router = useRouter()
+  const [next, setNext] = useState('/dashboard')
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  // If already signed in, redirect immediately
+  useEffect(() => {
+    // Read ?next param client-side (avoids Suspense requirement for useSearchParams)
+    const params = new URLSearchParams(window.location.search)
+    const nextParam = params.get('next') ?? '/dashboard'
+    setNext(nextParam)
+
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace(nextParam)
+      } else {
+        setCheckingAuth(false)
+      }
+    })
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,12 +39,20 @@ export default function SignIn() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     })
     setLoading(false)
     if (error) { setError(error.message); return }
     setSent(true)
+  }
+
+  if (checkingAuth) {
+    return (
+      <main className="min-h-screen flex items-center justify-center" style={{ background: '#060E18' }}>
+        <div className="w-8 h-8 rounded-full animate-spin-slow" style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }} />
+      </main>
+    )
   }
 
   return (
@@ -42,14 +69,22 @@ export default function SignIn() {
               Click it to sign in — no password needed.
             </p>
             <p className="text-[9px] mt-4" style={{ color: 'rgba(139,167,184,.4)' }}>
-              The link expires in 1 hour.
+              The link expires in 1 hour. Check spam if you don&apos;t see it.
             </p>
+            <button
+              onClick={() => setSent(false)}
+              className="text-[9px] mt-4 underline underline-offset-4 block mx-auto"
+              style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Try a different email
+            </button>
           </>
         ) : (
           <>
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Sign in to Soul Space</h2>
             <p className="text-xs text-mist mb-6 leading-relaxed">
-              No password. We&rsquo;ll send a link to your email.
+              No password. We&rsquo;ll send a magic link to your email.<br />
+              New here? It creates your account automatically.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input

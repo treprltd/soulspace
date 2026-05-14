@@ -3,7 +3,8 @@
 // Auth callback — handles implicit flow.
 // With implicit flow, Supabase returns the access_token in the URL hash fragment.
 // The Supabase browser client detects this automatically via detectSessionInUrl.
-// We just listen for the SIGNED_IN event and redirect.
+// We check getSession() immediately (SDK may have processed hash before mount)
+// and also listen for the SIGNED_IN event as a fallback.
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -16,9 +17,9 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const supabase = createClient()
-    const next = new URLSearchParams(window.location.search).get('next') ?? '/start'
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/dashboard'
 
-    // Check for error params Supabase may pass in the URL
+    // Check for error params Supabase may pass in the URL hash
     const hash = window.location.hash
     const hashParams = new URLSearchParams(hash.replace('#', ''))
     const errorInHash = hashParams.get('error')
@@ -33,21 +34,34 @@ export default function AuthCallback() {
       return
     }
 
-    // With implicit flow, onAuthStateChange fires with SIGNED_IN
-    // as soon as the client detects the token in the URL hash.
+    let redirected = false
+
+    // 1. Check if SDK already processed the hash before this component mounted
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && !redirected) {
+        redirected = true
+        router.replace(next)
+      }
+    })
+
+    // 2. Also listen for SIGNED_IN — fires when SDK processes the hash token
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if (event === 'SIGNED_IN' && session && !redirected) {
+        redirected = true
         router.replace(next)
         return
       }
-      // INITIAL_SESSION fires first — if no session and no hash token, something went wrong
+      // If INITIAL_SESSION fires with no session and no hash token, the link is bad
       if (event === 'INITIAL_SESSION' && !session && !hash.includes('access_token')) {
-        // Give it 2s for the hash processing, then error out
         setTimeout(async () => {
           const { data: { session: s } } = await supabase.auth.getSession()
-          if (!s) setError('Sign-in link has expired or already been used. Please request a new one.')
-          else router.replace(next)
-        }, 2000)
+          if (!s && !redirected) {
+            setError('Sign-in link has expired or already been used. Please request a new one.')
+          } else if (s && !redirected) {
+            redirected = true
+            router.replace(next)
+          }
+        }, 3000)
       }
     })
 
