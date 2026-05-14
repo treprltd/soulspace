@@ -80,25 +80,25 @@ export default function Pricing() {
   const isCurrentPlan = (plan: string) => currentPlan === plan
 
   return (
-    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+    <main style={{ background: '#060E18', minHeight: '100vh' }}>
       {/* Nav */}
       <nav
         className="h-14 flex items-center justify-between px-8"
         style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
       >
         <Logo size="md" />
-        <Link href="/" className="text-base text-mist hover:text-sand2 transition-colors">← Back</Link>
+        <Link href="/" className="text-xs text-mist hover:text-sand2 transition-colors">← Back</Link>
       </nav>
 
       <div className="px-6 py-12 max-w-3xl mx-auto animate-fade-in">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="eyebrow mb-4 justify-center">Plans</div>
-          <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '36px' }}>
+          <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '32px' }}>
             Continue when you&apos;re<br />
             <em className="text-gold2">ready to go deeper.</em>
           </h1>
-          <p className="text-base text-mist leading-relaxed max-w-sm mx-auto">
+          <p className="text-xs text-mist leading-relaxed max-w-sm mx-auto">
             Start free. Three sessions a month, no account required.<br />
             Upgrade when the first one earns it.
           </p>
@@ -125,14 +125,14 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[12px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
+              <div className="text-[8px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
               <div className="font-serif font-light text-sand2 text-3xl">$0</div>
-              <div className="text-[13px] text-mist mt-0.5">forever</div>
+              <div className="text-[9px] text-mist mt-0.5">forever</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {FREE_FEATURES.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[14px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -141,7 +141,7 @@ export default function Pricing() {
 
             {isCurrentPlan('free') ? (
               <div
-                className="w-full py-2.5 rounded-lg text-[14px] text-center"
+                className="w-full py-2.5 rounded-lg text-[11px] text-center"
                 style={{ border: '1px solid rgba(201,168,76,.3)', color: 'var(--gold2)' }}
               >
                 Current plan
@@ -149,7 +149,7 @@ export default function Pricing() {
             ) : (
               <Link
                 href="/age-gate"
-                className="w-full py-2.5 rounded-lg text-[14px] text-center block transition-opacity hover:opacity-80"
+                className="w-full py-2.5 rounded-lg text-[11px] text-center block transition-opacity hover:opacity-80"
                 style={{ border: '1px solid rgba(245,237,216,.1)', color: 'var(--mist)' }}
               >
                 Continue free →
@@ -169,7 +169,7 @@ export default function Pricing() {
           >
             {!isCurrentPlan('essentials') && (
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[12px] tracking-[.1em] uppercase"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[8px] tracking-[.1em] uppercase"
                 style={{ background: 'var(--gold)', color: 'var(--ink)' }}
               >
                 Most popular
@@ -177,14 +177,14 @@ export default function Pricing() {
             )}
 
             <div className="mb-4">
-              <div className="text-[12px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
+              <div className="text-[8px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
               <div className="font-serif font-light text-sand2 text-3xl">$9.99</div>
-              <div className="text-[13px] text-mist mt-0.5">per month</div>
+              <div className="text-[9px] text-mist mt-0.5">per month</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.essentials.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[14px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -194,7 +194,7 @@ export default function Pricing() {
             {isCurrentPlan('essentials') ? (
               <button
                 onClick={handleManage}
-                className="btn-outline text-sm w-full py-2.5"
+                className="btn-outline text-xs w-full py-2.5"
               >
                 Manage subscription →
               </button>
@@ -202,7 +202,7 @@ export default function Pricing() {
               <button
                 onClick={() => handleSubscribe('essentials')}
                 disabled={loading !== null}
-                className="btn-primary text-sm w-full py-2.5 disabled:opacity-50"
+                className="btn-primary text-xs w-full py-2.5 disabled:opacity-50"
               >
                 {loading === 'essentials' ? 'Redirecting…' : 'Get Essentials →'}
               </button>
@@ -220,14 +220,14 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[12px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
+              <div className="text-[8px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
               <div className="font-serif font-light text-sand2 text-3xl">$19.99</div>
-              <div className="text-[13px] text-mist mt-0.5">per month</div>
+              <div className="text-[9px] text-mist mt-0.5">per month</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.insights.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[14px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -237,7 +237,7 @@ export default function Pricing() {
             {isCurrentPlan('insights') ? (
               <button
                 onClick={handleManage}
-                className="btn-outline text-sm w-full py-2.5"
+                className="btn-outline text-xs w-full py-2.5"
               >
                 Manage subscription →
               </button>
@@ -245,7 +245,7 @@ export default function Pricing() {
               <button
                 onClick={() => handleSubscribe('insights')}
                 disabled={loading !== null}
-                className="btn-outline text-sm w-full py-2.5 disabled:opacity-50"
+                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
               >
                 {loading === 'insights' ? 'Redirecting…' : 'Get Insights →'}
               </button>
@@ -255,14 +255,14 @@ export default function Pricing() {
 
         {/* Footer notes */}
         <div className="mt-8 text-center space-y-1.5">
-          <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.72)' }}>
+          <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
             Billed monthly. Cancel any time from your account settings.
           </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.68)' }}>
+          <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
             Secure payment via Stripe. Soul Space does not store card details.
           </p>
           {!authenticated && (
-            <p className="text-[13px] mt-2" style={{ color: 'rgba(139,167,184,.68)' }}>
+            <p className="text-[9px] mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>
               Signing in is required to subscribe.{' '}
               <Link href="/auth/signin?next=/pricing" className="underline underline-offset-2 hover:text-mist">
                 Sign in →

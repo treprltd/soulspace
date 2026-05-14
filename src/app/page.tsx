@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 
 const EMOTIONAL_STATES = [
-  "Something keeps pulling you back to a decision you thought you'd made.",
-  "You know what you feel but can't quite explain why.",
-  "You're not in crisis. But something isn't right.",
-  "You've been carrying this alone for a while.",
+  'Something keeps pulling you back to a decision you thought you\'d made.',
+  'You know what you feel but can\'t quite explain why.',
+  'You\'re not in crisis. But something isn\'t right.',
+  'You\'ve been carrying this alone for a while.',
 ]
 
 const SCOPE_IS = [
@@ -30,216 +30,110 @@ const MIRROR_EXAMPLE = {
 
 export default function Home() {
   return (
-    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
-
-      {/* Marketing nav — 64px, 28px padding */}
+    <main style={{ background: '#060E18', minHeight: '100vh' }}>
+      {/* Nav */}
       <nav
-        style={{
-          height: '64px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 28px',
-          borderBottom: '1px solid var(--hairline)',
-          position: 'sticky',
-          top: 0,
-          background: 'rgba(8,17,28,.98)',
-          zIndex: 10,
-        }}
+        className="h-14 flex items-center justify-between px-8"
+        style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
       >
         <Logo size="md" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Link
-            href="/settings"
-            style={{ fontSize: '14px', color: 'var(--mist)', textDecoration: 'none' }}
-          >
-            Settings
-          </Link>
-          <Link href="/age-gate" className="btn-primary" style={{ fontSize: '14px', fontWeight: 700, padding: '10px 20px' }}>
-            Begin →
-          </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/settings" className="text-xs text-mist hover:text-sand2 transition-colors">Settings</Link>
+          <Link href="/age-gate" className="btn-primary text-xs py-2 px-4">Begin →</Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section
-        className="animate-fade-in"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '20px 24px 36px',
-        }}
-      >
-        <div className="eyebrow" style={{ marginBottom: '12px', justifyContent: 'center' }}>
-          Phase 1 · Behavior validation · April 2026
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-10 pb-16">
+        <div className="eyebrow mb-4 justify-center">
+          <span>Phase 1 · Behavior validation · April 2026</span>
         </div>
-
-        <h1
-          className="h-display"
-          style={{ maxWidth: '720px', marginBottom: '12px' }}
-        >
+        <h1 className="font-serif font-light leading-tight mb-4 max-w-3xl" style={{ fontSize: 'clamp(32px, 5vw, 58px)', color: 'var(--sand2)' }}>
           The structured pause between<br />
-          <em>emotional overload</em> and consequential action.
+          <em className="text-gold2">emotional overload</em> and consequential action.
         </h1>
-
-        <p
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '14px',
-            color: 'var(--mist)',
-            maxWidth: '400px',
-            marginBottom: '8px',
-            lineHeight: 1.7,
-          }}
-        >
+        <p className="text-sm text-mist max-w-md mb-3 leading-loose">
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
-
-        <p className="affirm-copy" style={{ marginBottom: '20px' }}>
+        <p className="font-serif italic mb-8" style={{ fontSize: '13px', color: 'rgba(139,167,184,.55)' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
-
-        <Link href="/age-gate" className="btn-primary" style={{ padding: '14px 32px', fontSize: '14px' }}>
+        <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5">
           Begin your session →
         </Link>
-
-        <p style={{ fontSize: 'var(--fs-3xs)', marginTop: '10px', color: 'var(--mist-35)' }}>
+        <p className="text-[9px] mt-3" style={{ color: 'rgba(139,167,184,.35)' }}>
           Free · No account required · 3–5 minutes
         </p>
       </section>
 
       {/* What you arrive with */}
-      <section style={{ padding: '64px 24px', maxWidth: '720px', margin: '0 auto' }}>
-        <div className="eyebrow" style={{ marginBottom: '20px' }}>
-          Right now, something feels like this
-        </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '12px',
-          }}
-        >
+      <section className="px-6 py-16 max-w-3xl mx-auto">
+        <div className="eyebrow mb-5">Right now, something feels like this</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {EMOTIONAL_STATES.map((state, i) => (
             <div
               key={i}
+              className="rounded-xl px-4 py-4 font-serif italic leading-relaxed"
               style={{
-                borderRadius: 'var(--r-lg)',
-                padding: '14px 16px',
-                fontFamily: 'var(--font-serif)',
-                fontStyle: 'italic',
-                lineHeight: 1.5,
-                border: '1px solid var(--gold-12)',
+                border: '1px solid rgba(201,168,76,.12)',
                 color: 'var(--sand)',
-                fontSize: '16px',
-                background: 'var(--gold-04)',
+                fontSize: '14px',
+                background: 'rgba(201,168,76,.02)',
               }}
             >
               &ldquo;{state}&rdquo;
             </div>
           ))}
         </div>
-        <p
-          style={{
-            fontSize: 'var(--fs-sm)',
-            color: 'var(--mist)',
-            marginTop: '16px',
-            textAlign: 'center',
-          }}
-        >
+        <p className="text-xs text-mist mt-4 text-center">
           You tap one. Everything that follows adapts to your selection.
         </p>
       </section>
 
       {/* Mirror example */}
-      <section
-        style={{
-          padding: '64px 24px',
-          background: 'rgba(15,30,46,.5)',
-        }}
-      >
-        <div style={{ maxWidth: '672px', margin: '0 auto' }}>
-          <div className="eyebrow" style={{ marginBottom: '8px' }}>
-            The Mirror — what it gives back
-          </div>
-          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--mist)', marginBottom: '24px', lineHeight: 1.7 }}>
+      <section className="px-6 py-16" style={{ background: 'rgba(15,30,46,.5)' }}>
+        <div className="max-w-2xl mx-auto">
+          <div className="eyebrow mb-2">The Mirror — what it gives back</div>
+          <p className="text-xs text-mist mb-6 leading-relaxed">
             Three short paragraphs. Specific to what you shared. Not generic. Not diagnostic.
           </p>
-
-          {/* Carrying */}
           <div className="mirror-card">
-            <div className="micro-label" style={{ marginBottom: '8px' }}>What you&apos;re carrying</div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '16px' }}>
-              {MIRROR_EXAMPLE.carrying}
-            </p>
+            <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-2">What you&apos;re carrying</div>
+            <p className="font-serif italic text-sand leading-relaxed text-sm">{MIRROR_EXAMPLE.carrying}</p>
           </div>
-
-          {/* Underneath */}
           <div className="mirror-card">
-            <div className="micro-label" style={{ marginBottom: '8px' }}>What appears underneath</div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand)', lineHeight: 1.5, fontSize: '16px' }}>
-              {MIRROR_EXAMPLE.underneath}
-            </p>
+            <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-2">What appears underneath</div>
+            <p className="font-serif italic text-sand leading-relaxed text-sm">{MIRROR_EXAMPLE.underneath}</p>
           </div>
-
-          {/* Question */}
-          <div
-            style={{
-              borderRadius: 'var(--r-lg)',
-              padding: '14px',
-              background: 'rgba(42,140,122,.08)',
-              border: '1px solid rgba(42,140,122,.20)',
-            }}
-          >
-            <div
-              className="micro-label"
-              style={{ marginBottom: '8px', color: 'var(--teal2)' }}
-            >
-              One question back to you
-            </div>
-            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--sand2)', lineHeight: 1.5, fontSize: '16px' }}>
-              {MIRROR_EXAMPLE.question}
-            </p>
+          <div className="rounded-xl p-4" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
+            <div className="text-[7px] tracking-[.12em] uppercase mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
+            <p className="font-serif italic text-sand2 leading-snug text-sm">{MIRROR_EXAMPLE.question}</p>
           </div>
-
-          <p style={{ fontSize: 'var(--fs-3xs)', marginTop: '12px', lineHeight: 1.6, color: 'var(--mist-35)' }}>
+          <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
             Descriptive only — not diagnostic. Clinically reviewed. Not therapy.
           </p>
         </div>
       </section>
 
       {/* Is / Is not */}
-      <section style={{ padding: '64px 24px', maxWidth: '720px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '32px',
-          }}
-        >
+      <section className="px-6 py-16 max-w-3xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8">
           <div>
-            <div className="eyebrow" style={{ marginBottom: '16px', color: 'var(--teal2)' }}>
-              Soul Space is
-            </div>
+            <div className="eyebrow mb-4" style={{ color: 'var(--teal2)' }}>Soul Space is</div>
             {SCOPE_IS.map((item, i) => (
-              <div key={i} className="scope-row">
-                <span style={{ fontSize: 'var(--fs-sm)', color: 'var(--teal2)', flexShrink: 0, marginTop: '2px' }}>✓</span>
-                <span style={{ fontSize: 'var(--fs-sm)', color: 'var(--sand)', lineHeight: 1.6 }}>{item}</span>
+              <div key={i} className="flex items-start gap-2 mb-2.5">
+                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>✓</span>
+                <span className="text-xs text-sand leading-relaxed">{item}</span>
               </div>
             ))}
           </div>
           <div>
-            <div className="eyebrow" style={{ marginBottom: '16px', color: 'rgba(212,64,64,.7)' }}>
-              Soul Space is not
-            </div>
+            <div className="eyebrow mb-4" style={{ color: 'rgba(212,64,64,.7)' }}>Soul Space is not</div>
             {SCOPE_ISNOT.map((item, i) => (
-              <div key={i} className="scope-row">
-                <span style={{ fontSize: 'var(--fs-sm)', color: 'rgba(212,64,64,.6)', flexShrink: 0, marginTop: '2px' }}>✕</span>
-                <span style={{ fontSize: 'var(--fs-sm)', color: 'var(--sand)', lineHeight: 1.6 }}>{item}</span>
+              <div key={i} className="flex items-start gap-2 mb-2.5">
+                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'rgba(212,64,64,.6)' }}>✕</span>
+                <span className="text-xs text-sand leading-relaxed">{item}</span>
               </div>
             ))}
           </div>
@@ -247,66 +141,34 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section
-        style={{
-          padding: '80px 24px',
-          textAlign: 'center',
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: 'var(--font-serif)',
-            fontWeight: 300,
-            fontSize: 'var(--fs-h2)',
-            color: 'var(--sand2)',
-            marginBottom: '12px',
-            lineHeight: 1.2,
-          }}
-        >
-          Does the first session<br />
-          <em style={{ color: 'var(--gold2)' }}>earn the second?</em>
+      <section className="px-6 py-20 text-center">
+        <h2 className="font-serif font-light text-sand2 text-3xl mb-3 leading-tight">
+          Does the first session<br /><em className="text-gold2">earn the second?</em>
         </h2>
-        <p
-          style={{
-            fontSize: 'var(--fs-sm)',
-            color: 'var(--mist)',
-            marginBottom: '24px',
-            maxWidth: '360px',
-            margin: '0 auto 24px',
-            lineHeight: 1.7,
-          }}
-        >
+        <p className="text-sm text-mist mb-6 max-w-sm mx-auto leading-relaxed">
           Phase 1 goal: prove that one session creates enough value and trust to earn a return visit.
         </p>
-        <Link href="/age-gate" className="btn-primary" style={{ padding: '14px 32px', fontSize: '14px' }}>
+        <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5">
           Begin →
         </Link>
       </section>
 
       {/* Footer */}
       <footer
-        style={{
-          padding: '32px',
-          textAlign: 'center',
-          borderTop: '1px solid var(--hairline)',
-        }}
+        className="px-8 py-8 text-center"
+        style={{ borderTop: '1px solid rgba(245,237,216,.04)' }}
       >
         <Logo size="sm" />
-        <p style={{ fontSize: 'var(--fs-3xs)', marginTop: '12px', lineHeight: 1.7, color: 'var(--mist-35)' }}>
+        <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
           Affirm. Ask. Reflect. · Non-clinical · Non-diagnostic · Not a crisis service<br />
           If you are in immediate danger, call or text 988.
         </p>
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '12px', alignItems: 'center' }}>
-          <Link href="/settings" style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist-55)', textDecoration: 'none' }}>
-            Settings
-          </Link>
-          <span style={{ fontSize: 'var(--fs-3xs)', color: 'rgba(139,167,184,.52)' }}>·</span>
-          <Link href="/crisis" style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist-55)', textDecoration: 'none' }}>
-            Crisis resources
-          </Link>
+        <div className="flex gap-4 justify-center mt-3">
+          <Link href="/settings" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Settings</Link>
+          <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <Link href="/crisis" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
       </footer>
-
     </main>
   )
 }

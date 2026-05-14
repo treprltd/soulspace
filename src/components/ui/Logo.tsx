@@ -7,37 +7,15 @@ interface LogoProps {
   className?: string
 }
 
-const SIZES = {
-  sm: '16px',
-  md: '22px',
-  lg: '28px',
-}
-
 export function Logo({ size = 'md', className = '' }: LogoProps) {
+  const sizes = { sm: 'text-sm', md: 'text-lg', lg: 'text-2xl' }
   return (
     <Link
       href="/"
-      className={className}
-      style={{
-        fontFamily: 'var(--font-serif)',
-        fontWeight: 300,
-        fontSize: SIZES[size],
-        color: 'var(--sand2)',
-        letterSpacing: '-0.01em',
-        textDecoration: 'none',
-        display: 'inline-block',
-      }}
+      className={`font-serif font-light text-sand2 no-underline ${sizes[size]} ${className}`}
+      style={{ textDecoration: 'none' }}
     >
-      Soul{' '}
-      <em
-        style={{
-          fontStyle: 'normal',
-          color: 'var(--gold)',
-          fontWeight: 400,
-        }}
-      >
-        Space
-      </em>
+      Soul <em className="not-italic text-gold font-normal">Space</em>
     </Link>
   )
 }
