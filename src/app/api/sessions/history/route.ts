@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '20'), 50)
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10) || 20, 50)
 
     const { data: sessions, error } = await supabase
       .from('sessions')
