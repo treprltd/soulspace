@@ -13,18 +13,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
-      - name: Run lint
-        run: |
-          npm run lint 2>&1 | tee /tmp/lint.log
-          EXIT=${PIPESTATUS[0]}
-          if [ $EXIT -ne 0 ]; then
-            echo "## ❌ ESLint Errors" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat /tmp/lint.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          fi
-          exit $EXIT
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
         env:
