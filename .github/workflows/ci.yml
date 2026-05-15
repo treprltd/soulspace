@@ -14,7 +14,17 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npm run lint
+      - name: Run lint
+        run: |
+          npm run lint 2>&1 | tee /tmp/lint.log
+          EXIT=${PIPESTATUS[0]}
+          if [ $EXIT -ne 0 ]; then
+            echo "## ❌ ESLint Errors" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/lint.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          exit $EXIT
       - run: npm run typecheck
       - run: npm run build
         env:
