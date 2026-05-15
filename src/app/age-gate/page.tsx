@@ -33,7 +33,7 @@ export default function AgeGate() {
         <p className="text-[8px] tracking-[.2em] uppercase text-mist mb-4">Before you enter</p>
         <h1 className="font-serif font-light text-sand2 text-2xl mb-2">How old are you?</h1>
         <p className="text-xs text-mist mb-7 leading-relaxed">
-          Soul Space is designed for people 13 and older.<br />We don't store your answer.
+          Soul Space is designed for people 13 and older.<br />We don&apos;t store your answer.
         </p>
 
         <div className="flex flex-col gap-2.5 mb-6">
