@@ -49,7 +49,7 @@ function EventsInner() {
   const pathname = usePathname()
 
   const env = (searchParams.get('env') ?? 'dev') as AdminEnv
-  const page = parseInt(searchParams.get('page') ?? '1')
+  const page = parseInt(searchParams.get('page') ?? '1', 10)
   const eventName = searchParams.get('event') ?? ''
   const sessionId = searchParams.get('session') ?? ''
   const from = searchParams.get('from') ?? ''

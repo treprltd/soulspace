@@ -108,7 +108,7 @@ function MirrorInner() {
   const pathname = usePathname()
 
   const env = (searchParams.get('env') ?? 'dev') as AdminEnv
-  const days = parseInt(searchParams.get('days') ?? '30')
+  const days = parseInt(searchParams.get('days') ?? '30', 10)
 
   const [data, setData] = useState<MirrorData | null>(null)
   const [loading, setLoading] = useState(true)

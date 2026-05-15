@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const params = req.nextUrl.searchParams
   const env = (params.get('env') ?? 'dev') as AdminEnv
-  const page = Math.max(1, parseInt(params.get('page') ?? '1'))
+  const page = Math.max(1, parseInt(params.get('page') ?? '1', 10))
   const limit = 50
   const offset = (page - 1) * limit
   const plan = params.get('plan') // free|essentials|insights|null

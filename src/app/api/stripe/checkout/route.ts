@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/server'
-import { getStripe, PaidPlan } from '@/lib/stripe'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getStripe } from '@/lib/stripe'
 
 const CheckoutSchema = z.object({
   planTier: z.enum(['essentials', 'insights']),
