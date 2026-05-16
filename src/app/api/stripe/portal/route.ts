@@ -5,9 +5,20 @@ import { getStripe } from '@/lib/stripe'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !user) {
+    // Implicit-flow clients send the JWT via Authorization header.
+    const authHeader = req.headers.get('authorization')
+    let user = null
+    if (authHeader?.startsWith('Bearer ')) {
+      const { data } = await supabase.auth.getUser(authHeader.slice(7))
+      user = data.user
+    }
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+    }
+
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

@@ -46,10 +46,17 @@ export default function Pricing() {
     setLoading(plan)
     setError(null)
 
+    // Implicit-flow auth stores the JWT in localStorage, not cookies.
+    // Pass it explicitly so the server-side API route can authenticate.
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
+
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({ planTier: plan }),
       })
 
@@ -71,8 +78,12 @@ export default function Pricing() {
 
   const handleManage = async () => {
     setLoading('essentials') // borrow loading state
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const manageHeaders: Record<string, string> = {}
+    if (session?.access_token) manageHeaders['Authorization'] = `Bearer ${session.access_token}`
     try {
-      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const res = await fetch('/api/stripe/portal', { method: 'POST', headers: manageHeaders })
       const data = await res.json() as { url?: string; error?: string }
       if (data.url) window.location.href = data.url
       else setError(data.error ?? 'Could not open billing portal.')

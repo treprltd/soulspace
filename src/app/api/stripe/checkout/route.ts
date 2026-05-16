@@ -10,9 +10,21 @@ const CheckoutSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !user) {
+    // Implicit-flow clients store the JWT in localStorage and send it via
+    // Authorization header — fall back to cookie-based auth for PKCE flow.
+    const authHeader = req.headers.get('authorization')
+    let user = null
+    if (authHeader?.startsWith('Bearer ')) {
+      const { data } = await supabase.auth.getUser(authHeader.slice(7))
+      user = data.user
+    }
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+    }
+
+    if (!user) {
       return NextResponse.json({ error: 'Sign in required to subscribe' }, { status: 401 })
     }
 
