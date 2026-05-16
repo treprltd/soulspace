@@ -86,8 +86,13 @@ export async function POST(req: NextRequest) {
           plan_tier: planTier,
         },
       },
+      custom_text: {
+        submit: {
+          message: 'Your session content is encrypted end-to-end. Soul Space never reads it.',
+        },
+      },
       success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing`,
+      cancel_url: `${origin}/checkout/${planTier}`,
       allow_promotion_codes: true,
     })
 

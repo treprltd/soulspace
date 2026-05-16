@@ -17,80 +17,47 @@ const FREE_FEATURES = [
 
 export default function Pricing() {
   const router = useRouter()
-  const [loading, setLoading] = useState<PaidPlan | null>(null)
+  const [manageLoading, setManageLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [authenticated, setAuthenticated] = useState<boolean | null>(null)
   const [currentPlan, setCurrentPlan] = useState<string>('free')
 
   useEffect(() => {
     const supabase = createClient()
-
-    // Check auth directly via browser client — reliable for implicit flow
     supabase.auth.getUser().then(({ data: { user } }) => {
       setAuthenticated(!!user)
     })
-
-    // Fetch plan tier separately
     fetch('/api/subscription')
       .then(r => r.json())
-      .then(d => { setCurrentPlan(d.planTier ?? 'free') })
+      .then(d => { setCurrentPlan((d as { planTier?: string }).planTier ?? 'free') })
       .catch(() => {})
   }, [])
 
-  const handleSubscribe = async (plan: PaidPlan) => {
+  // Route to branded pre-checkout page — auth check + Stripe call happen there
+  const handleSubscribe = (plan: PaidPlan) => {
     if (!authenticated) {
-      router.push('/auth/signin?next=/pricing')
+      router.push(`/auth/signin?next=/checkout/${plan}`)
       return
     }
-
-    setLoading(plan)
-    setError(null)
-
-    // Implicit-flow auth stores the JWT in localStorage, not cookies.
-    // Pass it explicitly so the server-side API route can authenticate.
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const authHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
-    if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
-
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify({ planTier: plan }),
-      })
-
-      const data = await res.json() as { url?: string; error?: string }
-
-      if (!res.ok || !data.url) {
-        setError(data.error ?? 'Something went wrong. Please try again.')
-        setLoading(null)
-        return
-      }
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.url
-    } catch {
-      setError('Connection error. Please try again.')
-      setLoading(null)
-    }
+    router.push(`/checkout/${plan}`)
   }
 
   const handleManage = async () => {
-    setLoading('essentials') // borrow loading state
+    setManageLoading(true)
+    setError(null)
     const supabase = createClient()
     const { data: { session } } = await supabase.auth.getSession()
-    const manageHeaders: Record<string, string> = {}
-    if (session?.access_token) manageHeaders['Authorization'] = `Bearer ${session.access_token}`
+    const headers: Record<string, string> = {}
+    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
     try {
-      const res = await fetch('/api/stripe/portal', { method: 'POST', headers: manageHeaders })
+      const res = await fetch('/api/stripe/portal', { method: 'POST', headers })
       const data = await res.json() as { url?: string; error?: string }
       if (data.url) window.location.href = data.url
       else setError(data.error ?? 'Could not open billing portal.')
     } catch {
       setError('Connection error.')
     } finally {
-      setLoading(null)
+      setManageLoading(false)
     }
   }
 
@@ -160,7 +127,7 @@ export default function Pricing() {
               <Link
                 href="/age-gate"
                 className="w-full py-2.5 rounded-lg text-[11px] text-center block transition-opacity hover:opacity-80"
-                style={{ border: '1px solid rgba(245,237,216,.1)', color: 'var(--mist)' }}
+                style={{ border: '1px solid rgba(245,237,216,.1)', color: 'var(--mist)', textDecoration: 'none' }}
               >
                 Continue free →
               </Link>
@@ -204,17 +171,17 @@ export default function Pricing() {
             {isCurrentPlan('essentials') ? (
               <button
                 onClick={handleManage}
-                className="btn-outline text-xs w-full py-2.5"
+                disabled={manageLoading}
+                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
               >
-                Manage subscription →
+                {manageLoading ? 'Opening…' : 'Manage subscription →'}
               </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('essentials')}
-                disabled={loading !== null}
-                className="btn-primary text-xs w-full py-2.5 disabled:opacity-50"
+                className="btn-primary text-xs w-full py-2.5"
               >
-                {loading === 'essentials' ? 'Redirecting…' : 'Get Essentials →'}
+                Get Essentials →
               </button>
             )}
           </div>
@@ -247,17 +214,17 @@ export default function Pricing() {
             {isCurrentPlan('insights') ? (
               <button
                 onClick={handleManage}
-                className="btn-outline text-xs w-full py-2.5"
+                disabled={manageLoading}
+                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
               >
-                Manage subscription →
+                {manageLoading ? 'Opening…' : 'Manage subscription →'}
               </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('insights')}
-                disabled={loading !== null}
-                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                className="btn-outline text-xs w-full py-2.5"
               >
-                {loading === 'insights' ? 'Redirecting…' : 'Get Insights →'}
+                Get Insights →
               </button>
             )}
           </div>
@@ -269,7 +236,7 @@ export default function Pricing() {
             Billed monthly. Cancel any time from your account settings.
           </p>
           <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
-            Secure payment via Stripe. Soul Space does not store card details.
+            Secure payment via Stripe · Soul Space does not store card details.
           </p>
           {authenticated === false && (
             <p className="text-[9px] mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>

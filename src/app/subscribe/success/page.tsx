@@ -4,6 +4,21 @@ import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 
+const PLAN_PERKS: Record<string, string[]> = {
+  essentials: [
+    'Unlimited sessions, any time',
+    'Full session history, fully encrypted',
+    'All 4 resonance branches',
+    'All 4 seasonal responses',
+  ],
+  insights: [
+    'Everything in Essentials',
+    'Pattern tracking across sessions',
+    'Season trend analysis',
+    'Priority support',
+  ],
+}
+
 function SuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -13,7 +28,7 @@ function SuccessContent() {
   useEffect(() => {
     if (!sessionId) { setPlanTier('essentials'); return }
 
-    // Poll until webhook has updated the plan (up to ~6 seconds)
+    // Poll until webhook has updated the plan (up to ~6 s)
     let attempts = 0
     const check = async () => {
       try {
@@ -32,49 +47,88 @@ function SuccessContent() {
   }, [sessionId])
 
   const planName = planTier === 'insights' ? 'Insights' : 'Essentials'
+  const perks = PLAN_PERKS[planTier ?? 'essentials'] ?? PLAN_PERKS.essentials
 
   return (
-    <div className="animate-fade-in max-w-sm w-full">
-      <Logo size="md" />
-      <div className="w-8 h-px mx-auto mt-5 mb-6" style={{ background: 'rgba(201,168,76,.2)' }} />
+    <div className="animate-fade-in max-w-sm w-full text-left">
+      {/* Logo */}
+      <div className="text-center mb-6">
+        <Logo size="md" />
+      </div>
+
+      <div className="w-8 h-px mx-auto mb-7" style={{ background: 'rgba(201,168,76,.2)' }} />
 
       {planTier ? (
         <>
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.3)' }}
-          >
-            <span style={{ color: 'var(--gold2)', fontSize: '20px' }}>✓</span>
+          {/* Check circle */}
+          <div className="flex justify-center mb-6">
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center"
+              style={{
+                background: 'rgba(201,168,76,.08)',
+                border: '1px solid rgba(201,168,76,.3)',
+              }}
+            >
+              <span style={{ color: 'var(--gold2)', fontSize: '22px' }}>✓</span>
+            </div>
           </div>
 
-          <h1 className="font-serif font-light text-sand2 text-2xl mb-3 leading-tight">
+          {/* Heading */}
+          <h1 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight text-center">
             Welcome to <em className="text-gold2">{planName}.</em>
           </h1>
-          <p className="text-xs text-mist leading-relaxed mb-7">
-            Your subscription is active. Unlimited sessions are now available.<br />
-            Everything you share is still encrypted and private.
+          <p className="text-xs text-mist leading-relaxed mb-7 text-center">
+            Your subscription is active. Everything you share<br />
+            remains encrypted and private to you.
           </p>
 
+          {/* Perks summary card */}
+          <div
+            className="rounded-xl p-5 mb-6"
+            style={{
+              background: 'rgba(15,30,46,.6)',
+              border: '1px solid rgba(201,168,76,.12)',
+            }}
+          >
+            <div className="text-[8px] tracking-[.14em] uppercase mb-3" style={{ color: 'var(--gold)' }}>
+              What&apos;s now available
+            </div>
+            <ul className="space-y-2.5">
+              {perks.map(p => (
+                <li key={p} className="flex items-center gap-2.5 text-[11px] text-sand leading-relaxed">
+                  <span style={{ color: 'var(--teal2)', fontSize: '12px', flexShrink: 0 }}>✓</span>
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* CTAs */}
           <button
             onClick={() => router.push('/age-gate')}
-            className="btn-primary text-sm px-8 py-3 w-full"
+            className="btn-primary text-sm py-3 w-full mb-2.5"
           >
             Begin a session →
           </button>
 
           <button
             onClick={() => router.push('/settings')}
-            className="block mt-3 text-[9px] mx-auto hover:text-mist transition-colors"
-            style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+            className="block text-[9px] mx-auto hover:text-mist transition-colors w-full text-center"
+            style={{ color: 'rgba(139,167,184,.35)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            View settings & subscription →
+            View settings &amp; subscription →
           </button>
         </>
       ) : (
-        <div className="flex flex-col items-center gap-3">
+        /* Loading state */
+        <div className="flex flex-col items-center gap-4 py-8">
           <div
-            className="w-8 h-8 rounded-full animate-spin-slow"
-            style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }}
+            className="w-8 h-8 rounded-full"
+            style={{
+              border: '2px solid rgba(201,168,76,.1)',
+              borderTopColor: 'var(--gold)',
+              animation: 'spin 0.9s linear infinite',
+            }}
           />
           <p className="text-xs text-mist">Confirming your subscription…</p>
         </div>
@@ -91,7 +145,10 @@ export default function SubscribeSuccess() {
     >
       <Suspense fallback={
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full animate-spin-slow" style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)' }} />
+          <div
+            className="w-8 h-8 rounded-full"
+            style={{ border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)', animation: 'spin 0.9s linear infinite' }}
+          />
           <p className="text-xs text-mist">Loading…</p>
         </div>
       }>
