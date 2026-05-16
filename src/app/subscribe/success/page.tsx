@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
+import { NavBar } from '@/components/ui/NavBar'
 
 const PLAN_PERKS: Record<string, string[]> = {
   essentials: [
@@ -139,10 +140,9 @@ function SuccessContent() {
 
 export default function SubscribeSuccess() {
   return (
-    <main
-      className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: '#060E18' }}
-    >
+    <main className="min-h-screen flex flex-col" style={{ background: '#060E18' }}>
+      <NavBar />
+      <div className="flex-1 flex items-center justify-center px-6 text-center">
       <Suspense fallback={
         <div className="flex flex-col items-center gap-3">
           <div
@@ -154,6 +154,7 @@ export default function SubscribeSuccess() {
       }>
         <SuccessContent />
       </Suspense>
+      </div>
     </main>
   )
 }

@@ -4,7 +4,18 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+
+    // Implicit-flow clients pass the JWT via Authorization header
+    const authHeader = req.headers.get('authorization')
+    let user = null
+    if (authHeader?.startsWith('Bearer ')) {
+      const { data } = await supabase.auth.getUser(authHeader.slice(7))
+      user = data.user
+    }
+    if (!user) {
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+    }
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
