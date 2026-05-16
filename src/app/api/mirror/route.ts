@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
             .update({ safety_flagged: true })
             .eq('id', parsed.sessionId ?? '')
         }
-      } catch {}
+      } catch { /* intentional — crisis gate fires regardless of DB update */ }
       return NextResponse.json({ crisis: true }, { status: 200 })
     }
 

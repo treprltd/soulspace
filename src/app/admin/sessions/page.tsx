@@ -52,7 +52,7 @@ function SessionsInner() {
   const pathname = usePathname()
 
   const env = (searchParams.get('env') ?? 'dev') as AdminEnv
-  const page = parseInt(searchParams.get('page') ?? '1')
+  const page = parseInt(searchParams.get('page') ?? '1', 10)
   const branch = searchParams.get('branch') ?? ''
   const safety = searchParams.get('safety') ?? ''
   const from = searchParams.get('from') ?? ''

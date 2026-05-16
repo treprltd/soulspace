@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const params = req.nextUrl.searchParams
   const env = (params.get('env') ?? 'dev') as AdminEnv
-  const days = parseInt(params.get('days') ?? '30')
+  const days = parseInt(params.get('days') ?? '30', 10)
   const db = getAdminClient(env)
 
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()

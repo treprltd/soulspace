@@ -38,7 +38,7 @@ function SafetyInner() {
   const pathname = usePathname()
 
   const env = (searchParams.get('env') ?? 'dev') as AdminEnv
-  const page = parseInt(searchParams.get('page') ?? '1')
+  const page = parseInt(searchParams.get('page') ?? '1', 10)
   const reviewed = searchParams.get('reviewed') ?? ''
 
   const [data, setData] = useState<SafetyResponse | null>(null)
