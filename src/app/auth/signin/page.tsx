@@ -37,6 +37,12 @@ export default function SignIn() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Manual validation — we use noValidate to suppress the browser's native
+    // red validation bubble which was rendering as a confusing "{}" on iOS
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address.')
+      return
+    }
     setLoading(true)
     setError(null)
     const supabase = createClient()
@@ -155,12 +161,12 @@ export default function SignIn() {
               No password. We&rsquo;ll send a magic link to your email.<br />
               New here? It creates your account automatically.
             </p>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            {/* noValidate disables the browser's native red validation bubble (the "{}") */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                required
                 placeholder="your@email.com"
                 className="w-full px-4 py-3 rounded-xl text-sm text-sand2 focus:outline-none focus:border-gold/40 transition-colors"
                 style={{
@@ -168,7 +174,9 @@ export default function SignIn() {
                   border: '1px solid rgba(245,237,216,.08)',
                 }}
               />
-              {error && <p className="text-[11px]" style={{ color: 'var(--danger)' }}>{error}</p>}
+              {error && typeof error === 'string' && error.length > 0 && (
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>
+              )}
               <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>

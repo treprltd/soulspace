@@ -31,6 +31,18 @@ interface Stats {
     total: number
     unreviewed: number
   }
+  funnel: {
+    sessionStart: number
+    branchSelected: number
+    mirrorRendered: number
+    sessionComplete: number
+    window: string
+  }
+  system: {
+    lastSessionAt: string | null
+    avgMirrorMs: number | null
+    mirrorSampleSize: number
+  }
 }
 
 const BRANCH_LABELS: Record<string, string> = {
@@ -138,8 +150,30 @@ function DashboardInner() {
   if (error) return <ErrorShell message={error} />
   if (!stats) return null
 
-  const { users, sessions, mirror, safety } = stats
+  const { users, sessions, mirror, safety, funnel, system } = stats
   const totalBranch = Object.values(sessions.branchBreakdown).reduce((a, b) => a + b, 0)
+
+  // Funnel drop-off helpers
+  function dropPct(from: number, to: number) {
+    if (from === 0) return null
+    return Math.round(((from - to) / from) * 100)
+  }
+  function throughPct(top: number, n: number) {
+    if (top === 0) return null
+    return Math.round((n / top) * 100)
+  }
+
+  // System health: relative time of last session
+  function relativeTime(iso: string | null) {
+    if (!iso) return 'No sessions yet'
+    const diffMs = Date.now() - new Date(iso).getTime()
+    const mins = Math.floor(diffMs / 60000)
+    if (mins < 2) return 'Just now'
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    return `${Math.floor(hrs / 24)}d ago`
+  }
 
   return (
     <div style={{ padding: '28px 32px', maxWidth: '1100px' }}>
@@ -190,6 +224,112 @@ function DashboardInner() {
           sub={safety.unreviewed > 0 ? `${safety.total} total` : 'None unreviewed'}
           accent={safety.unreviewed > 0 ? '#D44040' : undefined}
         />
+      </div>
+
+      {/* ── Session Funnel (7d) ───────────────────────────────────────────── */}
+      <div style={{
+        background: 'var(--ink2)', border: '1px solid rgba(245,237,216,.07)',
+        borderRadius: '12px', padding: '18px 20px', marginBottom: '16px',
+      }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Session Funnel — last 7 days</span>
+          <Link href={`/admin/analytics?env=${env}`} style={{ color: 'rgba(201,168,76,.5)', textDecoration: 'none', fontSize: '10px' }}>Full analytics →</Link>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'stretch', gap: '0' }}>
+          {[
+            { label: 'Started', n: funnel.sessionStart, key: 'sessionStart' },
+            { label: 'Branch picked', n: funnel.branchSelected, key: 'branchSelected' },
+            { label: 'Mirror shown', n: funnel.mirrorRendered, key: 'mirrorRendered' },
+            { label: 'Completed', n: funnel.sessionComplete, key: 'sessionComplete' },
+          ].map((step, i, arr) => {
+            const pct = throughPct(funnel.sessionStart, step.n)
+            const drop = i > 0 ? dropPct(arr[i - 1].n, step.n) : null
+            const isBottleneck = drop !== null && drop > 40
+            return (
+              <div key={step.key} style={{ flex: 1, display: 'flex', alignItems: 'stretch' }}>
+                {/* Step block */}
+                <div style={{
+                  flex: 1, padding: '12px 10px', borderRadius: '8px',
+                  background: pct !== null && pct < 40 ? 'rgba(212,64,64,.05)' : 'rgba(245,237,216,.025)',
+                  border: `1px solid ${pct !== null && pct < 40 ? 'rgba(212,64,64,.15)' : 'rgba(245,237,216,.05)'}`,
+                }}>
+                  <div style={{ fontSize: '18px', fontFamily: 'var(--font-cormorant, Georgia)', fontWeight: 300, color: '#FAF7F0', lineHeight: 1, marginBottom: '4px' }}>
+                    {step.n}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#8BA7B8', marginBottom: '2px' }}>{step.label}</div>
+                  <div style={{ fontSize: '10px', color: pct !== null && pct < 40 ? '#D44040' : '#3DAF96' }}>
+                    {pct !== null ? `${pct}% through` : '—'}
+                  </div>
+                </div>
+                {/* Drop-off arrow between steps */}
+                {i < arr.length - 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '28px', flexShrink: 0 }}>
+                    <div style={{ fontSize: '10px', color: isBottleneck ? '#D44040' : 'rgba(139,167,184,.4)', textAlign: 'center' }}>
+                      {drop !== null ? `−${drop}%` : '→'}
+                    </div>
+                    <div style={{ fontSize: '14px', color: isBottleneck ? '#D44040' : 'rgba(139,167,184,.25)' }}>›</div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── System Health ─────────────────────────────────────────────────── */}
+      <div style={{
+        background: 'var(--ink2)', border: '1px solid rgba(245,237,216,.07)',
+        borderRadius: '12px', padding: '14px 20px', marginBottom: '20px',
+        display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap',
+      }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', flexShrink: 0 }}>
+          System Health
+        </div>
+
+        {/* Last session */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: system.lastSessionAt ? '#3DAF96' : '#8BA7B8', flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Last session:</span>
+          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>{relativeTime(system.lastSessionAt)}</span>
+        </div>
+
+        {/* Mirror avg response */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
+            background: system.avgMirrorMs === null ? '#8BA7B8'
+              : system.avgMirrorMs < 4000 ? '#3DAF96'
+              : system.avgMirrorMs < 8000 ? '#C9A84C'
+              : '#D44040',
+          }} />
+          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Mirror avg:</span>
+          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>
+            {system.avgMirrorMs !== null
+              ? `${(system.avgMirrorMs / 1000).toFixed(1)}s`
+              : '—'
+            }
+          </span>
+          {system.mirrorSampleSize > 0 && (
+            <span style={{ fontSize: '10px', color: 'rgba(139,167,184,.45)' }}>
+              ({system.mirrorSampleSize} samples)
+            </span>
+          )}
+        </div>
+
+        {/* Completion rate pulse */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
+            background: sessions.completionRate === null ? '#8BA7B8'
+              : sessions.completionRate >= 60 ? '#3DAF96'
+              : sessions.completionRate >= 40 ? '#C9A84C'
+              : '#D44040',
+          }} />
+          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Completion:</span>
+          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>
+            {sessions.completionRate !== null ? `${sessions.completionRate}%` : '—'}
+          </span>
+        </div>
       </div>
 
       {/* Two-column: plan breakdown + branch breakdown */}
@@ -244,6 +384,7 @@ function DashboardInner() {
       {/* Quick links */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
         {[
+          { href: `/admin/analytics?env=${env}`, label: 'Analytics', desc: 'Funnel, retention & trends' },
           { href: `/admin/mirror?env=${env}`, label: 'Mirror Quality', desc: 'Resonance accuracy by branch' },
           { href: `/admin/sessions?env=${env}`, label: 'All Sessions', desc: 'Browse & filter sessions' },
           { href: `/admin/safety?env=${env}`, label: 'Safety Monitor', desc: 'Review flagged sessions' },

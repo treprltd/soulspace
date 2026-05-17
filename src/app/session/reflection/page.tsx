@@ -67,41 +67,41 @@ export default function MirrorOutputPage() {
           {/* Left: Mirror cards */}
           <div>
             <div className="mirror-card">
-              <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-1.5">
+              <div className="mirror-label text-gold uppercase mb-2">
                 What you&apos;re carrying
               </div>
-              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
+              <p className="font-serif italic text-sand leading-relaxed text-sm">
                 {mirror.carrying}
               </p>
             </div>
 
             <div className="mirror-card">
-              <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-1.5">
+              <div className="mirror-label text-gold uppercase mb-2">
                 What appears underneath
               </div>
-              <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '13px' }}>
+              <p className="font-serif italic text-sand leading-relaxed text-sm">
                 {mirror.underneath}
               </p>
             </div>
 
-            <div className="rounded-xl p-3 mb-2.5" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
-              <div className="text-[7px] tracking-[.12em] uppercase mb-1.5" style={{ color: 'var(--teal2)' }}>
+            <div className="rounded-xl p-4 mb-2.5" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
+              <div className="mirror-label uppercase mb-2" style={{ color: 'var(--teal2)' }}>
                 One question back to you
               </div>
-              <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '12px' }}>
+              <p className="font-serif italic text-sand2 leading-relaxed text-sm">
                 {mirror.question}
               </p>
             </div>
 
             {/* Non-clinical notice */}
             <div
-              className="flex gap-1.5 items-start rounded-lg p-2.5 mt-2.5"
+              className="flex gap-2 items-start rounded-lg p-3 mt-2.5"
               style={{ background: 'rgba(42,140,122,.05)', border: '1px solid rgba(42,140,122,.14)' }}
             >
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#3DAF96" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 flex-shrink-0">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#3DAF96" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 flex-shrink-0">
                 <path d="M6 1l3.5 1.75v3.5C9.5 8.75 7.9 10.5 6 11c-1.9-.5-3.5-2.25-3.5-4.75v-3.5L6 1z" />
               </svg>
-              <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.7)' }}>
                 Descriptive only — not diagnostic. If you&apos;re in distress,{' '}
                 <span style={{ color: 'var(--teal2)' }}>please reach out for human support.</span>
               </p>
@@ -113,18 +113,18 @@ export default function MirrorOutputPage() {
             <ResonanceTapComponent onTap={handleTap} selected={resonanceTap} />
 
             <div
-              className="rounded-xl p-3 mb-3"
+              className="rounded-xl p-4 mb-3"
               style={{ background: 'var(--SpB)', border: '1px solid rgba(42,140,122,.2)' }}
             >
-              <div className="text-[7px] tracking-[.1em] uppercase mb-1" style={{ color: 'var(--Sp)' }}>
+              <div className="mirror-label uppercase mb-1.5" style={{ color: 'var(--Sp)' }}>
                 What comes next
               </div>
-              <p className="text-[11px] leading-relaxed" style={{ color: 'var(--SpS)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--SpS)' }}>
                 Soul Space will show you which season this may feel like — simple language, clinically reviewed.
               </p>
             </div>
 
-            <button onClick={handleSeason} className="btn-primary w-full text-xs">
+            <button onClick={handleSeason} className="btn-primary w-full text-sm">
               See your season →
             </button>
           </div>

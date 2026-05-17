@@ -28,6 +28,11 @@ export async function GET(req: NextRequest) {
     { data: resonanceData },
     { data: planData },
     { data: branchData },
+    // Funnel — 4 key steps over the last 7 days (unique sessions per step)
+    { data: funnelEvents },
+    // System health — most recent session + mirror response times
+    { data: lastSessionRow },
+    { data: mirrorPerfRows },
   ] = await Promise.all([
     db.from('users').select('*', { count: 'exact', head: true }),
     db.from('users').select('*', { count: 'exact', head: true }).gte('created_at', startOfToday.toISOString()),
@@ -41,6 +46,19 @@ export async function GET(req: NextRequest) {
     db.from('sessions').select('resonance_tap').not('resonance_tap', 'is', null).gte('created_at', startOf30Days.toISOString()),
     db.from('users').select('plan_tier'),
     db.from('sessions').select('branch').not('branch', 'is', null).gte('created_at', startOf30Days.toISOString()),
+    db.from('events')
+      .select('event_name, session_id')
+      .in('event_name', ['session_start', 'branch_selected', 'mirror_rendered', 'session_complete'])
+      .gte('timestamp', startOf7Days.toISOString()),
+    db.from('sessions')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+      .limit(1),
+    db.from('events')
+      .select('properties')
+      .eq('event_name', 'mirror_rendered')
+      .order('timestamp', { ascending: false })
+      .limit(100),
   ])
 
   // Resonance accuracy rate
@@ -62,6 +80,35 @@ export async function GET(req: NextRequest) {
 
   const completionRate = (totalSessions ?? 0) > 0
     ? Math.round(((completedSessions ?? 0) / (totalSessions ?? 1)) * 100)
+    : null
+
+  // ── 7-day session funnel ──────────────────────────────────────────────────
+  const funnelSteps = ['session_start', 'branch_selected', 'mirror_rendered', 'session_complete'] as const
+  const funnelSets: Record<string, Set<string>> = {}
+  for (const step of funnelSteps) funnelSets[step] = new Set()
+  for (const ev of funnelEvents ?? []) {
+    if (ev.session_id && funnelSets[ev.event_name]) {
+      funnelSets[ev.event_name].add(ev.session_id)
+    }
+  }
+  const funnel = {
+    sessionStart:    funnelSets['session_start'].size,
+    branchSelected:  funnelSets['branch_selected'].size,
+    mirrorRendered:  funnelSets['mirror_rendered'].size,
+    sessionComplete: funnelSets['session_complete'].size,
+    window: '7d',
+  }
+
+  // ── System health ─────────────────────────────────────────────────────────
+  const lastSessionAt = lastSessionRow?.[0]?.created_at ?? null
+
+  const responseTimes: number[] = []
+  for (const ev of mirrorPerfRows ?? []) {
+    const ms = (ev.properties as Record<string, unknown>)?.response_ms
+    if (typeof ms === 'number' && ms > 0 && ms < 60000) responseTimes.push(ms)
+  }
+  const avgMirrorMs = responseTimes.length > 0
+    ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
     : null
 
   return NextResponse.json({
@@ -88,6 +135,12 @@ export async function GET(req: NextRequest) {
     safety: {
       total: safetyTotal ?? 0,
       unreviewed: safetyUnreviewed ?? 0,
+    },
+    funnel,
+    system: {
+      lastSessionAt,
+      avgMirrorMs,
+      mirrorSampleSize: responseTimes.length,
     },
   })
 }

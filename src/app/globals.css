@@ -169,4 +169,25 @@ html, body {
   /* btn-primary and btn-outline — increase touch target height */
   .btn-primary { padding-top: 14px !important; padding-bottom: 14px !important; font-size: 15px !important; }
   .btn-outline  { padding-top: 12px !important; padding-bottom: 12px !important; font-size: 14px !important; }
+
+  /* Mirror reflection cards — key output that overwhelmed users must be able to read */
+  .mirror-card {
+    padding: 18px 16px !important;
+  }
+  .mirror-card p {
+    font-size: 15px !important;
+    line-height: 1.8 !important;
+  }
+
+  /* Mirror card section labels (text-[7px] in JSX) — ensure legibility */
+  .mirror-label {
+    font-size: 10px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  /* Session resonance entry bottom hint */
+  .session-hint {
+    font-size: 12px !important;
+    color: rgba(139,167,184,.65) !important;
+  }
 }

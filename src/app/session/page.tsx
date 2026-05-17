@@ -62,7 +62,7 @@ export default function ResonanceEntry() {
             ))}
           </div>
 
-          <p className="text-center text-[9px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <p className="session-hint text-center mt-5 leading-relaxed">
             No need to get it perfect. No wrong answer.<br />
             Everything that follows adapts to your selection.
           </p>
