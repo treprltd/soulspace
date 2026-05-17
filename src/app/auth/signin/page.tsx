@@ -13,6 +13,10 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  // Resend state
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendDone, setResendDone] = useState(false)
 
   // If already signed in, redirect immediately
   useEffect(() => {
@@ -47,6 +51,31 @@ export default function SignIn() {
     setSent(true)
   }
 
+  const handleResend = async () => {
+    setResendLoading(true)
+    const supabase = createClient()
+    await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
+    })
+    setResendLoading(false)
+    setResendDone(true)
+
+    // Hide the confirmation tick after 3 s
+    setTimeout(() => setResendDone(false), 3000)
+
+    // 60 s cooldown so user can't hammer the send button
+    setResendCooldown(60)
+    const interval = setInterval(() => {
+      setResendCooldown(c => {
+        if (c <= 1) { clearInterval(interval); return 0 }
+        return c - 1
+      })
+    }, 1000)
+  }
+
   if (checkingAuth) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: '#060E18' }}>
@@ -63,20 +92,60 @@ export default function SignIn() {
 
         {sent ? (
           <>
-            <h2 className="font-serif font-light text-sand2 text-xl mb-3">Check your email.</h2>
-            <p className="text-sm text-mist leading-relaxed">
-              We sent a link to <strong className="text-sand">{email}</strong>.<br />
-              Click it to sign in — no password needed.
-            </p>
-            <p className="text-[9px] mt-4" style={{ color: 'rgba(139,167,184,.4)' }}>
-              The link expires in 1 hour. Check spam if you don&apos;t see it.
-            </p>
-            <button
-              onClick={() => setSent(false)}
-              className="text-[9px] mt-4 underline underline-offset-4 block mx-auto"
-              style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+            {/* Envelope icon */}
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
+              style={{ background: 'rgba(201,168,76,.07)', border: '1px solid rgba(201,168,76,.2)' }}
             >
-              Try a different email
+              <span style={{ fontSize: '22px' }}>✉</span>
+            </div>
+
+            <h2 className="font-serif font-light text-sand2 text-xl mb-2">Check your inbox.</h2>
+            <p className="text-sm text-mist leading-relaxed mb-1">
+              We sent a sign-in link to
+            </p>
+            <p className="text-sm font-medium text-sand mb-5 break-all">{email}</p>
+
+            <div
+              className="rounded-xl px-4 py-3.5 mb-5 text-left"
+              style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.06)' }}
+            >
+              <p className="text-xs text-mist leading-relaxed">
+                Click the link in the email to sign in — no password needed.<br />
+                <span style={{ color: 'rgba(139,167,184,.6)' }}>
+                  Didn&apos;t get it? Check your spam or junk folder. The link expires in 1 hour.
+                </span>
+              </p>
+            </div>
+
+            {/* Resend button */}
+            <button
+              onClick={handleResend}
+              disabled={resendCooldown > 0 || resendLoading}
+              className="w-full py-3 rounded-xl text-sm transition-all mb-3 disabled:cursor-not-allowed"
+              style={{
+                border: '1px solid rgba(201,168,76,.22)',
+                color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(139,167,184,.4)' : 'var(--gold)',
+                background: 'transparent',
+                cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {resendLoading
+                ? 'Sending…'
+                : resendDone
+                ? '✓ New link sent'
+                : resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : 'Resend link →'}
+            </button>
+
+            {/* Use a different email */}
+            <button
+              onClick={() => { setSent(false); setResendCooldown(0); setResendDone(false) }}
+              className="text-xs block mx-auto underline underline-offset-4 transition-colors hover:text-mist"
+              style={{ color: 'rgba(139,167,184,.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Use a different email
             </button>
           </>
         ) : (
@@ -104,7 +173,7 @@ export default function SignIn() {
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
-            <p className="text-[9px] mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+            <p className="text-xs mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
               Your email is used only to send this link.<br />
               No marketing. No password. CPRA compliant.
             </p>
@@ -113,8 +182,8 @@ export default function SignIn() {
 
         <button
           onClick={() => router.push('/start')}
-          className="text-[9px] mt-4 underline underline-offset-4"
-          style={{ color: 'rgba(139,167,184,.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+          className="text-xs mt-5 underline underline-offset-4 hover:text-mist transition-colors"
+          style={{ color: 'rgba(139,167,184,.5)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           Continue without signing in
         </button>

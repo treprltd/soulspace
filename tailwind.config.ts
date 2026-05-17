@@ -27,8 +27,10 @@ const config: Config = {
         autumn: '#C4784A',
       },
       fontFamily: {
-        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        // CSS variables injected by next/font (self-hosted); fall back to
+        // the quoted names so Tailwind purge still detects them if needed.
+        serif: ['var(--font-cormorant)', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        sans:  ['var(--font-dm-sans)',   '"DM Sans"',            'system-ui', 'sans-serif'],
       },
     },
   },

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { NavBar } from '@/components/ui/NavBar'
+import { createClient } from '@/lib/supabase/client'
 
 const PLAN_PERKS: Record<string, string[]> = {
   essentials: [
@@ -29,11 +30,18 @@ function SuccessContent() {
   useEffect(() => {
     if (!sessionId) { setPlanTier('essentials'); return }
 
-    // Poll until webhook has updated the plan (up to ~6 s)
+    // Poll until webhook has updated the plan (up to ~6 s).
+    // Must pass bearer token — Supabase implicit flow stores JWT in localStorage,
+    // not cookies, so the server route can't authenticate without the header.
     let attempts = 0
     const check = async () => {
       try {
-        const res = await fetch('/api/subscription')
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        const headers: Record<string, string> = {}
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+        const res = await fetch('/api/subscription', { headers })
         const data = await res.json() as { planTier?: string }
         if (data.planTier && data.planTier !== 'free') {
           setPlanTier(data.planTier)
@@ -41,7 +49,7 @@ function SuccessContent() {
         }
       } catch { /* ignore */ }
       attempts++
-      if (attempts < 5) setTimeout(check, 1200)
+      if (attempts < 6) setTimeout(check, 1500)
       else setPlanTier('essentials') // fallback — show success anyway
     }
     check()
@@ -104,18 +112,31 @@ function SuccessContent() {
             </ul>
           </div>
 
-          {/* CTAs */}
+          {/* CTAs — dashboard first so user sees their plan is active */}
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="btn-primary text-sm py-3 w-full mb-3"
+          >
+            Go to your dashboard →
+          </button>
+
           <button
             onClick={() => router.push('/age-gate')}
-            className="btn-primary text-sm py-3 w-full mb-2.5"
+            className="w-full py-2.5 rounded-xl text-sm transition-colors mb-2.5"
+            style={{
+              border: '1px solid rgba(201,168,76,.2)',
+              color: 'var(--gold)',
+              background: 'transparent',
+              cursor: 'pointer',
+            }}
           >
             Begin a session →
           </button>
 
           <button
             onClick={() => router.push('/settings')}
-            className="block text-[9px] mx-auto hover:text-mist transition-colors w-full text-center"
-            style={{ color: 'rgba(139,167,184,.35)', background: 'none', border: 'none', cursor: 'pointer' }}
+            className="block text-xs mx-auto hover:text-mist transition-colors w-full text-center"
+            style={{ color: 'rgba(139,167,184,.45)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             View settings &amp; subscription →
           </button>

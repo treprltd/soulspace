@@ -24,13 +24,20 @@ export default function Pricing() {
 
   useEffect(() => {
     const supabase = createClient()
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setAuthenticated(!!user)
     })
-    fetch('/api/subscription')
-      .then(r => r.json())
-      .then(d => { setCurrentPlan((d as { planTier?: string }).planTier ?? 'free') })
-      .catch(() => {})
+
+    // Must pass bearer token — implicit flow stores JWT in localStorage, not cookies
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+      fetch('/api/subscription', { headers })
+        .then(r => r.json())
+        .then(d => { setCurrentPlan((d as { planTier?: string }).planTier ?? 'free') })
+        .catch(() => {})
+    })
   }, [])
 
   // Route to branded pre-checkout page — auth check + Stripe call happen there
