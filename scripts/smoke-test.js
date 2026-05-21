@@ -97,9 +97,12 @@ async function get(path, opts = {}) {
   })
 
   // ── API route auth ────────────────────────────────────────────────────────
-  await test('GET /api/subscription returns 401 without auth', async () => {
+  await test('GET /api/subscription returns 200 with authenticated:false for anon', async () => {
     const res = await get('/api/subscription')
-    assert(res.status === 401, `Expected 401, got ${res.status}`)
+    assert(res.status === 200, `Expected 200, got ${res.status}`)
+    const body = await res.json()
+    assert(body.authenticated === false, `Expected authenticated:false, got ${JSON.stringify(body.authenticated)}`)
+    assert(body.planTier === 'free', `Expected planTier:free, got ${body.planTier}`)
   })
 
   await test('GET /api/sessions/history returns 401 without auth', async () => {
