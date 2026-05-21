@@ -31,7 +31,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       // Self-hosted fonts via next/font (no external font CDN needed)
       "font-src 'self' data:",
-      // API connections: Supabase REST + realtime WS, Anthropic, Brevo
+      // API connections: Supabase REST + realtime WS, Anthropic, Brevo, Sentry
       [
         "connect-src 'self'",
         'https://*.supabase.co',
@@ -39,6 +39,10 @@ const securityHeaders = [
         'https://api.anthropic.com',
         'https://api.brevo.com',
         'https://api.stripe.com',
+        'https://*.sentry.io',
+        'https://*.ingest.sentry.io',
+        'https://*.ingest.us.sentry.io',
+        'https://*.ingest.de.sentry.io',
       ].join(' '),
       // Stripe hosted checkout iframe
       "frame-src https://js.stripe.com https://hooks.stripe.com",
