@@ -1,0 +1,95 @@
+name: Scheduled health checks
+
+on:
+  # Run every 6 hours
+  schedule:
+    - cron: '0 */6 * * *'
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options: [production, dev]
+
+jobs:
+  # ── 1. Smoke tests against production ─────────────────────────────────────
+  smoke-prod:
+    name: Production smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+
+      - name: Run smoke tests
+        run: node scripts/smoke-test.js
+        env:
+          BASE_URL: https://soulspacehealth.org
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET_PROD }}
+
+  # ── 2. Mirror accuracy sentinel ───────────────────────────────────────────
+  mirror-accuracy:
+    name: Mirror resonance accuracy check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+
+      - name: Check resonance accuracy rate
+        run: node scripts/check-mirror-accuracy.js
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_PROD }}
+          # Alert threshold: fail if accuracy drops below 50% (CLAUDE.md: stop all work below 50%)
+          ACCURACY_THRESHOLD: '50'
+          # Sample window: last N sessions
+          SAMPLE_WINDOW: '200'
+
+  # ── 3. Safety flag rate monitor ───────────────────────────────────────────
+  safety-rate:
+    name: Safety flag rate monitor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+
+      - name: Check safety flag rate
+        run: node scripts/check-safety-rate.js
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_PROD }}
+          # Alert if safety flagged rate exceeds 5% in last 24h (possible abuse/injection)
+          SAFETY_FLAG_THRESHOLD: '5'
+
+  # ── 4. Stripe webhook health ──────────────────────────────────────────────
+  stripe-webhooks:
+    name: Stripe webhook health
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+
+      - name: Check for failed Stripe webhook deliveries
+        run: node scripts/check-stripe-webhooks.js
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_PROD }}
+          # Alert if any webhook failed in last 24h
+          LOOKBACK_HOURS: '24'

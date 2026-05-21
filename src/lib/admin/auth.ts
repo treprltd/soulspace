@@ -16,15 +16,17 @@ export async function isAdminAuthenticated(): Promise<boolean> {
 }
 
 export async function setAdminCookie(res: Headers, secret: string) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
   res.append(
     'Set-Cookie',
-    `${COOKIE_NAME}=${secret}; HttpOnly; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Strict`
+    `${COOKIE_NAME}=${secret}; HttpOnly; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Strict${secure}`
   )
 }
 
 export async function clearAdminCookie(res: Headers) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
   res.append(
     'Set-Cookie',
-    `${COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict`
+    `${COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${secure}`
   )
 }

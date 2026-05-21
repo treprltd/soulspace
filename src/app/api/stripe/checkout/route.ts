@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { getStripe } from '@/lib/stripe'
 
 const CheckoutSchema = z.object({
@@ -10,19 +11,8 @@ const CheckoutSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-
-    // Implicit-flow clients store the JWT in localStorage and send it via
-    // Authorization header — fall back to cookie-based auth for PKCE flow.
-    const authHeader = req.headers.get('authorization')
-    let user = null
-    if (authHeader?.startsWith('Bearer ')) {
-      const { data } = await supabase.auth.getUser(authHeader.slice(7))
-      user = data.user
-    }
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data.user
-    }
+    // Bearer token first (implicit flow), cookie fallback (PKCE flow)
+    const user = await getAuthUser(req, supabase)
 
     if (!user) {
       return NextResponse.json({ error: 'Sign in required to subscribe' }, { status: 401 })

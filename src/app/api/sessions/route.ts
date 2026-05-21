@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 const CreateSessionSchema = z.object({
   branch: z.enum(['A', 'B', 'C', 'D']),
@@ -12,8 +13,9 @@ export async function POST(req: NextRequest) {
     const { branch } = CreateSessionSchema.parse(body)
 
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // Accept both Bearer token (implicit flow) and cookie-based auth
+    const user = await getAuthUser(req, supabase)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

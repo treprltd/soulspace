@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
 import { ProgressBar } from '@/components/session/ProgressBar'
+import { createClient } from '@/lib/supabase/client'
 
 const MAX_CHARS = 800
 
@@ -16,6 +17,49 @@ export default function ContextField() {
     if (submitting) return
     setSubmitting(true)
     sessionStorage.setItem('ss_context', text)
+
+    // ── Create a session row in Supabase for authenticated users ─────────────
+    // This is the earliest point at which we have all info needed to create a
+    // session (branch is already in sessionStorage from the resonance screen).
+    // The session ID is stored in sessionStorage so the loading page can pass
+    // it to the mirror API, which then links session_content to this row.
+    //
+    // Unauthenticated users skip this — they still get the mirror output, it
+    // just won't be persisted.
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session?.access_token) {
+        const branch = sessionStorage.getItem('ss_branch') ?? 'A'
+        const res = await fetch('/api/sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ branch }),
+        })
+
+        if (res.ok) {
+          const { session: dbSession } = await res.json() as { session: { id: string } }
+          // Store the real DB session ID so the mirror API can link to this row
+          sessionStorage.setItem('ss_session_id', dbSession.id)
+        }
+        // If session creation fails (e.g. network error), we clear any stale ID
+        // so the loading page uses a random UUID — mirror still works, no persistence
+        else {
+          sessionStorage.removeItem('ss_session_id')
+        }
+      } else {
+        // Not authenticated — clear any leftover session ID from a previous run
+        sessionStorage.removeItem('ss_session_id')
+      }
+    } catch {
+      // Non-blocking — unauthenticated / offline users still get the mirror
+      sessionStorage.removeItem('ss_session_id')
+    }
+
     router.push('/session/loading')
   }
 

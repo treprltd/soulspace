@@ -7,8 +7,12 @@ frontend:
         - node --version
         - npm --version
         - npm install
+        # Validate all required env vars before spending build minutes
+        - node scripts/validate-env.js
     build:
       commands:
+        # Guard frozen affirmation copy has not been changed
+        - node scripts/check-frozen-copy.js
         - npm run build
   artifacts:
     baseDirectory: .next

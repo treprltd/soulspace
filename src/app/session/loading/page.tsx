@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Branch, MirrorOutput } from '@/types'
+import { createClient } from '@/lib/supabase/client'
 
 export default function MirrorLoading() {
   const router = useRouter()
@@ -16,9 +17,17 @@ export default function MirrorLoading() {
 
     async function callMirror() {
       try {
+        // Build auth headers — Bearer token required for implicit-flow JWT auth
+        const supabase = createClient()
+        const { data: { session: authSession } } = await supabase.auth.getSession()
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (authSession?.access_token) {
+          headers['Authorization'] = `Bearer ${authSession.access_token}`
+        }
+
         const res = await fetch('/api/mirror', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             sessionId: sessionStorage.getItem('ss_session_id') ?? crypto.randomUUID(),
             branch,

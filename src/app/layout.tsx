@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
+import { FooterWrapper } from '@/components/ui/FooterWrapper'
 import './globals.css'
 
 // Self-hosted via next/font — eliminates the render-blocking Google Fonts
@@ -33,7 +34,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased flex flex-col">
+        <div className="flex-1 flex flex-col">{children}</div>
+        <FooterWrapper />
+      </body>
     </html>
   )
 }

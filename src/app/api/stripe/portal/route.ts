@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { getStripe } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-
-    // Implicit-flow clients send the JWT via Authorization header.
-    const authHeader = req.headers.get('authorization')
-    let user = null
-    if (authHeader?.startsWith('Bearer ')) {
-      const { data } = await supabase.auth.getUser(authHeader.slice(7))
-      user = data.user
-    }
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data.user
-    }
+    const user = await getAuthUser(req, supabase)
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

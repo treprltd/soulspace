@@ -11,13 +11,21 @@ export default function AgeGate() {
     router.push('/age-gate/under-13')
   }
 
+  const setAgeConsentCookie = (tier: 'teen' | 'adult') => {
+    // Expires in 1 year; SameSite=Strict keeps it first-party only.
+    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()
+    document.cookie = `ss_age_ok=${tier}; path=/; expires=${expires}; SameSite=Strict`
+  }
+
   const handleTeen = () => {
     // AADC compliant — no data stored from this screen.
     // Teen-safe session flow (no difference in Phase 1, but flagged for Phase 4).
+    setAgeConsentCookie('teen')
     router.push('/start?age=teen')
   }
 
   const handleAdult = () => {
+    setAgeConsentCookie('adult')
     router.push('/start')
   }
 

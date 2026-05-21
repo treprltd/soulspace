@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 const ResonanceSchema = z.object({
   result: z.enum(['accurate', 'not_quite']),
@@ -16,9 +17,11 @@ export async function POST(
     const { result } = ResonanceSchema.parse(body)
 
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Accept both Bearer token (implicit flow) and cookie-based auth
+    const user = await getAuthUser(req, supabase)
+    if (!user) {
+      // Resonance is best-effort — don't fail the UX if user is unauthenticated
+      return NextResponse.json({ ok: true })
     }
 
     const { error } = await supabase

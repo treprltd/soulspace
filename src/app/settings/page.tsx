@@ -38,11 +38,25 @@ export default function Settings() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
-    fetch('/api/subscription')
-      .then(r => r.json())
-      .then(d => setSubStatus(d as SubscriptionStatus))
-      .catch(() => {})
+
+    async function load() {
+      const [{ data: { user } }, { data: { session } }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ])
+      setUser(user)
+
+      // Pass Bearer token so server routes authenticate implicit-flow JWT
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      fetch('/api/subscription', { headers })
+        .then(r => r.json())
+        .then(d => setSubStatus(d as SubscriptionStatus))
+        .catch(() => {})
+    }
+
+    load()
   }, [])
 
   const handleSignOut = async () => {
@@ -57,7 +71,12 @@ export default function Settings() {
     if (!confirmDelete) { setConfirmDelete(true); return }
     setDeleting(true)
     try {
-      await fetch('/api/user/data', { method: 'DELETE' })
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      await fetch('/api/user/data', { method: 'DELETE', headers })
       setDeleted(true)
       setTimeout(() => router.push('/'), 1500)
     } catch {
@@ -69,7 +88,12 @@ export default function Settings() {
   const handleManageBilling = async () => {
     setPortalLoading(true)
     try {
-      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      const res = await fetch('/api/stripe/portal', { method: 'POST', headers })
       const data = await res.json() as { url?: string }
       if (data.url) window.location.href = data.url
     } catch {

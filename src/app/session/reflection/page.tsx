@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { MirrorOutput, ResonanceTap } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { ResonanceTap as ResonanceTapComponent } from '@/components/session/ResonanceTap'
+import { createClient } from '@/lib/supabase/client'
 
 export default function MirrorOutputPage() {
   const router = useRouter()
@@ -26,9 +27,16 @@ export default function MirrorOutputPage() {
 
     const sessionId = sessionStorage.getItem('ss_session_id')
     if (sessionId) {
+      // Pass Bearer token so server can authenticate implicit-flow JWT
+      const supabase = createClient()
+      const { data: { session: authSession } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (authSession?.access_token) {
+        headers['Authorization'] = `Bearer ${authSession.access_token}`
+      }
       await fetch(`/api/sessions/${sessionId}/resonance`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ result }),
       }).catch(() => {})
     }

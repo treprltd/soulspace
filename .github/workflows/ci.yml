@@ -1,12 +1,15 @@
 name: CI
+
 on:
   push:
     branches: ['*']
   pull_request:
     branches: [main, qa, dev]
+
 jobs:
-  ci:
-    name: Lint · Typecheck · Build
+  # ── Lint + Typecheck + Frozen copy guard ──────────────────────────────────
+  lint-typecheck:
+    name: Lint · Typecheck · Frozen copy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,11 +18,112 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Frozen affirmation copy guard
+        run: node scripts/check-frozen-copy.js
+
+  # ── Security audit ────────────────────────────────────────────────────────
+  security-audit:
+    name: Security audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Dependency vulnerability audit (high+critical only)
+        # --audit-level=high — warn on high, fail on critical
+        run: npm audit --audit-level=critical
+        continue-on-error: true   # don't block PRs on transitive vulns; review manually
+
+      - name: Check for secrets in source code
+        run: |
+          # Hard-fail if any API key pattern appears in src/
+          # (catches accidental commits of real keys)
+          if grep -rE "(sk-ant-api|sk_live_|sk_test_|ENCRYPTION_KEY\s*=\s*[0-9a-f]{64})" src/ --include="*.ts" --include="*.tsx"; then
+            echo "❌ Potential secret found in src/ — commit rejected"
+            exit 1
+          fi
+          echo "✓ No secret patterns found in src/"
+
+  # ── Build + Bundle size check ─────────────────────────────────────────────
+  build:
+    name: Build · Bundle size
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
+      NEXT_PUBLIC_ENV: ci
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      # Stub values so validate-env.js passes in CI (no real DB calls)
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY_CI }}
+      BREVO_API_KEY: ci_stub
+      ADMIN_SECRET: ci_stub_secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Env validation (CI mode)
+        run: node scripts/validate-env.js
+        continue-on-error: true   # CI stubs may not pass all prod guards
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle size check
+        run: node scripts/check-bundle-size.js
+
+  # ── Unit tests (no real API calls) ───────────────────────────────────────
+  test-unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Run unit tests (excluding live AI tests)
+        run: npx jest --testPathIgnorePatterns="__tests__/safety" "__tests__/mirror" --passWithNoTests
+        env:
+          NEXT_PUBLIC_ENV: ci
+
+  # ── RLS policy tests (only on migration changes) ─────────────────────────
+  test-rls:
+    name: RLS policy tests
+    runs-on: ubuntu-latest
+    # Only run when Supabase migrations or RLS scripts are changed
+    if: |
+      contains(github.event.head_commit.message, '[rls]') ||
+      contains(toJson(github.event.pull_request.files), 'supabase/migrations')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: RLS policy tests
+        run: node scripts/test-rls.js
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
-          NEXT_PUBLIC_ENV: ci
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}

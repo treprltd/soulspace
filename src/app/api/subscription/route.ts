@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
-
-    // Implicit-flow clients pass the JWT via Authorization header
-    const authHeader = req.headers.get('authorization')
-    let user = null
-    if (authHeader?.startsWith('Bearer ')) {
-      const { data } = await supabase.auth.getUser(authHeader.slice(7))
-      user = data.user
-    }
-    if (!user) {
-      const { data } = await supabase.auth.getUser()
-      user = data.user
-    }
+    const user = await getAuthUser(req, supabase)
 
     if (!user) {
       return NextResponse.json({

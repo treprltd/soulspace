@@ -61,10 +61,17 @@ export default function NextStep() {
     })
 
     // Fetch plan/usage data separately (only needed for upgrade nudge)
-    fetch('/api/subscription')
-      .then(r => r.json())
-      .then(d => setSubStatus(d as SubStatus))
-      .catch(() => {})
+    // Pass Bearer token for implicit-flow JWT auth
+    supabase.auth.getSession().then(({ data: { session: authSession } }) => {
+      const headers: Record<string, string> = {}
+      if (authSession?.access_token) {
+        headers['Authorization'] = `Bearer ${authSession.access_token}`
+      }
+      fetch('/api/subscription', { headers })
+        .then(r => r.json())
+        .then(d => setSubStatus(d as SubStatus))
+        .catch(() => {})
+    })
 
     return () => subscription.unsubscribe()
   }, [])
@@ -73,7 +80,14 @@ export default function NextStep() {
     setDone(true)
     const sessionId = sessionStorage.getItem('ss_session_id')
     if (sessionId) {
-      await fetch(`/api/sessions/${sessionId}/complete`, { method: 'POST' }).catch(() => {})
+      // Pass Bearer token so server can authenticate implicit-flow JWT
+      const supabase = createClient()
+      const { data: { session: authSession } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (authSession?.access_token) {
+        headers['Authorization'] = `Bearer ${authSession.access_token}`
+      }
+      await fetch(`/api/sessions/${sessionId}/complete`, { method: 'POST', headers }).catch(() => {})
     }
     // Clear session state
     ;['ss_branch', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']

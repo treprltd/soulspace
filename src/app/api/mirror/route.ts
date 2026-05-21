@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { runMirror, SafetyFlagError } from '@/lib/mirror'
 import { encrypt } from '@/lib/encryption'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
@@ -21,12 +22,15 @@ export async function POST(req: NextRequest) {
   try {
     const input = MirrorSchema.parse(rawBody)
 
-    // Auth is optional — unauthenticated users get the mirror but no persistence
+    // Auth is optional — unauthenticated users get the mirror but no persistence.
+    // Use getAuthUser so Bearer token (implicit flow) and cookies both work.
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser(req, supabase)
 
-    // ── Session gating ────────────────────────────────────────────────────────
-    // Authenticated free-tier users are limited to FREE_SESSIONS_PER_MONTH/month
+    // ── Free-tier session gating ──────────────────────────────────────────────
+    // Authenticated free-tier users are limited to FREE_SESSIONS_PER_MONTH/month.
+    // Count is from the sessions table (created when session started, not completed)
+    // so users can't game the gate by abandoning sessions.
     if (user) {
       const { data: userData } = await supabase
         .from('users')
@@ -74,7 +78,7 @@ export async function POST(req: NextRequest) {
         encryption_key_ref: keyRef,
       })
 
-      // Update session with season and char count
+      // Update session with season, char count and intensity
       await supabase
         .from('sessions')
         .update({
@@ -101,7 +105,7 @@ export async function POST(req: NextRequest) {
       try {
         const parsed = rawBody as { sessionId?: string; branch?: string }
         const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const user = await getAuthUser(req, supabase)
         if (user) {
           await supabase.from('safety_events').insert({
             session_id: parsed.sessionId ?? null,
