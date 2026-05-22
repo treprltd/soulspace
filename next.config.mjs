@@ -48,6 +48,9 @@ const securityHeaders = [
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       // Stripe.js loaded in checkout page
       "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com",
+      // Sentry Replay creates a blob: Web Worker to process session recordings.
+      // Without worker-src, it falls back to default-src 'self' which blocks blob:.
+      "worker-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
