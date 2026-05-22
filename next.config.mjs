@@ -92,6 +92,9 @@ const nextConfig = {
     // Rate limiting — Upstash Redis (optional; skipped when absent)
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    // Notifications — admin email recipient + cron shared secret
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+    CRON_SECRET: process.env.CRON_SECRET,
     // Sentry DSN is NEXT_PUBLIC_ so it reaches the client bundle (safe — read-only ingest key)
     // SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT are build-time only; not needed at runtime.
   },

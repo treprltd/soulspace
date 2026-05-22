@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { runMirror, SafetyFlagError } from '@/lib/mirror'
 import { encrypt } from '@/lib/encryption'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+import { sendEmail, adminSafetyAlertEmail } from '@/lib/email'
 
 const MirrorSchema = z.object({
   sessionId: z.string().uuid(),
@@ -118,6 +119,25 @@ export async function POST(req: NextRequest) {
             .from('sessions')
             .update({ safety_flagged: true })
             .eq('id', parsed.sessionId ?? '')
+
+          // Alert admin via email (best-effort, non-blocking)
+          const adminEmail = process.env.ADMIN_EMAIL
+          if (adminEmail) {
+            try {
+              const service = createServiceClient()
+              const { count: unreviewedCount } = await service
+                .from('safety_events')
+                .select('*', { count: 'exact', head: true })
+                .eq('reviewed', false)
+              const template = adminSafetyAlertEmail({
+                sessionId: parsed.sessionId ?? 'unknown',
+                flagType: err.flagType ?? 'unspecified',
+                branch: parsed.branch ?? null,
+                flagsUnreviewed: unreviewedCount ?? 0,
+              })
+              await sendEmail({ to: adminEmail, ...template })
+            } catch { /* non-fatal */ }
+          }
         }
       } catch { /* intentional — crisis gate fires regardless of DB update */ }
       return NextResponse.json({ crisis: true }, { status: 200 })

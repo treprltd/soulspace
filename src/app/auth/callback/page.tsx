@@ -36,10 +36,22 @@ export default function AuthCallback() {
 
     let redirected = false
 
+    // Fire-and-forget welcome email for brand-new users.
+    // The /api/user/welcome route checks session count and skips if not a new user.
+    async function maybeWelcome(session: import('@supabase/supabase-js').Session) {
+      try {
+        await fetch('/api/user/welcome', {
+          method: 'POST',
+          headers: session.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        })
+      } catch { /* non-fatal */ }
+    }
+
     // 1. Check if SDK already processed the hash before this component mounted
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && !redirected) {
         redirected = true
+        maybeWelcome(session)
         router.replace(next)
       }
     })
@@ -48,6 +60,7 @@ export default function AuthCallback() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session && !redirected) {
         redirected = true
+        maybeWelcome(session)
         router.replace(next)
         return
       }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
+import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
@@ -157,6 +158,21 @@ export default function Dashboard() {
       <NavBar />
 
       <div className="px-5 py-6 max-w-xl mx-auto animate-fade-in">
+
+        {/* ── Notification banners ─────────────────────────────── */}
+        {subStatus?.subscription?.status === 'past_due' && (
+          <NotificationBanner type="payment_past_due" />
+        )}
+        {subStatus?.planTier === 'free' && sessionsThisMonth >= FREE_SESSIONS_PER_MONTH && (
+          <NotificationBanner type="session_limit_reached" />
+        )}
+        {subStatus?.planTier === 'free' && sessionsThisMonth >= Math.floor(FREE_SESSIONS_PER_MONTH * 0.7) && sessionsThisMonth < FREE_SESSIONS_PER_MONTH && (
+          <NotificationBanner type="session_limit_warning" detail={`${sessionsThisMonth}/${FREE_SESSIONS_PER_MONTH}`} />
+        )}
+        {subStatus?.subscription?.cancel_at_period_end && subStatus.subscription.current_period_end && (() => {
+          const daysLeft = Math.ceil((new Date(subStatus.subscription.current_period_end).getTime() - Date.now()) / 86400000)
+          return daysLeft <= 7 ? <NotificationBanner type="subscription_expiring" detail={daysLeft} /> : null
+        })()}
 
         {/* ── Greeting ─────────────────────────────────────────── */}
         <div className="mb-5">
