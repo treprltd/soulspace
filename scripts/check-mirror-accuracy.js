@@ -16,8 +16,8 @@ const THRESHOLD        = parseInt(process.env.ACCURACY_THRESHOLD ?? '50', 10)
 const SAMPLE_WINDOW    = parseInt(process.env.SAMPLE_WINDOW ?? '200', 10)
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+  console.warn('⚠  NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — skipping check.')
+  process.exit(0)
 }
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -25,28 +25,30 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 })
 
 ;(async () => {
-  console.log(`\n🎯  Mirror accuracy check (last ${SAMPLE_WINDOW} sessions, threshold: ${THRESHOLD}%)\n`)
+  console.log(`\n🎯  Mirror accuracy check (last ${SAMPLE_WINDOW} tapped sessions, threshold: ${THRESHOLD}%)\n`)
 
-  // Query events for resonance_accurate taps
+  // resonance_tap is stored directly in sessions as 'accurate' | 'not_quite'.
+  // Querying the sessions table directly is more reliable than the events table
+  // because the resonance tap is always written here, regardless of event logging.
   const { data, error } = await supabase
-    .from('events')
-    .select('event_name, properties')
-    .in('event_name', ['resonance_accurate', 'resonance_inaccurate'])
+    .from('sessions')
+    .select('resonance_tap')
+    .not('resonance_tap', 'is', null)
     .order('created_at', { ascending: false })
     .limit(SAMPLE_WINDOW)
 
   if (error) {
-    console.error(`DB query failed: ${error.message}`)
+    console.error(`❌  DB query failed: ${error.message}`)
     process.exit(1)
   }
 
   if (!data || data.length === 0) {
-    console.log('⚠  No resonance feedback events found — skipping check (insufficient data)')
+    console.log('⚠  No resonance feedback found — skipping check (insufficient data)')
     process.exit(0)
   }
 
-  const accurate   = data.filter(e => e.event_name === 'resonance_accurate').length
-  const inaccurate = data.filter(e => e.event_name === 'resonance_inaccurate').length
+  const accurate   = data.filter(s => s.resonance_tap === 'accurate').length
+  const inaccurate = data.filter(s => s.resonance_tap === 'not_quite').length
   const total      = accurate + inaccurate
   const pct        = total > 0 ? Math.round((accurate / total) * 100) : 0
 

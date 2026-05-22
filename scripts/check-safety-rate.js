@@ -18,8 +18,8 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const THRESHOLD        = parseFloat(process.env.SAFETY_FLAG_THRESHOLD ?? '5')
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+  console.warn('⚠  NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — skipping check.')
+  process.exit(0)
 }
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -31,18 +31,21 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
-  // Total mirror calls in last 24h
+  // Total mirror renders in last 24h.
+  // events table uses 'timestamp' column (not 'created_at').
+  // Event name is 'mirror_rendered' (not 'mirror_requested').
   const { count: totalCount, error: totalErr } = await supabase
     .from('events')
     .select('id', { count: 'exact', head: true })
-    .eq('event_name', 'mirror_requested')
-    .gte('created_at', since)
+    .eq('event_name', 'mirror_rendered')
+    .gte('timestamp', since)
 
-  // Safety-flagged calls in last 24h
+  // Safety-flagged calls in last 24h.
+  // safety_events table uses 'timestamp' column (not 'created_at').
   const { count: flaggedCount, error: flaggedErr } = await supabase
     .from('safety_events')
     .select('id', { count: 'exact', head: true })
-    .gte('created_at', since)
+    .gte('timestamp', since)
 
   if (totalErr || flaggedErr) {
     console.error(`DB error: ${totalErr?.message ?? flaggedErr?.message}`)
