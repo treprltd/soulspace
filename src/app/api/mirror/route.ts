@@ -32,8 +32,13 @@ export async function POST(req: NextRequest) {
     // Authenticated free-tier users are limited to FREE_SESSIONS_PER_MONTH/month.
     // Count is from the sessions table (created when session started, not completed)
     // so users can't game the gate by abandoning sessions.
+    //
+    // IMPORTANT: must use service client here — cookie client returns count=0 for
+    // implicit-flow (localStorage) users because auth.uid() is null, which would
+    // allow unlimited free sessions as a security bypass.
     if (user) {
-      const { data: userData } = await supabase
+      const gate = createServiceClient()
+      const { data: userData } = await gate
         .from('users')
         .select('plan_tier')
         .eq('id', user.id)
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
         startOfMonth.setDate(1)
         startOfMonth.setHours(0, 0, 0, 0)
 
-        const { count } = await supabase
+        const { count } = await gate
           .from('sessions')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
@@ -114,14 +119,16 @@ export async function POST(req: NextRequest) {
         const supabase = await createClient()
         const user = await getAuthUser(req, supabase)
         if (user) {
-          await supabase.from('safety_events').insert({
+          // Use service client — cookie client has no auth context for implicit-flow users
+          const safetyDb = createServiceClient()
+          await safetyDb.from('safety_events').insert({
             session_id: parsed.sessionId ?? null,
             flag_type: err.flagType,
             branch: parsed.branch ?? null,
             action: 'crisis_routed',
             season_suppressed: true,
           })
-          await supabase
+          await safetyDb
             .from('sessions')
             .update({ safety_flagged: true })
             .eq('id', parsed.sessionId ?? '')
