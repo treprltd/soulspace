@@ -14,13 +14,16 @@ const ENV_META: Record<AdminEnv, { label: string; color: string; bg: string }> =
 }
 
 const NAV_LINKS = [
-  { href: '/admin',            label: 'Dashboard',      icon: '◈' },
-  { href: '/admin/analytics',  label: 'Analytics',      icon: '◉' },
-  { href: '/admin/mirror',     label: 'Mirror Quality', icon: '◎' },
-  { href: '/admin/sessions',   label: 'Sessions',       icon: '⊟' },
-  { href: '/admin/safety',     label: 'Safety',         icon: '⚑' },
-  { href: '/admin/users',      label: 'Users',          icon: '⊕' },
-  { href: '/admin/events',     label: 'Events',         icon: '≡' },
+  { href: '/admin',             label: 'Dashboard',      icon: '◈' },
+  { href: '/admin/analytics',   label: 'Analytics',      icon: '◉' },
+  { href: '/admin/retention',   label: 'Retention',      icon: '⟳' },
+  { href: '/admin/revenue',     label: 'Revenue',        icon: '◇' },
+  { href: '/admin/mirror',      label: 'Mirror Quality', icon: '◎' },
+  { href: '/admin/sessions',    label: 'Sessions',       icon: '⊟' },
+  { href: '/admin/safety',      label: 'Safety',         icon: '⚑' },
+  { href: '/admin/users',       label: 'Users',          icon: '⊕' },
+  { href: '/admin/events',      label: 'Events',         icon: '≡' },
+  { href: '/admin/health',      label: 'System Health',  icon: '◉' },
 ]
 
 function EnvBadge({ env }: { env: AdminEnv }) {
