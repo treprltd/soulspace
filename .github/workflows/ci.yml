@@ -101,7 +101,10 @@ jobs:
       - run: npm ci
 
       - name: Run unit tests (excluding live AI tests)
-        run: npx jest --testPathIgnorePatterns="__tests__/safety" "__tests__/mirror" --passWithNoTests
+        # Use a single regex pattern to ignore both live-AI test directories.
+        # Separate --testPathIgnorePatterns args are parsed incorrectly by the
+        # shell on Linux (the second value becomes a positional test path).
+        run: npx jest --testPathIgnorePatterns="__tests__/(safety|mirror)" --passWithNoTests
         env:
           NEXT_PUBLIC_ENV: ci
 
