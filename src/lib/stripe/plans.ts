@@ -1,7 +1,7 @@
 // Client-safe plan constants — no server-only imports
 // Use this file in 'use client' components
 
-export const FREE_SESSIONS_PER_MONTH = 3
+export const FREE_SESSIONS_PER_MONTH = 1
 
 export const PLANS = {
   essentials: {

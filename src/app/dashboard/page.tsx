@@ -166,7 +166,8 @@ export default function Dashboard() {
         {subStatus?.planTier === 'free' && sessionsThisMonth >= FREE_SESSIONS_PER_MONTH && (
           <NotificationBanner type="session_limit_reached" />
         )}
-        {subStatus?.planTier === 'free' && sessionsThisMonth >= Math.floor(FREE_SESSIONS_PER_MONTH * 0.7) && sessionsThisMonth < FREE_SESSIONS_PER_MONTH && (
+        {/* Warning only makes sense when limit > 1 — with 1/month there's no "approaching" state */}
+        {subStatus?.planTier === 'free' && FREE_SESSIONS_PER_MONTH > 1 && sessionsThisMonth >= Math.floor(FREE_SESSIONS_PER_MONTH * 0.7) && sessionsThisMonth < FREE_SESSIONS_PER_MONTH && (
           <NotificationBanner type="session_limit_warning" detail={`${sessionsThisMonth}/${FREE_SESSIONS_PER_MONTH}`} />
         )}
         {subStatus?.subscription?.cancel_at_period_end && subStatus.subscription.current_period_end && (() => {

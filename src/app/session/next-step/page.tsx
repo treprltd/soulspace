@@ -101,10 +101,17 @@ export default function NextStep() {
     }
   }
 
+  // Show nudge when the user has reached (or exceeded) the monthly limit.
+  // With limit=1 the old threshold of FREE_SESSIONS_PER_MONTH - 1 = 0 would
+  // always fire (even before any session), so we use the limit itself.
+  const nudgeThreshold = FREE_SESSIONS_PER_MONTH > 1
+    ? FREE_SESSIONS_PER_MONTH - 1   // show when on last session (3/month → at 2)
+    : FREE_SESSIONS_PER_MONTH       // show only when limit reached (1/month → at 1)
+
   const showUpgradeNudge = isAuthenticated &&
     subStatus &&
     subStatus.planTier === 'free' &&
-    (subStatus.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH - 1
+    (subStatus.sessionsThisMonth ?? 0) >= nudgeThreshold
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
@@ -189,8 +196,10 @@ export default function NextStep() {
             <div className="text-[8px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
             <p className="text-xs text-sand leading-relaxed mb-3">
               {(subStatus?.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
-                ? "You've used all your free sessions this month."
-                : "You have 1 free session left this month."}
+                ? FREE_SESSIONS_PER_MONTH === 1
+                  ? "You've used your free session this month."
+                  : "You've used all your free sessions this month."
+                : `You have ${FREE_SESSIONS_PER_MONTH - (subStatus?.sessionsThisMonth ?? 0)} free session${FREE_SESSIONS_PER_MONTH - (subStatus?.sessionsThisMonth ?? 0) === 1 ? '' : 's'} left this month.`}
               {' '}Unlimited sessions from $9.99/month.
             </p>
             <Link href="/pricing" className="btn-primary text-xs py-2 px-4 inline-block">

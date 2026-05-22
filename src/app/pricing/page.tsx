@@ -9,7 +9,7 @@ import { PLANS } from '@/lib/stripe/plans'
 import type { PaidPlan } from '@/lib/stripe/plans'
 
 const FREE_FEATURES = [
-  '3 sessions per month',
+  '1 session per month',
   'All 4 resonance branches',
   'All 4 seasonal responses',
   'Mirror output every session',
@@ -83,8 +83,8 @@ export default function Pricing() {
             <em className="text-gold2">ready to go deeper.</em>
           </h1>
           <p className="text-xs text-mist leading-relaxed max-w-sm mx-auto">
-            Start free. Three sessions a month, no account required.<br />
-            Upgrade when the first one earns it.
+            Start free. One session a month, no account required.<br />
+            Upgrade when it earns it.
           </p>
         </div>
 
