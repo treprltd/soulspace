@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
@@ -17,8 +17,12 @@ export async function GET(req: NextRequest) {
       })
     }
 
+    // Service client — user verified above; cookie client returns wrong/empty
+    // data for implicit-flow users because auth.uid() is null → RLS blocks reads
+    const db = createServiceClient()
+
     // Get user's plan tier
-    const { data: userData } = await supabase
+    const { data: userData } = await db
       .from('users')
       .select('plan_tier')
       .eq('id', user.id)
@@ -31,14 +35,14 @@ export async function GET(req: NextRequest) {
     startOfMonth.setDate(1)
     startOfMonth.setHours(0, 0, 0, 0)
 
-    const { count } = await supabase
+    const { count } = await db
       .from('sessions')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .gte('created_at', startOfMonth.toISOString())
 
     // Get active subscription details
-    const { data: subscription } = await supabase
+    const { data: subscription } = await db
       .from('subscriptions')
       .select('status, current_period_end, cancel_at_period_end')
       .eq('user_id', user.id)

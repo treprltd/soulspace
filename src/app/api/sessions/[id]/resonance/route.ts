@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 const ResonanceSchema = z.object({
@@ -24,7 +24,9 @@ export async function POST(
       return NextResponse.json({ ok: true })
     }
 
-    const { error } = await supabase
+    // Service client — user verified above; cookie client has no JWT for
+    // implicit-flow users so auth.uid() would be null → RLS violation
+    const { error } = await createServiceClient()
       .from('sessions')
       .update({ resonance_tap: result })
       .eq('id', id)

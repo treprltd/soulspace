@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 export async function POST(
@@ -15,7 +15,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { error } = await supabase
+    // Service client — user verified above; cookie client has no JWT for
+    // implicit-flow users so auth.uid() would be null → RLS violation
+    const { error } = await createServiceClient()
       .from('sessions')
       .update({ completed_at: new Date().toISOString() })
       .eq('id', id)

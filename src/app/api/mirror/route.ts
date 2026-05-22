@@ -68,11 +68,17 @@ export async function POST(req: NextRequest) {
 
     // Only persist to Supabase when the user is authenticated
     if (user) {
+      // Use the service client for all DB writes here.
+      // The cookie-based `supabase` client has no auth context for
+      // implicit-flow (localStorage) users — auth.uid() would be null,
+      // causing RLS violations. User identity is already verified above.
+      const db = createServiceClient()
+
       // Encrypt and store session content
       const { ciphertext: encryptedContext, keyRef } = encrypt(input.contextText)
       const { ciphertext: encryptedMirror } = encrypt(JSON.stringify(mirrorOutput))
 
-      await supabase.from('session_content').insert({
+      await db.from('session_content').insert({
         session_id: input.sessionId,
         encrypted_context: encryptedContext,
         encrypted_mirror_output: encryptedMirror,
@@ -80,7 +86,7 @@ export async function POST(req: NextRequest) {
       })
 
       // Update session with season, char count and intensity
-      await supabase
+      await db
         .from('sessions')
         .update({
           season_assigned: mirrorOutput.season,
@@ -91,7 +97,7 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id)
 
       // Log mirror_rendered event
-      await supabase.from('events').insert({
+      await db.from('events').insert({
         session_id: input.sessionId,
         user_hash: user.id.slice(0, 8),
         event_name: 'mirror_rendered',

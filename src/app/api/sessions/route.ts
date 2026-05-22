@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 const CreateSessionSchema = z.object({
@@ -19,7 +19,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data, error } = await supabase
+    // Use service client for the insert — user identity has already been
+    // verified by getAuthUser above. The cookie-based `supabase` client has
+    // no auth context for implicit-flow (localStorage) users, so PostgREST
+    // would see auth.uid()=null and the RLS policy would block the insert.
+    const service = createServiceClient()
+    const { data, error } = await service
       .from('sessions')
       .insert({ user_id: user.id, branch })
       .select('id, branch, created_at')
