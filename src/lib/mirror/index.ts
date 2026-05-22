@@ -25,6 +25,13 @@ export class SafetyFlagError extends Error {
   }
 }
 
+export class MirrorOverloadedError extends Error {
+  constructor() {
+    super('Anthropic API is temporarily overloaded')
+    this.name = 'MirrorOverloadedError'
+  }
+}
+
 export interface MirrorInput {
   branch: Branch
   emotionTags: string[]
@@ -76,12 +83,34 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
     `What they shared: ${input.contextText}`,
   ].join('\n')
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 512,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  })
+  // Retry on 529 (Anthropic overloaded) with exponential backoff.
+  // Attempts: immediate → 2 s → 4 s → throw MirrorOverloadedError
+  const MAX_ATTEMPTS = 3
+  let response: Awaited<ReturnType<typeof client.messages.create>> | null = null
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      response = await client.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 512,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      })
+      break // success — exit retry loop
+    } catch (apiErr) {
+      // Anthropic SDK wraps HTTP errors as APIStatusError with a numeric .status
+      const isOverloaded =
+        typeof (apiErr as { status?: number }).status === 'number' &&
+        (apiErr as { status: number }).status === 529
+      if (isOverloaded && attempt < MAX_ATTEMPTS) {
+        // Exponential backoff: 2 s, then 4 s
+        await new Promise(r => setTimeout(r, attempt * 2000))
+        continue
+      }
+      if (isOverloaded) throw new MirrorOverloadedError()
+      throw apiErr // non-529 error — propagate immediately
+    }
+  }
+  if (!response) throw new MirrorOverloadedError()
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : ''
 

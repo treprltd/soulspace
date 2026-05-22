@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
-import { runMirror, SafetyFlagError } from '@/lib/mirror'
+import { runMirror, SafetyFlagError, MirrorOverloadedError } from '@/lib/mirror'
 import { encrypt } from '@/lib/encryption'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import { sendEmail, adminSafetyAlertEmail } from '@/lib/email'
@@ -143,12 +143,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ crisis: true }, { status: 200 })
     }
 
+    if (err instanceof MirrorOverloadedError) {
+      // Anthropic 529 — service temporarily overloaded after retries. Return a
+      // structured 503 so the client can show a friendly retry message.
+      console.warn('Mirror API: Anthropic overloaded after retries')
+      return NextResponse.json(
+        { error: 'overloaded', code: 'overloaded', message: 'The reflection service is momentarily busy. Please try again in a few seconds.' },
+        { status: 503 }
+      )
+    }
+
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 })
     }
 
-    const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    // Never expose raw Anthropic error messages to the client — log server-side only
     console.error('Mirror API error:', err)
-    return NextResponse.json({ error: 'Internal server error', detail }, { status: 500 })
+    return NextResponse.json({ error: 'internal', code: 'internal' }, { status: 500 })
   }
 }
