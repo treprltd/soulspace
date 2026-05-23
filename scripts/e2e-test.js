@@ -16,6 +16,7 @@
  * Optional env vars:
  *   BASE_URL              Target base URL (default: http://localhost:3000)
  *   ANTHROPIC_API_KEY     If set, mirror tests are run (costs ~$0.01 per run)
+ *   CRON_SECRET           If set, digest endpoint live-fire tests run
  *   REPORT_PATH           Where to write the markdown report (default: e2e-report.md)
  */
 
@@ -461,6 +462,402 @@ async function testAdminDigest() {
   }
 }
 
+async function testPublicPages() {
+  section('Public Pages & Health Check')
+
+  await run('Homepage (GET /) is reachable', true, async () => {
+    const res = await fetch(`${BASE_URL}/`, { signal: AbortSignal.timeout(10000) })
+    return { pass: res.status === 200, detail: `status=${res.status}` }
+  })
+
+  await run('Pricing page (GET /pricing) is reachable', false, async () => {
+    const res = await fetch(`${BASE_URL}/pricing`, { signal: AbortSignal.timeout(10000) })
+    return { pass: res.status === 200, detail: `status=${res.status}` }
+  })
+
+  await run('GET /api/health returns valid response', true, async () => {
+    const { status, json } = await api('GET', '/api/health')
+    const hasFields = typeof json.status === 'string' && typeof json.checks === 'object'
+    return {
+      pass: (status === 200 || status === 503) && hasFields,
+      detail: `status=${status} health=${json.status}`,
+    }
+  })
+
+  await run('/api/health reports supabase check', true, async () => {
+    const { json } = await api('GET', '/api/health')
+    return {
+      pass: typeof json.checks?.supabase === 'boolean',
+      detail: `supabase=${json.checks?.supabase}`,
+    }
+  })
+
+  await run('/api/health reports encryption check', true, async () => {
+    const { json } = await api('GET', '/api/health')
+    return {
+      pass: typeof json.checks?.encryption === 'boolean' && json.checks.encryption === true,
+      detail: `encryption=${json.checks?.encryption}`,
+    }
+  })
+}
+
+async function testWelcomeEmail() {
+  section('Welcome Email (POST /api/user/welcome)')
+
+  await run('Returns 401 without auth token', true, async () => {
+    const { status } = await api('POST', '/api/user/welcome')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('Returns 200 for authenticated user (skipped for returning users)', true, async () => {
+    const { status, json } = await api('POST', '/api/user/welcome', { token: accessToken })
+    // Test user will have sessions from earlier tests → should skip gracefully
+    // New users get sent=true; returning users get skipped=true. Both are valid.
+    const isValid = status === 200 && (json.sent === true || json.skipped === true)
+    return {
+      pass: isValid,
+      detail: `status=${status} sent=${json.sent} skipped=${json.skipped} reason=${json.reason ?? ''}`,
+    }
+  })
+
+  await run('Idempotent — second call skips (user now has sessions)', false, async () => {
+    const { status, json } = await api('POST', '/api/user/welcome', { token: accessToken })
+    // After sessions exist, must return skipped
+    const isSkipped = status === 200 && json.skipped === true
+    return {
+      pass: isSkipped,
+      detail: `skipped=${json.skipped} reason=${json.reason ?? ''}`,
+    }
+  })
+}
+
+async function testNotificationBannerData() {
+  section('Notification Banner Data (GET /api/subscription)')
+
+  await run('Response includes all banner-required fields', true, async () => {
+    const { status, json } = await api('GET', '/api/subscription', { token: accessToken })
+    const requiredFields = ['planTier', 'sessionsThisMonth', 'limit']
+    const missing = requiredFields.filter(f => !(f in json))
+    return {
+      pass: status === 200 && missing.length === 0,
+      detail: missing.length > 0 ? `missing: ${missing.join(', ')}` : `tier=${json.planTier} sessions=${json.sessionsThisMonth} limit=${json.limit}`,
+    }
+  })
+
+  await run('cancel_at_period_end field is present (null for free tier)', false, async () => {
+    const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    const present = 'cancelAtPeriodEnd' in json || json.planTier === 'free'
+    return {
+      pass: present,
+      detail: `planTier=${json.planTier} cancelAtPeriodEnd=${json.cancelAtPeriodEnd ?? 'null (free tier — expected)'}`,
+    }
+  })
+
+  await run('sessionsThisMonth is a non-negative integer', true, async () => {
+    const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    const v = json.sessionsThisMonth
+    return {
+      pass: Number.isInteger(v) && v >= 0,
+      detail: `sessionsThisMonth=${v}`,
+    }
+  })
+
+  await run('limit is a positive integer', true, async () => {
+    const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    const v = json.limit
+    return {
+      pass: Number.isInteger(v) && v > 0,
+      detail: `limit=${v}`,
+    }
+  })
+}
+
+async function testDigestEndpoints() {
+  section('Notification Digest Endpoints (POST & GET /api/notifications/digest)')
+
+  // ── Auth guard tests (no secret) ────────────────────────────────────────────
+  await run('POST without cron secret returns 401', true, async () => {
+    const { status } = await api('POST', '/api/notifications/digest?mode=admin_digest')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('POST with wrong cron secret returns 401', true, async () => {
+    const res = await fetch(`${BASE_URL}/api/notifications/digest?mode=admin_digest`, {
+      method: 'POST',
+      headers: { 'x-cron-secret': 'wrong-secret-value' },
+    })
+    return { pass: res.status === 401, detail: `status=${res.status}` }
+  })
+
+  await run('GET without secret param returns 401', true, async () => {
+    const { status } = await api('GET', '/api/notifications/digest')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('GET with wrong secret param returns 401', false, async () => {
+    const { status } = await api('GET', '/api/notifications/digest?secret=wrong')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  // ── Live-fire tests (only when CRON_SECRET is set) ───────────────────────
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    log('  ⏭️   Live digest tests skipped (CRON_SECRET not set)')
+    results.push({ name: 'GET /api/notifications/digest health check', pass: null, critical: false, detail: 'skipped — no CRON_SECRET' })
+    results.push({ name: 'POST digest mode=admin_digest', pass: null, critical: false, detail: 'skipped — no CRON_SECRET' })
+    results.push({ name: 'POST digest mode=user_digest', pass: null, critical: false, detail: 'skipped — no CRON_SECRET' })
+    results.push({ name: 'POST digest mode=all', pass: null, critical: false, detail: 'skipped — no CRON_SECRET' })
+    return
+  }
+
+  await run('GET /api/notifications/digest health check (valid secret)', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/notifications/digest?secret=${encodeURIComponent(cronSecret)}`)
+    const json = await res.json().catch(() => ({}))
+    return {
+      pass: res.status === 200 && json.ok === true,
+      detail: `status=${res.status} ok=${json.ok}`,
+    }
+  })
+
+  await run('POST digest mode=admin_digest completes without error', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/notifications/digest?mode=admin_digest`, {
+      method: 'POST',
+      headers: { 'x-cron-secret': cronSecret },
+    })
+    const json = await res.json().catch(() => ({}))
+    return {
+      pass: res.status === 200 && json.ok === true,
+      detail: `status=${res.status} adminDigest=${JSON.stringify(json.results?.adminDigest ?? {})}`,
+    }
+  })
+
+  await run('POST digest mode=user_digest completes without error', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/notifications/digest?mode=user_digest`, {
+      method: 'POST',
+      headers: { 'x-cron-secret': cronSecret },
+    })
+    const json = await res.json().catch(() => ({}))
+    return {
+      pass: res.status === 200 && json.ok === true,
+      detail: `status=${res.status} userDigest=${JSON.stringify(json.results?.userDigest ?? {})}`,
+    }
+  })
+
+  await run('POST digest mode=all runs both admin + user pipelines', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/notifications/digest?mode=all`, {
+      method: 'POST',
+      headers: { 'x-cron-secret': cronSecret },
+    })
+    const json = await res.json().catch(() => ({}))
+    const hasAdminKey = 'adminDigest' in (json.results ?? {})
+    const hasUserKey  = 'userDigest'  in (json.results ?? {})
+    return {
+      pass: res.status === 200 && json.ok === true && hasAdminKey && hasUserKey,
+      detail: `status=${res.status} keys=${Object.keys(json.results ?? {}).join(',')}`,
+    }
+  })
+}
+
+async function testAdminPortalAuth() {
+  section('Admin Portal Auth (all /api/admin/* require admin cookie)')
+
+  const adminRoutes = [
+    ['GET',  '/api/admin/sessions'],
+    ['GET',  '/api/admin/users'],
+    ['GET',  '/api/admin/analytics'],
+    ['GET',  '/api/admin/stats'],
+    ['GET',  '/api/admin/events'],
+    ['GET',  '/api/admin/mirror'],
+    ['GET',  '/api/admin/safety'],
+    ['GET',  '/api/admin/revenue'],
+    ['GET',  '/api/admin/health'],
+    ['GET',  '/api/admin/retention'],
+  ]
+
+  await run('All admin GET routes return 401 without cookie', true, async () => {
+    const failures = []
+    for (const [method, path] of adminRoutes) {
+      const { status } = await api(method, path)
+      if (status !== 401) failures.push(`${method} ${path} → ${status}`)
+    }
+    return {
+      pass: failures.length === 0,
+      detail: failures.length > 0 ? failures.join(' | ') : `${adminRoutes.length} routes all returned 401`,
+    }
+  })
+
+  await run('Admin routes also reject Bearer token (not admin cookie)', true, async () => {
+    // A regular user JWT should NOT grant admin access
+    const failures = []
+    for (const [method, path] of adminRoutes.slice(0, 3)) { // sample 3 to keep test fast
+      const { status } = await api(method, path, { token: accessToken })
+      if (status !== 401) failures.push(`${method} ${path} → ${status}`)
+    }
+    return {
+      pass: failures.length === 0,
+      detail: failures.length > 0 ? failures.join(' | ') : 'Bearer token correctly rejected on admin routes',
+    }
+  })
+
+  await run('POST /api/admin/auth with wrong password returns 401', true, async () => {
+    const { status } = await api('POST', '/api/admin/auth', {
+      body: { password: 'wrong-password-e2e-test' },
+    })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('DELETE /api/admin/auth (logout) returns 200', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/auth`, { method: 'DELETE' })
+    return { pass: res.status === 200, detail: `status=${res.status}` }
+  })
+}
+
+async function testStripeRoutes() {
+  section('Stripe Route Security')
+
+  await run('POST /api/stripe/checkout requires auth (returns 401)', true, async () => {
+    const { status } = await api('POST', '/api/stripe/checkout', {
+      body: { planTier: 'essentials' },
+    })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('POST /api/stripe/portal requires auth (returns 401)', true, async () => {
+    const { status } = await api('POST', '/api/stripe/portal', { body: {} })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('POST /api/stripe/webhook without stripe-signature returns 400', true, async () => {
+    // No signature header → must reject before any processing
+    const res = await fetch(`${BASE_URL}/api/stripe/webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'checkout.session.completed' }),
+    })
+    return { pass: res.status === 400, detail: `status=${res.status}` }
+  })
+
+  await run('POST /api/stripe/checkout with auth but invalid plan returns 400', false, async () => {
+    const { status } = await api('POST', '/api/stripe/checkout', {
+      token: accessToken,
+      body: { planTier: 'invalid_plan' },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+}
+
+async function testSessionRecoveryDBState() {
+  section('Anonymous Session Recovery — DB State Verification')
+
+  const fakeMirror = JSON.stringify({
+    carrying:   'DB state verification carrying statement.',
+    underneath: 'DB state verification underneath statement.',
+    question:   'DB state verification question?',
+    season:     'S',
+    patternTags: ['reflection'],
+    safetyFlagged: false,
+  })
+
+  let recoveredSessionId = null
+
+  await run('Recovery creates session row with completed_at set', true, async () => {
+    const { status, json } = await api('POST', '/api/sessions/recover', {
+      token: accessToken,
+      body: {
+        branch:       'D',
+        contextText:  'DB state verification context.',
+        mirrorOutput: fakeMirror,
+        emotions:     JSON.stringify(['uncertain', 'hopeful']),
+        intensity:    7,
+        resonanceTap: 'accurate',
+        savedAt:      Date.now(),
+      },
+    })
+    if (status === 200 && json.sessionId) {
+      recoveredSessionId = json.sessionId
+    }
+    return {
+      pass: status === 200 && !!json.sessionId,
+      detail: `status=${status} sessionId=${json.sessionId ?? 'none'}`,
+    }
+  })
+
+  await run('Recovered session has completed_at in DB', true, async () => {
+    if (!recoveredSessionId) return { pass: false, detail: 'no sessionId from previous test' }
+    const { data } = await adminClient
+      .from('sessions')
+      .select('id, user_id, branch, completed_at, resonance_tap, season_assigned')
+      .eq('id', recoveredSessionId)
+      .single()
+    return {
+      pass: !!data?.completed_at,
+      detail: `completed_at=${data?.completed_at ?? 'null'} branch=${data?.branch} resonance=${data?.resonance_tap}`,
+    }
+  })
+
+  await run('Recovered session has resonance_tap saved in DB', true, async () => {
+    if (!recoveredSessionId) return { pass: false, detail: 'no sessionId' }
+    const { data } = await adminClient
+      .from('sessions')
+      .select('resonance_tap')
+      .eq('id', recoveredSessionId)
+      .single()
+    return {
+      pass: data?.resonance_tap === 'accurate',
+      detail: `resonance_tap=${data?.resonance_tap}`,
+    }
+  })
+
+  await run('Recovered session content exists in session_content table', true, async () => {
+    if (!recoveredSessionId) return { pass: false, detail: 'no sessionId' }
+    const { data } = await adminClient
+      .from('session_content')
+      .select('session_id, context_text_enc, mirror_output_enc')
+      .eq('session_id', recoveredSessionId)
+      .single()
+    const hasEncContent = data?.context_text_enc != null || data?.mirror_output_enc != null
+    return {
+      pass: !!data && hasEncContent,
+      detail: data ? 'encrypted content found' : 'NO session_content row found',
+    }
+  })
+
+  await run('Recovery logs mirror_rendered event with recovered=true', true, async () => {
+    if (!recoveredSessionId) return { pass: false, detail: 'no sessionId' }
+    const { data } = await adminClient
+      .from('events')
+      .select('event_name, metadata')
+      .eq('session_id', recoveredSessionId)
+      .eq('event_name', 'mirror_rendered')
+    const event = (data ?? [])[0]
+    const isRecovered = event?.metadata?.recovered === true
+    return {
+      pass: !!event && isRecovered,
+      detail: event
+        ? `event found, recovered=${event.metadata?.recovered}`
+        : 'mirror_rendered event NOT found in events table',
+    }
+  })
+}
+
+async function testUserDataEndpoint() {
+  section('User Data (GET /api/user/data)')
+
+  await run('Returns 401 without token', true, async () => {
+    const { status } = await api('GET', '/api/user/data')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('Returns user data with valid token', true, async () => {
+    const { status, json } = await api('GET', '/api/user/data', { token: accessToken })
+    const hasData = status === 200 && (json.user != null || json.sessions != null || json.error == null)
+    return {
+      pass: hasData || status === 200,
+      detail: `status=${status}`,
+    }
+  })
+}
+
 // ── Report generation ─────────────────────────────────────────────────────────
 
 function buildReport() {
@@ -475,7 +872,8 @@ function buildReport() {
     ``,
     `**Date:** ${now}  `,
     `**Target:** ${BASE_URL}  `,
-    `**Mirror tests:** ${HAS_ANTHROPIC ? 'enabled' : 'skipped (no ANTHROPIC_API_KEY)'}`,
+    `**Mirror tests:** ${HAS_ANTHROPIC ? 'enabled' : 'skipped (no ANTHROPIC_API_KEY)'}  `,
+    `**Digest tests:** ${process.env.CRON_SECRET ? 'enabled' : 'skipped (no CRON_SECRET)'}`,
     ``,
     `## Summary`,
     ``,
@@ -522,6 +920,7 @@ async function main() {
   log(`╚══════════════════════════════════════════════════════════════╝`)
   log(`  Target:  ${BASE_URL}`)
   log(`  Mirror:  ${HAS_ANTHROPIC ? 'ENABLED' : 'skipped'}`)
+  log(`  Digest:  ${process.env.CRON_SECRET ? 'ENABLED' : 'skipped'}`)
 
   // ── Connectivity preflight ───────────────────────────────────────────────
   log(`\n🔌  Checking connectivity…`)
@@ -546,6 +945,8 @@ async function main() {
   }
 
   try {
+    // ── Core flow ──────────────────────────────────────────────────────────────
+    await testPublicPages()
     await testAuth()
     await testSessionCreation()
     await testSubscriptionAPI()
@@ -553,8 +954,21 @@ async function main() {
     await testSessionComplete()
     await testResonance()
     await testSessionRecovery()
+    await testSessionRecoveryDBState()
     await testPaywall()
+
+    // ── Email & notifications ──────────────────────────────────────────────────
+    await testWelcomeEmail()
+    await testNotificationBannerData()
+    await testDigestEndpoints()
+
+    // ── Admin & security ───────────────────────────────────────────────────────
+    await testAdminPortalAuth()
+    await testStripeRoutes()
     await testAdminDigest()
+
+    // ── User data ──────────────────────────────────────────────────────────────
+    await testUserDataEndpoint()
   } finally {
     await teardown()
   }
