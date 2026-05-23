@@ -47,11 +47,66 @@ export default function AuthCallback() {
       } catch { /* non-fatal */ }
     }
 
+    // ── Session recovery ────────────────────────────────────────────────────
+    // When an anonymous user clicks "Create free account" on the next-step page,
+    // all sessionStorage keys are snapshotted into localStorage as
+    // `ss_pending_session`. sessionStorage is tab-scoped; magic-link emails open
+    // in a NEW tab, so sessionStorage is empty by the time this callback runs.
+    // localStorage survives across tabs, so the snapshot is still here.
+    //
+    // We call POST /api/sessions/recover which creates the DB row and encrypts
+    // the content — same path as a live authenticated session. The dashboard will
+    // then show the correct session count without the user having to do anything.
+    async function maybeRecoverSession(session: import('@supabase/supabase-js').Session) {
+      try {
+        const raw = localStorage.getItem('ss_pending_session')
+        if (!raw) return
+
+        const data = JSON.parse(raw) as {
+          branch: string
+          emotions: string
+          intensity: string
+          contextText: string
+          mirrorOutput: string
+          resonanceTap: string | null
+          savedAt: number
+        }
+
+        // Must have mirror output and be within the 1-hour TTL
+        if (!data.mirrorOutput || !data.savedAt) return
+        if (Date.now() - data.savedAt > 60 * 60 * 1000) {
+          localStorage.removeItem('ss_pending_session')
+          return
+        }
+
+        await fetch('/api/sessions/recover', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            branch:       data.branch,
+            contextText:  data.contextText,
+            mirrorOutput: data.mirrorOutput,
+            emotions:     data.emotions,
+            intensity:    Number(data.intensity ?? 5),
+            resonanceTap: data.resonanceTap ?? null,
+            savedAt:      data.savedAt,
+          }),
+        })
+      } catch { /* non-fatal — sign-in proceeds regardless */ }
+
+      // Always clear — even if recovery failed, don't retry on next login
+      localStorage.removeItem('ss_pending_session')
+    }
+
     // 1. Check if SDK already processed the hash before this component mounted
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && !redirected) {
         redirected = true
         maybeWelcome(session)
+        maybeRecoverSession(session)
         router.replace(next)
       }
     })
@@ -61,6 +116,7 @@ export default function AuthCallback() {
       if (event === 'SIGNED_IN' && session && !redirected) {
         redirected = true
         maybeWelcome(session)
+        maybeRecoverSession(session)
         router.replace(next)
         return
       }

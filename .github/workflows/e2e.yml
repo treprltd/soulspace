@@ -1,0 +1,62 @@
+name: E2E API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Target URL (default: staging)'
+        required: false
+        default: ''
+
+jobs:
+  e2e:
+    name: E2E API Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Run E2E tests ──────────────────────────────────────────────────────
+      # Points at the staging environment so production is never touched.
+      # Override BASE_URL in the workflow_dispatch input for ad-hoc runs.
+      - name: Run E2E test suite
+        run: node scripts/e2e-test.js --report
+        env:
+          BASE_URL:                       ${{ inputs.base_url || vars.E2E_BASE_URL || 'http://localhost:3000' }}
+          NEXT_PUBLIC_SUPABASE_URL:        ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:   ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:       ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY:               ${{ secrets.ANTHROPIC_API_KEY }}
+          CRON_SECRET:                     ${{ secrets.CRON_SECRET }}
+          REPORT_PATH:                     e2e-report.md
+
+      # ── Upload the report as an artifact ──────────────────────────────────
+      - name: Upload E2E report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ github.sha }}
+          path: e2e-report.md
+          retention-days: 30
+
+      # ── Post report summary to the job log ────────────────────────────────
+      - name: Print report summary
+        if: always()
+        run: |
+          if [ -f e2e-report.md ]; then
+            echo "### E2E Test Report" >> $GITHUB_STEP_SUMMARY
+            cat e2e-report.md >> $GITHUB_STEP_SUMMARY
+          fi

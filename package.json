@@ -15,7 +15,10 @@
     "check:copy": "node scripts/check-frozen-copy.js",
     "check:bundle": "node scripts/check-bundle-size.js",
     "smoke": "node scripts/smoke-test.js",
-    "test:rls": "node scripts/test-rls.js"
+    "test:rls": "node scripts/test-rls.js",
+    "e2e": "node scripts/e2e-test.js",
+    "e2e:report": "node scripts/e2e-test.js --report",
+    "pre-push": "node scripts/pre-push-check.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",

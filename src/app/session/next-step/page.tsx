@@ -218,9 +218,33 @@ export default function NextStep() {
             <p className="text-xs text-mist leading-relaxed mb-3">
               Create a free account to save this session and track your return over time.
             </p>
-            <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
+            {/* Use a button — not a Link — so we can snapshot the session to
+                localStorage BEFORE navigating. Magic-link emails open in a new
+                tab, which destroys sessionStorage. localStorage survives. The
+                auth/callback page reads ss_pending_session and calls the
+                /api/sessions/recover endpoint to retroactively save the row. */}
+            <button
+              onClick={() => {
+                try {
+                  const mirror = sessionStorage.getItem('ss_mirror')
+                  if (mirror) {
+                    localStorage.setItem('ss_pending_session', JSON.stringify({
+                      branch:       sessionStorage.getItem('ss_branch') ?? 'A',
+                      emotions:     sessionStorage.getItem('ss_emotions') ?? '[]',
+                      intensity:    sessionStorage.getItem('ss_intensity') ?? '5',
+                      contextText:  sessionStorage.getItem('ss_context') ?? '',
+                      mirrorOutput: mirror,
+                      resonanceTap: sessionStorage.getItem('ss_resonance'),
+                      savedAt:      Date.now(),
+                    }))
+                  }
+                } catch { /* non-fatal — if localStorage is blocked, session is lost */ }
+                router.push('/auth/signin')
+              }}
+              className="btn-outline text-xs py-2 px-4"
+            >
               Create free account →
-            </Link>
+            </button>
           </div>
         )}
       </div>
