@@ -1,5 +1,19 @@
 name: E2E API Tests
 
+# ── When does this run? ────────────────────────────────────────────────────────
+# Automatically: only when E2E_BASE_URL is set as a GitHub repository variable.
+#   Go to: Settings → Variables → Actions → New repository variable
+#   Name: E2E_BASE_URL   Value: https://dev.soulspacehealth.org
+#
+# Manually: Actions → E2E API Tests → Run workflow → enter any URL
+#
+# Required GitHub SECRETS (Settings → Secrets → Actions):
+#   NEXT_PUBLIC_SUPABASE_URL       (same as Amplify)
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY  (same as Amplify)
+#   SUPABASE_SERVICE_ROLE_KEY      (same as Amplify)
+#   CRON_SECRET                    (optional — enables digest test)
+#   ANTHROPIC_API_KEY              (optional — enables mirror paywall test)
+
 on:
   push:
     branches: [main]
@@ -8,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Target URL (default: staging)'
+        description: 'Target URL to test against (e.g. https://soulspacehealth.org)'
         required: false
         default: ''
 
@@ -17,6 +31,12 @@ jobs:
     name: E2E API Suite
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    # ── Guard: skip automatically if no deployed URL is configured ─────────────
+    # Without a real BASE_URL the tests cannot run — localhost:3000 has no app.
+    # Set the E2E_BASE_URL repository variable to enable auto-runs on push.
+    # Manual workflow_dispatch with an explicit base_url always runs.
+    if: vars.E2E_BASE_URL != '' || (github.event_name == 'workflow_dispatch' && inputs.base_url != '')
 
     steps:
       - uses: actions/checkout@v4
@@ -29,21 +49,48 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ── Run E2E tests ──────────────────────────────────────────────────────
-      # Points at the staging environment so production is never touched.
-      # Override BASE_URL in the workflow_dispatch input for ad-hoc runs.
+      # ── Preflight: verify secrets and connectivity ─────────────────────────
+      - name: Preflight checks
+        run: |
+          URL="${{ inputs.base_url || vars.E2E_BASE_URL }}"
+          echo "Target URL: $URL"
+
+          # Check required secrets are present
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
+            echo "❌  NEXT_PUBLIC_SUPABASE_URL secret is not set."
+            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            exit 1
+          fi
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "❌  SUPABASE_SERVICE_ROLE_KEY secret is not set."
+            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            exit 1
+          fi
+
+          # Check target URL is reachable (10 second timeout)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
+          if [ "$HTTP_CODE" = "000" ]; then
+            echo "❌  Cannot reach $URL — is the app deployed and the URL correct?"
+            exit 1
+          fi
+          echo "✅  $URL is reachable (HTTP $HTTP_CODE)"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:  ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      # ── Run E2E test suite ─────────────────────────────────────────────────
       - name: Run E2E test suite
         run: node scripts/e2e-test.js --report
         env:
-          BASE_URL:                       ${{ inputs.base_url || vars.E2E_BASE_URL || 'http://localhost:3000' }}
-          NEXT_PUBLIC_SUPABASE_URL:        ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:   ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:       ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          ANTHROPIC_API_KEY:               ${{ secrets.ANTHROPIC_API_KEY }}
-          CRON_SECRET:                     ${{ secrets.CRON_SECRET }}
-          REPORT_PATH:                     e2e-report.md
+          BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
+          CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
+          REPORT_PATH:                    e2e-report.md
 
-      # ── Upload the report as an artifact ──────────────────────────────────
+      # ── Upload the report as a build artifact ─────────────────────────────
       - name: Upload E2E report
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,8 +99,8 @@ jobs:
           path: e2e-report.md
           retention-days: 30
 
-      # ── Post report summary to the job log ────────────────────────────────
-      - name: Print report summary
+      # ── Post report to the job summary ────────────────────────────────────
+      - name: Post report to job summary
         if: always()
         run: |
           if [ -f e2e-report.md ]; then

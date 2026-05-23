@@ -36,10 +36,30 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const SERVICE_ROLE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY
 const HAS_ANTHROPIC     = !!process.env.ANTHROPIC_API_KEY
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SERVICE_ROLE_KEY) {
-  console.error('❌  Missing required env vars. Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY')
+const missingSecrets = [
+  !SUPABASE_URL      && 'NEXT_PUBLIC_SUPABASE_URL',
+  !SUPABASE_ANON_KEY && 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  !SERVICE_ROLE_KEY  && 'SUPABASE_SERVICE_ROLE_KEY',
+].filter(Boolean)
+
+if (missingSecrets.length > 0) {
+  console.error('\n❌  Missing required environment variables:')
+  missingSecrets.forEach(v => console.error(`    • ${v}`))
+  console.error('\n    For local runs — create a .env.local file with these values.')
+  console.error('    For CI — add them to GitHub: Settings → Secrets → Actions\n')
   process.exit(1)
 }
+
+// Quick connectivity check — fail fast with a useful error if the app is unreachable
+async function checkConnectivity() {
+  try {
+    const res = await fetch(BASE_URL, { signal: AbortSignal.timeout(8000) })
+    return { ok: true, status: res.status }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+}
+
 
 const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -502,6 +522,20 @@ async function main() {
   log(`╚══════════════════════════════════════════════════════════════╝`)
   log(`  Target:  ${BASE_URL}`)
   log(`  Mirror:  ${HAS_ANTHROPIC ? 'ENABLED' : 'skipped'}`)
+
+  // ── Connectivity preflight ───────────────────────────────────────────────
+  log(`\n🔌  Checking connectivity…`)
+  const conn = await checkConnectivity()
+  if (!conn.ok) {
+    log(`\n❌  Cannot reach ${BASE_URL}`)
+    log(`    Error: ${conn.error}`)
+    log(`\n    Fix options:`)
+    log(`      • Run "npm run dev" if testing locally`)
+    log(`      • Set BASE_URL to a deployed URL: BASE_URL=https://soulspacehealth.org npm run e2e`)
+    log(`      • In CI: set the E2E_BASE_URL repository variable in GitHub Settings → Variables\n`)
+    process.exit(1)
+  }
+  log(`  ✅  ${BASE_URL} is reachable (HTTP ${conn.status})`)
 
   try {
     await setup()
