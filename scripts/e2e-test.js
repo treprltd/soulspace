@@ -295,16 +295,36 @@ async function testSessionCreation() {
     })
     if (status === 201 && json.session?.id) {
       testSessionId = json.session.id
+      return { pass: true, detail: `status=201 id=${testSessionId}` }
     }
-    const errSnippet = status !== 201 ? ` | server_response=${JSON.stringify(json).slice(0, 150)}` : ''
+    if (status === 500) {
+      // Almost certainly a FK violation: sessions.user_id → public.users(id) fails
+      // because the app's Supabase project doesn't have our test user's public.users row.
+      //
+      // Root cause: GitHub Secrets SUPABASE_SERVICE_ROLE_KEY likely points to a
+      // different Supabase project than the Vercel deployment uses.
+      //
+      // Fix: Go to Vercel → project → Settings → Environment Variables and compare
+      // NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY against what is set in
+      // GitHub → Settings → Secrets → Actions. They must be identical.
+      return {
+        pass: false,
+        detail: `status=500 (FK violation) — app cannot see test user's public.users row. ` +
+                `GitHub SUPABASE_SERVICE_ROLE_KEY may point to wrong Supabase project. ` +
+                `Compare GitHub Secrets vs Vercel env vars and ensure they match.`,
+      }
+    }
     return {
-      pass: status === 201 && !!json.session?.id,
-      detail: `status=${status} id=${json.session?.id ?? 'none'}${errSnippet}`,
+      pass: false,
+      detail: `status=${status} id=${json.session?.id ?? 'none'} | server=${JSON.stringify(json).slice(0, 120)}`,
     }
   })
 
   await run('Created session appears in DB', true, async () => {
-    if (!testSessionId) return { pass: false, detail: 'no session ID from previous test' }
+    if (!testSessionId) {
+      // Session creation failed (likely DB mismatch) — skip rather than cascade-fail
+      return { pass: null, detail: 'skipped — session creation did not produce a session ID' }
+    }
     const { data } = await adminClient.from('sessions').select('id,user_id,branch').eq('id', testSessionId).single()
     return { pass: data?.id === testSessionId && data?.user_id === testUser.id, detail: `branch=${data?.branch}` }
   })
@@ -322,6 +342,10 @@ async function testSubscriptionAPI() {
   })
 
   await run('Session count is accurate (≥1 after creation)', true, async () => {
+    if (!testSessionId) {
+      // Session creation failed upstream — this test is meaningless without a session
+      return { pass: null, detail: 'skipped — no session was created (see session creation failure above)' }
+    }
     const { json } = await api('GET', '/api/subscription', { token: accessToken })
     return {
       pass: (json.sessionsThisMonth ?? 0) >= 1,
@@ -352,7 +376,7 @@ async function testSessionHistory() {
   })
 
   await run('History contains the created session', true, async () => {
-    if (!testSessionId) return { pass: false, detail: 'no session ID' }
+    if (!testSessionId) return { pass: null, detail: 'skipped — no session was created' }
     const { json } = await api('GET', '/api/sessions/history', { token: accessToken })
     const found = (json.sessions ?? []).some(s => s.id === testSessionId)
     return { pass: found, detail: found ? 'found' : 'NOT found in history' }
@@ -368,7 +392,7 @@ async function testSessionComplete() {
   section('Session Complete (POST /api/sessions/:id/complete)')
 
   await run('Marks session as completed', true, async () => {
-    if (!testSessionId) return { pass: false, detail: 'no session ID' }
+    if (!testSessionId) return { pass: null, detail: 'skipped — no session was created' }
     const { status } = await api('POST', `/api/sessions/${testSessionId}/complete`, { token: accessToken })
     if (status !== 200) return { pass: false, detail: `status=${status}` }
     // Verify in DB
@@ -393,7 +417,7 @@ async function testResonance() {
   tapSessionId = created.session?.id ?? null
 
   await run('Valid tap saves resonance_tap in DB', true, async () => {
-    if (!tapSessionId) return { pass: false, detail: 'could not create session for tap test' }
+    if (!tapSessionId) return { pass: null, detail: 'skipped — session creation failed (see session creation failure above)' }
     const { status } = await api('POST', `/api/sessions/${tapSessionId}/resonance`, {
       token: accessToken,
       body: { result: 'accurate' },
@@ -404,7 +428,7 @@ async function testResonance() {
   })
 
   await run('Invalid result value returns 400', false, async () => {
-    if (!tapSessionId) return { pass: false, detail: 'no session' }
+    if (!tapSessionId) return { pass: null, detail: 'skipped — session creation failed' }
     const { status } = await api('POST', `/api/sessions/${tapSessionId}/resonance`, {
       token: accessToken,
       body: { result: 'invalid_value' },
