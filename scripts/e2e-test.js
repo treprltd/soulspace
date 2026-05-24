@@ -146,38 +146,50 @@ async function setup() {
   testUser = user
   log(`  Created test user: ${email} (${user.id})`)
 
-  // ── Get a session token ───────────────────────────────────────────────────
-  // signInWithPassword produces a standard JWT that the production app's
-  // createServerClient.auth.getUser(token) always accepts.
+  // ── Get a session token via admin-generated magic link OTP ──────────────
+  // Soul Space uses email-only (magic link) auth — password auth is disabled
+  // in the Supabase project. We use the admin API to generate a magic link OTP
+  // directly, then exchange it for a session WITHOUT sending any email.
   //
-  // We avoid verifyOtp / generateLink because @supabase/ssr cookie-mode clients
-  // sometimes reject OTP-issued JWTs when the Supabase project has strict
-  // redirectTo URL allow-lists (common in production environments).
-  const testPassword = `E2eTest${Date.now()}!Aa`
-
-  // Patch the just-created user to add a password (admin API sets it directly)
-  const { error: pwErr } = await adminClient.auth.admin.updateUserById(user.id, {
-    password: testPassword,
+  // Key insight: the resulting JWT is signed by THIS Supabase project's secret.
+  // As long as NEXT_PUBLIC_SUPABASE_URL (and all 3 secrets) point to the same
+  // project as the deployed app, the JWT will be accepted by getUser(token).
+  //
+  // Earlier runs failed because the secrets pointed to a DIFFERENT project
+  // (dev project) so the JWT was signed with the dev secret and rejected by
+  // the production app. With correctly aligned secrets this flow works.
+  const { data: linkData, error: linkErr } = await adminClient.auth.admin.generateLink({
+    type: 'magiclink',
+    email,
   })
-  if (pwErr) throw new Error(`setPassword failed: ${pwErr.message}`)
+  if (linkErr || !linkData?.properties?.email_otp) {
+    throw new Error(
+      `generateLink failed: ${linkErr?.message ?? 'no email_otp in response'}. ` +
+      `Verify SUPABASE_SERVICE_ROLE_KEY is correct for this Supabase project.`
+    )
+  }
 
   const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
-  const { data: signInData, error: signInErr } = await anonClient.auth.signInWithPassword({
+  const { data: authData, error: verifyErr } = await anonClient.auth.verifyOtp({
     email,
-    password: testPassword,
+    token: linkData.properties.email_otp,
+    type: 'email',
   })
-  if (signInErr || !signInData?.session) {
-    throw new Error(`signInWithPassword failed: ${signInErr?.message}`)
+  if (verifyErr || !authData?.session) {
+    throw new Error(
+      `verifyOtp failed: ${verifyErr?.message ?? 'no session returned'}. ` +
+      `Verify NEXT_PUBLIC_SUPABASE_ANON_KEY matches NEXT_PUBLIC_SUPABASE_URL.`
+    )
   }
 
-  accessToken = signInData.session.access_token
-  log(`  ✅  Access token obtained (password auth)`)
+  accessToken = authData.session.access_token
+  log(`  ✅  Access token obtained (magic link OTP — no email sent)`)
 
   // ── Validate the token against our own Supabase project ─────────────────
-  // If this fails it means signInWithPassword returned a JWT that even OUR
-  // Supabase project's auth API rejects — almost certainly a wrong anon key.
+  // If this fails it means verifyOtp returned a JWT that even OUR Supabase
+  // project's auth API rejects — almost certainly a wrong anon key or URL.
   // If this passes but the app later returns authenticated=false, it means the
   // app uses a DIFFERENT Supabase project than the GitHub Secrets.
   try {
