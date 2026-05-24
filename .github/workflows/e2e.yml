@@ -13,6 +13,12 @@ name: E2E API Tests
 #   SUPABASE_SERVICE_ROLE_KEY      (same as Amplify)
 #   CRON_SECRET                    (optional — enables digest test)
 #   ANTHROPIC_API_KEY              (optional — enables mirror paywall test)
+#
+# Email delivery test:
+#   TEST_EMAIL repository variable (Settings → Variables → Actions):
+#     Name: TEST_EMAIL   Value: kankanamitra01@gmail.com
+#   When set, the email test suite creates a real user with that address
+#   and fires every notification path — check the inbox after the run.
 
 on:
   push:
@@ -23,6 +29,10 @@ on:
     inputs:
       base_url:
         description: 'Target URL to test against (e.g. https://soulspacehealth.org)'
+        required: false
+        default: ''
+      test_email:
+        description: 'Email address for delivery tests (optional)'
         required: false
         default: ''
 
@@ -89,6 +99,22 @@ jobs:
           ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
           CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
           REPORT_PATH:                    e2e-report.md
+
+      # ── Run email delivery test suite ─────────────────────────────────────
+      # Runs when TEST_EMAIL variable or workflow_dispatch input is set.
+      # Creates a real test user with that address, fires every notification
+      # path (welcome email, digest auth guard, session flow), then deletes
+      # the test user. Check the inbox after the run for delivery confirmation.
+      - name: Run email delivery tests
+        if: vars.TEST_EMAIL != '' || (github.event_name == 'workflow_dispatch' && inputs.test_email != '')
+        run: node scripts/e2e-email-test.js
+        env:
+          BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
+          TEST_EMAIL:                    ${{ inputs.test_email || vars.TEST_EMAIL }}
+          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
 
       # ── Upload the report as a build artifact ─────────────────────────────
       - name: Upload E2E report

@@ -18,6 +18,7 @@
     "test:rls": "node scripts/test-rls.js",
     "e2e": "node scripts/e2e-test.js",
     "e2e:report": "node scripts/e2e-test.js --report",
+    "e2e:email": "node scripts/e2e-email-test.js",
     "pre-push": "node scripts/pre-push-check.js"
   },
   "dependencies": {
