@@ -83,9 +83,13 @@ const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 // ── Test state ────────────────────────────────────────────────────────────────
 
 const results = []
-let testUser  = null
+let testUser    = null
 let accessToken = null
 let testSessionId = null
+
+// Set to true in setup() when the app's Supabase project ≠ our adminClient's project.
+// Triggers earlier/clearer diagnostics in session-dependent tests.
+let dbMismatch = false
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -203,6 +207,51 @@ async function setup() {
   }
 
   log(`  ✅  public.users row confirmed (id=${user.id} plan_tier=${verifyRow.plan_tier})`)
+
+  // ── DB consistency check ─────────────────────────────────────────────────
+  // Call the deployed app's subscription endpoint with our JWT. If the app
+  // returns planTier='essentials' we know it can see the same public.users row
+  // our adminClient just wrote (→ same Supabase project). If it returns 'free',
+  // the app's SUPABASE_SERVICE_ROLE_KEY points to a DIFFERENT database.
+  //
+  // This is the most common CI failure cause: Vercel and GitHub Secrets pointing
+  // to different Supabase projects.
+  try {
+    const subRes = await fetch(`${BASE_URL}/api/subscription`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(8000),
+    })
+    const subJson = await subRes.json()
+
+    if (subJson.planTier === 'essentials') {
+      log(`  ✅  DB consistency: app sees planTier='essentials' — GitHub Secrets ↔ Vercel env are aligned`)
+    } else {
+      dbMismatch = true
+      log(``)
+      log(`  ⚠️  ╔══════════════════════════════════════════════════════════════════╗`)
+      log(`  ⚠️  ║  SUPABASE PROJECT MISMATCH DETECTED                             ║`)
+      log(`  ⚠️  ╠══════════════════════════════════════════════════════════════════╣`)
+      log(`  ⚠️  ║  adminClient upserted planTier='essentials'                     ║`)
+      log(`  ⚠️  ║  App subscription returns planTier='${subJson.planTier}' (row not found)    ║`)
+      log(`  ⚠️  ║                                                                  ║`)
+      log(`  ⚠️  ║  The GitHub Secret SUPABASE_SERVICE_ROLE_KEY writes to a DB the ║`)
+      log(`  ⚠️  ║  deployed app CANNOT read. They are different Supabase projects. ║`)
+      log(`  ⚠️  ║                                                                  ║`)
+      log(`  ⚠️  ║  FIX (step by step):                                             ║`)
+      log(`  ⚠️  ║  1. Open Vercel → soulspace project → Settings                  ║`)
+      log(`  ⚠️  ║  2. Click "Environment Variables"                                ║`)
+      log(`  ⚠️  ║  3. Filter by environment: "Preview" (for dev.soulspace…)       ║`)
+      log(`  ⚠️  ║  4. Copy NEXT_PUBLIC_SUPABASE_URL  (the full https://... URL)   ║`)
+      log(`  ⚠️  ║  5. Copy SUPABASE_SERVICE_ROLE_KEY (the long eyJ… JWT)          ║`)
+      log(`  ⚠️  ║  6. Open GitHub → treprltd/soulspace → Settings → Secrets       ║`)
+      log(`  ⚠️  ║  7. Update both secrets to the values copied from step 4–5      ║`)
+      log(`  ⚠️  ║  8. Re-run this workflow                                         ║`)
+      log(`  ⚠️  ╚══════════════════════════════════════════════════════════════════╝`)
+      log(``)
+    }
+  } catch (e) {
+    log(`  ⚠️   DB consistency check skipped (network error: ${e.message})`)
+  }
 }
 
 // ── Teardown: delete test user and all related data ───────────────────────────
@@ -298,20 +347,16 @@ async function testSessionCreation() {
       return { pass: true, detail: `status=201 id=${testSessionId}` }
     }
     if (status === 500) {
-      // Almost certainly a FK violation: sessions.user_id → public.users(id) fails
-      // because the app's Supabase project doesn't have our test user's public.users row.
-      //
-      // Root cause: GitHub Secrets SUPABASE_SERVICE_ROLE_KEY likely points to a
-      // different Supabase project than the Vercel deployment uses.
-      //
-      // Fix: Go to Vercel → project → Settings → Environment Variables and compare
-      // NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY against what is set in
-      // GitHub → Settings → Secrets → Actions. They must be identical.
+      // FK violation: sessions.user_id → public.users(id) fails because the app's
+      // service client cannot find our test user's row in public.users.
+      // The setup() DB consistency check above determined the root cause.
+      const rootCause = dbMismatch
+        ? 'CONFIRMED DB MISMATCH — GitHub Secrets write to a different Supabase project than the app reads. ' +
+          'See the ╔══╗ box in the SETUP section of this log for exact fix steps.'
+        : 'Unexpected 500 — check Supabase logs for the FK or constraint error detail.'
       return {
         pass: false,
-        detail: `status=500 (FK violation) — app cannot see test user's public.users row. ` +
-                `GitHub SUPABASE_SERVICE_ROLE_KEY may point to wrong Supabase project. ` +
-                `Compare GitHub Secrets vs Vercel env vars and ensure they match.`,
+        detail: `status=500 (FK violation) — ${rootCause}`,
       }
     }
     return {
