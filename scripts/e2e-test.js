@@ -136,130 +136,138 @@ async function setup() {
 
   const email = `e2e-test-${Date.now()}@soulspace-test.invalid`
 
-  // Create a confirmed test user
+  // Step 1: Create test user
+  log(`  [1/6] Creating test user…`)
   const { data: { user }, error: createErr } = await adminClient.auth.admin.createUser({
     email,
     email_confirm: true,
     user_metadata: { e2e_test: true },
   })
-  if (createErr || !user) throw new Error(`createUser failed: ${createErr?.message}`)
+  if (createErr || !user) throw new Error(`[1/6] createUser failed: ${createErr?.message}`)
   testUser = user
-  log(`  Created test user: ${email} (${user.id})`)
+  log(`  ✅  [1/6] Test user created (${user.id})`)
 
-  // ── Get a session token via admin-generated magic link OTP ──────────────
-  // Soul Space uses email-only (magic link) auth — password auth is disabled
-  // in the Supabase project. We use the admin API to generate a magic link OTP
-  // directly, then exchange it for a session WITHOUT sending any email.
-  //
-  // Key insight: the resulting JWT is signed by THIS Supabase project's secret.
-  // As long as NEXT_PUBLIC_SUPABASE_URL (and all 3 secrets) point to the same
-  // project as the deployed app, the JWT will be accepted by getUser(token).
-  //
-  // Earlier runs failed because the secrets pointed to a DIFFERENT project
-  // (dev project) so the JWT was signed with the dev secret and rejected by
-  // the production app. With correctly aligned secrets this flow works.
+  // Step 2: Generate magic link OTP (admin API — no email sent)
+  // Soul Space uses magic-link-only auth; the admin generateLink API bypasses
+  // email sending and allow-list restrictions, giving us a raw OTP to exchange.
+  log(`  [2/6] Generating magic link OTP via admin API…`)
   const { data: linkData, error: linkErr } = await adminClient.auth.admin.generateLink({
     type: 'magiclink',
     email,
+    options: { redirectTo: BASE_URL },
   })
-  if (linkErr || !linkData?.properties?.email_otp) {
-    throw new Error(
-      `generateLink failed: ${linkErr?.message ?? 'no email_otp in response'}. ` +
-      `Verify SUPABASE_SERVICE_ROLE_KEY is correct for this Supabase project.`
-    )
+  if (linkErr) {
+    throw new Error(`[2/6] generateLink failed: ${linkErr.message}. Check SUPABASE_SERVICE_ROLE_KEY.`)
   }
+  const emailOtp    = linkData?.properties?.email_otp
+  const actionLink  = linkData?.properties?.action_link
+  log(`  ✅  [2/6] Link generated — email_otp=${emailOtp ? 'present' : 'ABSENT'} action_link=${actionLink ? 'present' : 'ABSENT'}`)
 
+  // Step 3: Exchange OTP for session token — two methods, whichever works
+  // Method A: verifyOtp (SDK) — preferred; may fail if ANON_KEY is wrong
+  // Method B: action_link redirect (HTTP) — fallback; parses token from 302 fragment
+  log(`  [3/6] Obtaining access token…`)
   const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
-  const { data: authData, error: verifyErr } = await anonClient.auth.verifyOtp({
-    email,
-    token: linkData.properties.email_otp,
-    type: 'email',
-  })
-  if (verifyErr || !authData?.session) {
-    throw new Error(
-      `verifyOtp failed: ${verifyErr?.message ?? 'no session returned'}. ` +
-      `Verify NEXT_PUBLIC_SUPABASE_ANON_KEY matches NEXT_PUBLIC_SUPABASE_URL.`
-    )
+
+  let methodUsed = ''
+  if (emailOtp) {
+    log(`        [3a] Trying verifyOtp…`)
+    const { data: authData, error: verifyErr } = await anonClient.auth.verifyOtp({
+      email,
+      token: emailOtp,
+      type: 'email',
+    })
+    if (!verifyErr && authData?.session?.access_token) {
+      accessToken = authData.session.access_token
+      methodUsed = 'verifyOtp'
+    } else {
+      log(`        [3a] verifyOtp failed: ${verifyErr?.message ?? 'no session'} — trying action_link fallback…`)
+    }
   }
 
-  accessToken = authData.session.access_token
-  log(`  ✅  Access token obtained (magic link OTP — no email sent)`)
+  if (!accessToken && actionLink) {
+    log(`        [3b] Trying action_link direct call (redirect:manual)…`)
+    try {
+      const verifyRes = await fetch(actionLink, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(10000),
+      })
+      const location = verifyRes.headers.get('location') ?? ''
+      log(`        [3b] status=${verifyRes.status} location=${location.slice(0, 120)}`)
+      const fragStr = location.includes('#') ? location.split('#')[1] : ''
+      const frag    = new URLSearchParams(fragStr)
+      const candidate = frag.get('access_token')
+      if (candidate) {
+        accessToken = candidate
+        methodUsed = 'action_link'
+      } else {
+        log(`        [3b] No access_token in fragment. Fragment keys: ${[...frag.keys()].join(', ') || 'none'}`)
+      }
+    } catch (fetchErr) {
+      log(`        [3b] action_link fetch error: ${fetchErr.message}`)
+    }
+  }
 
-  // ── Validate the token against our own Supabase project ─────────────────
-  // If this fails it means verifyOtp returned a JWT that even OUR Supabase
-  // project's auth API rejects — almost certainly a wrong anon key or URL.
-  // If this passes but the app later returns authenticated=false, it means the
-  // app uses a DIFFERENT Supabase project than the GitHub Secrets.
+  if (!accessToken) {
+    throw new Error(
+      `[3/6] Could not obtain access token — both auth methods failed.\n` +
+      `  email_otp: ${emailOtp ? 'was present' : 'absent in generateLink response'}\n` +
+      `  action_link: ${actionLink ? 'was present' : 'absent in generateLink response'}\n` +
+      `  Verify NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY + SUPABASE_SERVICE_ROLE_KEY\n` +
+      `  all point to the SAME Supabase project (Production env in Vercel).`
+    )
+  }
+  log(`  ✅  [3/6] Access token obtained via ${methodUsed}`)
+
+  // Step 4: Validate token against our Supabase project (diagnostic only — never throws)
+  log(`  [4/6] Validating token against Supabase auth API (diagnostic)…`)
   try {
     const selfCheckRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'apikey': SUPABASE_ANON_KEY,
-      },
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'apikey': SUPABASE_ANON_KEY },
       signal: AbortSignal.timeout(5000),
     })
     if (selfCheckRes.ok) {
-      log(`  ✅  Token is valid for GitHub Secrets' Supabase project (${SUPABASE_URL.replace(/^https:\/\//, '').split('.')[0]}.supabase.co)`)
+      log(`  ✅  [4/6] Token valid for this Supabase project ✓`)
     } else {
       const body = await selfCheckRes.text().catch(() => '')
-      throw new Error(
-        `Token self-check failed (${selfCheckRes.status}): ${body.slice(0, 120)}\n` +
-        `  This means NEXT_PUBLIC_SUPABASE_ANON_KEY does not match NEXT_PUBLIC_SUPABASE_URL.\n` +
-        `  Both must come from the SAME Supabase project. Update GitHub Secrets to fix.`
-      )
+      log(`  ⚠️   [4/6] Token self-check: ${selfCheckRes.status} — ${body.slice(0, 100)}`)
+      log(`  ⚠️   This suggests NEXT_PUBLIC_SUPABASE_ANON_KEY doesn't match NEXT_PUBLIC_SUPABASE_URL.`)
+      log(`  ⚠️   If tests return authenticated=false, update both GitHub Secrets from Vercel → Production.`)
     }
   } catch (e) {
-    if (e.message.includes('Token self-check failed')) throw e
-    log(`  ⚠️   Token self-check skipped (network error): ${e.message}`)
+    log(`  ⚠️   [4/6] Token self-check skipped (${e.message})`)
   }
 
-  // ── Ensure public.users row exists with an unlimited plan ───────────────
+  // Step 5: Ensure public.users row exists with an unlimited plan
   // The sessions table has a FK: user_id → public.users(id).
-  // If no public.users row exists the first sessions INSERT fails with FK violation.
-  // We set plan_tier='essentials' so the free-tier gate never fires during the
-  // test run — otherwise recovery tests get paywalled after just 1-3 sessions.
-  //
-  // IMPORTANT: Supabase JS never throws on DB errors — always check .error
-  //
-  // We upsert TWICE with a 400 ms gap between them. Some Supabase projects
-  // have an async Edge Function / trigger that fires on auth.users INSERT
-  // and (re)creates the public.users row with plan_tier='free'. Waiting 400 ms
-  // and repeating the upsert guarantees we win even if such a trigger exists.
+  // We upsert TWICE with a 400 ms gap to beat any async trigger that resets plan_tier.
+  log(`  [5/6] Upserting public.users row (plan_tier=essentials)…`)
   const upsertPayload = { id: user.id, email, plan_tier: 'essentials' }
   const upsertOpts    = { onConflict: 'id' }
 
   const { error: upsertErr1 } = await adminClient.from('users').upsert(upsertPayload, upsertOpts)
-  if (upsertErr1) throw new Error(`public.users upsert (1) failed: ${upsertErr1.message}`)
+  if (upsertErr1) throw new Error(`[5/6] public.users upsert (1) failed: ${upsertErr1.message}`)
 
-  // Give any async trigger time to run, then upsert again so we always win.
   await new Promise(r => setTimeout(r, 400))
   const { error: upsertErr2 } = await adminClient.from('users').upsert(upsertPayload, upsertOpts)
-  if (upsertErr2) throw new Error(`public.users upsert (2) failed: ${upsertErr2.message}`)
+  if (upsertErr2) throw new Error(`[5/6] public.users upsert (2) failed: ${upsertErr2.message}`)
 
-  // Verify the row actually landed (defence-in-depth)
   const { data: verifyRow, error: rowErr } = await adminClient
     .from('users')
     .select('id, plan_tier')
     .eq('id', user.id)
     .single()
-  if (rowErr || !verifyRow) throw new Error(`public.users row not found after upsert: ${rowErr?.message}`)
+  if (rowErr || !verifyRow) throw new Error(`[5/6] public.users row not found after upsert: ${rowErr?.message}`)
   if (verifyRow.plan_tier !== 'essentials') {
-    throw new Error(`plan_tier mismatch: got '${verifyRow.plan_tier}', expected 'essentials'. ` +
-      `The Supabase project may have a trigger that resets plan_tier — contact the project owner.`)
+    throw new Error(`[5/6] plan_tier mismatch: got '${verifyRow.plan_tier}', expected 'essentials'. ` +
+      `A trigger may be resetting plan_tier — check Supabase Edge Functions.`)
   }
+  log(`  ✅  [5/6] public.users row confirmed (plan_tier=${verifyRow.plan_tier})`)
 
-  log(`  ✅  public.users row confirmed (id=${user.id} plan_tier=${verifyRow.plan_tier})`)
-
-  // ── DB consistency check ─────────────────────────────────────────────────
-  // Call the deployed app's subscription endpoint with our JWT. If the app
-  // returns planTier='essentials' we know it can see the same public.users row
-  // our adminClient just wrote (→ same Supabase project). If it returns 'free',
-  // the app's SUPABASE_SERVICE_ROLE_KEY points to a DIFFERENT database.
-  //
-  // This is the most common CI failure cause: Vercel and GitHub Secrets pointing
-  // to different Supabase projects.
+  // Step 6: DB consistency check — ensures app and adminClient share the same project
+  log(`  [6/6] DB consistency check (calling ${BASE_URL}/api/subscription)…`)
   try {
     const subRes = await fetch(`${BASE_URL}/api/subscription`, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -268,7 +276,7 @@ async function setup() {
     const subJson = await subRes.json()
 
     if (subJson.planTier === 'essentials') {
-      log(`  ✅  DB consistency: app sees planTier='essentials' — GitHub Secrets ↔ Vercel env are aligned`)
+      log(`  ✅  [6/6] DB consistency: app sees planTier='essentials' — secrets are aligned`)
     } else {
       dbMismatch = true
       log(``)
@@ -1289,7 +1297,15 @@ async function main() {
     await setup()
   } catch (err) {
     log(`\n❌  Setup failed: ${err.message}`)
-    log('    Check SUPABASE_SERVICE_ROLE_KEY and ensure the Supabase project is reachable.')
+    log('    All 3 GitHub Secrets must point to the same Supabase project as soulspacehealth.org.')
+    log('    Copy NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY')
+    log('    from Vercel → soulspace → Settings → Environment Variables → Production.')
+    // Always write a report so the CI artifact upload never fails
+    results.push({ name: 'SETUP FAILURE', pass: false, critical: true, detail: err.message.split('\n')[0], ms: 0 })
+    if (WRITE_REPORT) {
+      try { fs.writeFileSync(REPORT_PATH, buildReport(), 'utf8') } catch {}
+    }
+    await teardown().catch(() => {})
     process.exit(1)
   }
 
