@@ -129,6 +129,16 @@ async function setup() {
 
   accessToken = authData.session.access_token
   log(`  ✅  Access token obtained (session valid for 1 hour)`)
+
+  // ── Ensure public.users row exists with unlimited plan ───────────────────
+  // sessions.user_id FK references public.users(id), not auth.users.
+  // Plan 'essentials' bypasses the free-tier gate so all session creation
+  // tests work without being paywalled after the first session.
+  await adminClient.from('users').upsert(
+    { id: testUser.id, email: TEST_EMAIL, plan_tier: 'essentials' },
+    { onConflict: 'id' }
+  )
+  log(`  ✅  public.users row upserted (plan_tier=essentials)`)
 }
 
 // ── Teardown ──────────────────────────────────────────────────────────────────
@@ -139,6 +149,8 @@ async function teardown() {
     return
   }
   log('\n🧹  TEARDOWN')
+  // Delete public.users row first (sessions cascade-delete from this FK)
+  await adminClient.from('users').delete().eq('id', testUser.id)
   await adminClient.auth.admin.deleteUser(testUser.id)
   log(`  Deleted test user ${testUser.id}`)
 }
@@ -419,7 +431,8 @@ async function testAdminPortalSecurity() {
   )
 
   const { status: authWrong } = await api('POST', '/api/admin/auth', { body: { password: 'wrong' } })
-  tick('POST /api/admin/auth with wrong password → 401', authWrong === 401, `status=${authWrong}`)
+  // 401 = ADMIN_SECRET configured, wrong password; 503 = ADMIN_SECRET not set
+  tick('POST /api/admin/auth with wrong password → 401 or 503', authWrong === 401 || authWrong === 503, `status=${authWrong}`)
 }
 
 async function testStripeRouteSecurity() {
