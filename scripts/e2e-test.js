@@ -420,6 +420,15 @@ async function testSubscriptionAPI() {
 
   await run('Returns planTier and sessionsThisMonth', true, async () => {
     const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    // authenticated:false means the Bearer token was rejected — surface a clear diagnosis
+    if (json.authenticated === false) {
+      return {
+        pass: false,
+        detail: 'Bearer token rejected by production app — Supabase project mismatch. ' +
+          'All 3 GitHub Secrets (URL, ANON_KEY, SERVICE_ROLE_KEY) must match the ' +
+          'Production Vercel environment for soulspacehealth.org.',
+      }
+    }
     return {
       pass: typeof json.planTier === 'string' && typeof json.sessionsThisMonth === 'number',
       detail: `tier=${json.planTier} sessions=${json.sessionsThisMonth}`,
@@ -822,6 +831,10 @@ async function testNotificationBannerData() {
 
   await run('sessionsThisMonth is a non-negative integer', true, async () => {
     const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    // null means unauthenticated response — Bearer token was rejected
+    if (json.authenticated === false) {
+      return { pass: null, detail: 'skipped — Bearer token rejected (Supabase project mismatch)' }
+    }
     const v = json.sessionsThisMonth
     return {
       pass: Number.isInteger(v) && v >= 0,
