@@ -24,6 +24,18 @@
 
 'use strict'
 
+// ── WebSocket polyfill ────────────────────────────────────────────────────────
+// @supabase/realtime-js requires a global WebSocket constructor.
+// Node.js 22+ ships it natively. On Node.js 20 we fall back to the 'ws' package.
+if (typeof globalThis.WebSocket === 'undefined') {
+  try {
+    globalThis.WebSocket = require('ws')
+  } catch {
+    console.error('❌  WebSocket not available. Run on Node.js 22+ or install the "ws" package.')
+    process.exit(1)
+  }
+}
+
 const { createClient } = require('@supabase/supabase-js')
 
 // ── Config ────────────────────────────────────────────────────────────────────

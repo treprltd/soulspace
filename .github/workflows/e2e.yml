@@ -53,7 +53,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'   # Node 22 has native WebSocket — required by @supabase/realtime-js
           cache: 'npm'
 
       - name: Install dependencies
