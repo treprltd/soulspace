@@ -134,10 +134,13 @@ async function setup() {
   // sessions.user_id FK references public.users(id), not auth.users.
   // Plan 'essentials' bypasses the free-tier gate so all session creation
   // tests work without being paywalled after the first session.
-  await adminClient.from('users').upsert(
+  //
+  // IMPORTANT: Supabase JS never throws on DB errors — always check .error
+  const { error: upsertErr } = await adminClient.from('users').upsert(
     { id: testUser.id, email: TEST_EMAIL, plan_tier: 'essentials' },
     { onConflict: 'id' }
   )
+  if (upsertErr) throw new Error(`public.users upsert failed: ${upsertErr.message}`)
   log(`  ✅  public.users row upserted (plan_tier=essentials)`)
 }
 
@@ -150,8 +153,11 @@ async function teardown() {
   }
   log('\n🧹  TEARDOWN')
   // Delete public.users row first (sessions cascade-delete from this FK)
-  await adminClient.from('users').delete().eq('id', testUser.id)
-  await adminClient.auth.admin.deleteUser(testUser.id)
+  // NOTE: Supabase JS never throws — check .error explicitly
+  const { error: delUserErr } = await adminClient.from('users').delete().eq('id', testUser.id)
+  if (delUserErr) log(`  ⚠️  public.users delete warning: ${delUserErr.message}`)
+  const { error: delAuthErr } = await adminClient.auth.admin.deleteUser(testUser.id)
+  if (delAuthErr) log(`  ⚠️  auth.users delete warning: ${delAuthErr.message}`)
   log(`  Deleted test user ${testUser.id}`)
 }
 

@@ -159,11 +159,24 @@ async function setup() {
   // We also set plan_tier='essentials' so the free-tier gate (limit=1/month)
   // never fires during the test run — otherwise session recovery tests get
   // paywalled immediately after testSessionCreation creates the first session.
-  await adminClient.from('users').upsert(
+  //
+  // IMPORTANT: Supabase JS never throws on DB errors — always check .error
+  const { error: upsertErr } = await adminClient.from('users').upsert(
     { id: user.id, email, plan_tier: 'essentials' },
     { onConflict: 'id' }
   )
-  log(`  ✅  public.users row upserted (plan_tier=essentials — bypasses free-tier gate)`)
+  if (upsertErr) throw new Error(`public.users upsert failed: ${upsertErr.message}`)
+
+  // Verify the row actually landed (defence-in-depth — catches silent constraint issues)
+  const { data: verifyRow, error: verifyErr } = await adminClient
+    .from('users')
+    .select('id, plan_tier')
+    .eq('id', user.id)
+    .single()
+  if (verifyErr || !verifyRow) throw new Error(`public.users row not found after upsert: ${verifyErr?.message}`)
+  if (verifyRow.plan_tier !== 'essentials') throw new Error(`plan_tier mismatch: got '${verifyRow.plan_tier}', expected 'essentials'`)
+
+  log(`  ✅  public.users row confirmed (id=${user.id} plan_tier=${verifyRow.plan_tier})`)
 }
 
 // ── Teardown: delete test user and all related data ───────────────────────────
@@ -172,10 +185,12 @@ async function teardown() {
   if (!testUser) return
   log('\n🧹  TEARDOWN')
   try {
-    // Delete public.users row first (sessions cascade from this)
-    await adminClient.from('users').delete().eq('id', testUser.id)
+    // Delete public.users row first (sessions cascade to session_content + events via FK)
+    const { error: delUserErr } = await adminClient.from('users').delete().eq('id', testUser.id)
+    if (delUserErr) log(`  ⚠️  public.users delete warning: ${delUserErr.message}`)
     // Then delete auth user
-    await adminClient.auth.admin.deleteUser(testUser.id)
+    const { error: delAuthErr } = await adminClient.auth.admin.deleteUser(testUser.id)
+    if (delAuthErr) log(`  ⚠️  auth.users delete warning: ${delAuthErr.message}`)
     log(`  Deleted test user ${testUser.id}`)
   } catch (err) {
     log(`  ⚠️  Could not delete test user: ${err.message}`)
