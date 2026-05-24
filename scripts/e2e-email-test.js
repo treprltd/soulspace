@@ -183,14 +183,17 @@ async function testWelcomeEmailDelivery() {
 
   // New user (0 sessions) → should send
   const { status, json } = await api('POST', '/api/user/welcome', { token: accessToken })
-  // Accept: sent=true (email delivered) OR sent=false with error (Brevo config issue — warn, don't block CI)
-  const emailSent   = status === 200 && json.sent === true
-  const brevoFailed = status === 200 && json.sent === false && !!json.error
+  // Route response shapes:
+  //   Email delivered:  { sent: true }
+  //   Brevo throws:     { skipped: true, reason: 'error', detail: '...' }   ← catch block
+  //   Returning user:   { skipped: true, reason: 'not_new_user' }
+  const emailSent    = status === 200 && json.sent === true
+  const brevoSkipped = status === 200 && json.skipped === true && json.reason === 'error'
   tick(
     'POST /api/user/welcome → sends to new user',
-    emailSent ? true : brevoFailed ? null : false,
-    `status=${status}  sent=${json.sent}  skipped=${json.skipped ?? false}` +
-      (brevoFailed ? `  ⚠️  Brevo error: ${JSON.stringify(json.error)} — check BREVO_API_KEY in Amplify (main branch)` : ''),
+    emailSent ? true : brevoSkipped ? null : false,
+    `status=${status}  sent=${json.sent ?? 'n/a'}  skipped=${json.skipped ?? false}  reason=${json.reason ?? ''}` +
+      (brevoSkipped ? `  ⚠️  Brevo error — check BREVO_API_KEY in Amplify (main branch)` : ''),
   )
 
   if (json.sent) {
