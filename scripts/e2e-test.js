@@ -187,11 +187,14 @@ async function teardown() {
 async function testAuth() {
   section('Authentication')
 
-  await run('Protected routes return 401 without token', true, async () => {
+  await run('Session and history routes return 401 without token', true, async () => {
+    // NOTE: /api/subscription is intentionally PUBLIC — returns 200 with { authenticated:false }
+    // so the frontend can check plan status without a session. Only session-write routes need auth.
     const endpoints = [
-      ['GET',  '/api/subscription'],
       ['GET',  '/api/sessions/history'],
       ['POST', '/api/sessions'],
+      ['POST', '/api/user/welcome'],
+      ['DELETE', '/api/user/data'],
     ]
     const failures = []
     for (const [method, path] of endpoints) {
@@ -201,14 +204,27 @@ async function testAuth() {
     return { pass: failures.length === 0, detail: failures.join(', ') || undefined }
   })
 
+  await run('GET /api/subscription returns 200 without auth (public endpoint)', true, async () => {
+    // Subscription is intentionally public — returns { authenticated:false } for guests
+    const { status, json } = await api('GET', '/api/subscription')
+    return {
+      pass: status === 200 && json.authenticated === false,
+      detail: `status=${status} authenticated=${json.authenticated}`,
+    }
+  })
+
   await run('Valid Bearer token returns 200 on /api/subscription', true, async () => {
     const { status } = await api('GET', '/api/subscription', { token: accessToken })
     return { pass: status === 200, detail: `status=${status}` }
   })
 
-  await run('Expired/invalid token returns 401', false, async () => {
-    const { status } = await api('GET', '/api/subscription', { token: 'invalid.token.here' })
-    return { pass: status === 401, detail: `status=${status}` }
+  await run('Invalid Bearer token on /api/subscription → 200 unauthenticated (not 401)', false, async () => {
+    // Subscription is public: invalid tokens don't yield 401, they yield 200+authenticated:false
+    const { status, json } = await api('GET', '/api/subscription', { token: 'invalid.token.here' })
+    return {
+      pass: status === 200 && json.authenticated === false,
+      detail: `status=${status} authenticated=${json.authenticated}`,
+    }
   })
 }
 
@@ -570,12 +586,16 @@ async function testNotificationBannerData() {
     }
   })
 
-  await run('cancel_at_period_end field is present (null for free tier)', false, async () => {
+  await run('subscription field is present (null for no active subscription)', false, async () => {
+    // cancel_at_period_end is nested inside subscription object, not top-level
+    // For users without an active Stripe subscription, subscription is null
     const { json } = await api('GET', '/api/subscription', { token: accessToken })
-    const present = 'cancelAtPeriodEnd' in json || json.planTier === 'free'
+    const subPresent = 'subscription' in json
+    const subValue = json.subscription
+    const valid = subValue === null || typeof subValue?.cancel_at_period_end === 'boolean'
     return {
-      pass: present,
-      detail: `planTier=${json.planTier} cancelAtPeriodEnd=${json.cancelAtPeriodEnd ?? 'null (free tier — expected)'}`,
+      pass: subPresent && valid,
+      detail: `subscription=${subValue === null ? 'null (no active sub — expected)' : JSON.stringify(subValue)}`,
     }
   })
 
@@ -875,20 +895,21 @@ async function testSessionRecoveryDBState() {
 }
 
 async function testUserDataEndpoint() {
-  section('User Data (GET /api/user/data)')
+  section('User Data Deletion (DELETE /api/user/data)')
 
-  await run('Returns 401 without token', true, async () => {
-    const { status } = await api('GET', '/api/user/data')
+  // NOTE: /api/user/data only has DELETE (permanent account deletion — GDPR).
+  // There is no GET method; GET would return 405 Method Not Allowed.
+  // We only test the auth guard here — we do NOT call DELETE with a valid token
+  // because that would destroy all test user data before teardown.
+
+  await run('DELETE /api/user/data without token returns 401', true, async () => {
+    const { status } = await api('DELETE', '/api/user/data')
     return { pass: status === 401, detail: `status=${status}` }
   })
 
-  await run('Returns user data with valid token', true, async () => {
-    const { status, json } = await api('GET', '/api/user/data', { token: accessToken })
-    const hasData = status === 200 && (json.user != null || json.sessions != null || json.error == null)
-    return {
-      pass: hasData || status === 200,
-      detail: `status=${status}`,
-    }
+  await run('GET /api/user/data returns 405 (method not allowed)', false, async () => {
+    const { status } = await api('GET', '/api/user/data', { token: accessToken })
+    return { pass: status === 405, detail: `status=${status}` }
   })
 }
 
