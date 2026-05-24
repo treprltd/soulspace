@@ -1104,7 +1104,7 @@ async function testSessionRecoveryDBState() {
     carrying:   'DB state verification carrying statement.',
     underneath: 'DB state verification underneath statement.',
     question:   'DB state verification question?',
-    season:     'S',
+    season:     'Sp',  // valid values: W, Sp, Su, Au — 'S' is NOT valid (DB CHECK constraint)
     patternTags: ['reflection'],
     safetyFlagged: false,
   })
