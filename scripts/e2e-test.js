@@ -168,12 +168,12 @@ async function setup() {
   if (upsertErr) throw new Error(`public.users upsert failed: ${upsertErr.message}`)
 
   // Verify the row actually landed (defence-in-depth — catches silent constraint issues)
-  const { data: verifyRow, error: verifyErr } = await adminClient
+  const { data: verifyRow, error: rowErr } = await adminClient
     .from('users')
     .select('id, plan_tier')
     .eq('id', user.id)
     .single()
-  if (verifyErr || !verifyRow) throw new Error(`public.users row not found after upsert: ${verifyErr?.message}`)
+  if (rowErr || !verifyRow) throw new Error(`public.users row not found after upsert: ${rowErr?.message}`)
   if (verifyRow.plan_tier !== 'essentials') throw new Error(`plan_tier mismatch: got '${verifyRow.plan_tier}', expected 'essentials'`)
 
   log(`  ✅  public.users row confirmed (id=${user.id} plan_tier=${verifyRow.plan_tier})`)

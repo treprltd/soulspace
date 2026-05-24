@@ -71,6 +71,11 @@ jobs:
             echo "    Go to: Settings → Secrets → Actions → New repository secret"
             exit 1
           fi
+          if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "❌  NEXT_PUBLIC_SUPABASE_ANON_KEY secret is not set."
+            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            exit 1
+          fi
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "❌  SUPABASE_SERVICE_ROLE_KEY secret is not set."
             echo "    Go to: Settings → Secrets → Actions → New repository secret"
@@ -85,8 +90,9 @@ jobs:
           fi
           echo "✅  $URL is reachable (HTTP $HTTP_CODE)"
         env:
-          NEXT_PUBLIC_SUPABASE_URL:  ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       # ── Run E2E test suite ─────────────────────────────────────────────────
       - name: Run E2E test suite
