@@ -175,6 +175,34 @@ async function setup() {
   accessToken = signInData.session.access_token
   log(`  ✅  Access token obtained (password auth)`)
 
+  // ── Validate the token against our own Supabase project ─────────────────
+  // If this fails it means signInWithPassword returned a JWT that even OUR
+  // Supabase project's auth API rejects — almost certainly a wrong anon key.
+  // If this passes but the app later returns authenticated=false, it means the
+  // app uses a DIFFERENT Supabase project than the GitHub Secrets.
+  try {
+    const selfCheckRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      signal: AbortSignal.timeout(5000),
+    })
+    if (selfCheckRes.ok) {
+      log(`  ✅  Token is valid for GitHub Secrets' Supabase project (${SUPABASE_URL.replace(/^https:\/\//, '').split('.')[0]}.supabase.co)`)
+    } else {
+      const body = await selfCheckRes.text().catch(() => '')
+      throw new Error(
+        `Token self-check failed (${selfCheckRes.status}): ${body.slice(0, 120)}\n` +
+        `  This means NEXT_PUBLIC_SUPABASE_ANON_KEY does not match NEXT_PUBLIC_SUPABASE_URL.\n` +
+        `  Both must come from the SAME Supabase project. Update GitHub Secrets to fix.`
+      )
+    }
+  } catch (e) {
+    if (e.message.includes('Token self-check failed')) throw e
+    log(`  ⚠️   Token self-check skipped (network error): ${e.message}`)
+  }
+
   // ── Ensure public.users row exists with an unlimited plan ───────────────
   // The sessions table has a FK: user_id → public.users(id).
   // If no public.users row exists the first sessions INSERT fails with FK violation.
@@ -235,21 +263,24 @@ async function setup() {
       log(`  ⚠️  ╔══════════════════════════════════════════════════════════════════╗`)
       log(`  ⚠️  ║  SUPABASE PROJECT MISMATCH DETECTED                             ║`)
       log(`  ⚠️  ╠══════════════════════════════════════════════════════════════════╣`)
-      log(`  ⚠️  ║  adminClient upserted planTier='essentials'                     ║`)
-      log(`  ⚠️  ║  App subscription returns planTier='${subJson.planTier}' (row not found)    ║`)
+      log(`  ⚠️  ║  adminClient upserted planTier='essentials' into project A      ║`)
+      log(`  ⚠️  ║  App at ${BASE_URL.replace('https://', '').padEnd(26)} returned planTier='${subJson.planTier}'      ║`)
       log(`  ⚠️  ║                                                                  ║`)
-      log(`  ⚠️  ║  The GitHub Secret SUPABASE_SERVICE_ROLE_KEY writes to a DB the ║`)
-      log(`  ⚠️  ║  deployed app CANNOT read. They are different Supabase projects. ║`)
+      log(`  ⚠️  ║  CAUSE: GitHub Secrets point to a DIFFERENT Supabase project    ║`)
+      log(`  ⚠️  ║  than the one soulspacehealth.org actually uses.                ║`)
+      log(`  ⚠️  ║                                                                  ║`)
+      log(`  ⚠️  ║  ALL 3 secrets must match the PRODUCTION Vercel env vars:       ║`)
+      log(`  ⚠️  ║    NEXT_PUBLIC_SUPABASE_URL       ← must match Vercel           ║`)
+      log(`  ⚠️  ║    NEXT_PUBLIC_SUPABASE_ANON_KEY  ← must match Vercel           ║`)
+      log(`  ⚠️  ║    SUPABASE_SERVICE_ROLE_KEY       ← must match Vercel           ║`)
       log(`  ⚠️  ║                                                                  ║`)
       log(`  ⚠️  ║  FIX (step by step):                                             ║`)
-      log(`  ⚠️  ║  1. Open Vercel → soulspace project → Settings                  ║`)
-      log(`  ⚠️  ║  2. Click "Environment Variables"                                ║`)
-      log(`  ⚠️  ║  3. Filter by environment: "Preview" (for dev.soulspace…)       ║`)
-      log(`  ⚠️  ║  4. Copy NEXT_PUBLIC_SUPABASE_URL  (the full https://... URL)   ║`)
-      log(`  ⚠️  ║  5. Copy SUPABASE_SERVICE_ROLE_KEY (the long eyJ… JWT)          ║`)
-      log(`  ⚠️  ║  6. Open GitHub → treprltd/soulspace → Settings → Secrets       ║`)
-      log(`  ⚠️  ║  7. Update both secrets to the values copied from step 4–5      ║`)
-      log(`  ⚠️  ║  8. Re-run this workflow                                         ║`)
+      log(`  ⚠️  ║  1. Vercel → soulspace → Settings → Environment Variables       ║`)
+      log(`  ⚠️  ║  2. Set filter to: Environment = "Production"                   ║`)
+      log(`  ⚠️  ║  3. Copy all 3 values listed above                              ║`)
+      log(`  ⚠️  ║  4. GitHub → treprltd/soulspace → Settings → Secrets → Actions  ║`)
+      log(`  ⚠️  ║  5. Update ALL 3 secrets to the values from step 3              ║`)
+      log(`  ⚠️  ║  6. Re-run this workflow                                         ║`)
       log(`  ⚠️  ╚══════════════════════════════════════════════════════════════════╝`)
       log(``)
     }
