@@ -361,13 +361,15 @@ function AnalyticsInner() {
         </div>
       </div>
 
-      {error && (
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+
+      {!notConfigured && error && (
         <div style={{ padding: '14px 16px', background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.3)', borderRadius: 'var(--r-lg)', color: '#D44040', fontSize: 'var(--fs-sm)', marginBottom: '20px' }}>
           Error: {error}
         </div>
       )}
 
-      {loading && (
+      {!notConfigured && loading && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)', animation: 'spin 0.9s linear infinite' }} />
           Loading analytics…
