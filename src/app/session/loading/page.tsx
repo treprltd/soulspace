@@ -23,6 +23,7 @@ export default function MirrorLoading() {
     setErrorState(null)
     try {
       const branch = (sessionStorage.getItem('ss_branch') ?? 'A') as Branch
+      const situation = sessionStorage.getItem('ss_situation') ?? undefined
       const emotions = JSON.parse(sessionStorage.getItem('ss_emotions') ?? '[]') as string[]
       const intensity = Number(sessionStorage.getItem('ss_intensity') ?? '5')
       const context = sessionStorage.getItem('ss_context') ?? ''
@@ -44,6 +45,7 @@ export default function MirrorLoading() {
           emotionTags: emotions,
           intensity,
           contextText: context,
+          ...(situation ? { situation } : {}),
         }),
       })
 

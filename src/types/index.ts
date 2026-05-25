@@ -1,4 +1,18 @@
 export type Branch = 'A' | 'B' | 'C' | 'D'
+
+export type SituationId =
+  | 'work-career'
+  | 'relationship'
+  | 'family'
+  | 'money'
+  | 'big-decision'
+  | 'my-health'
+  | 'who-i-am'
+  | 'loss-grief'
+  | 'anxiety'
+  | 'life-change'
+  | 'friendship'
+  | 'not-sure'
 export type PlanTier = 'free' | 'essentials' | 'insights'
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'unpaid' | 'trialing'
 export type Season = 'W' | 'Sp' | 'Su' | 'Au'

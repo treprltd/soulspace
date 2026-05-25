@@ -37,6 +37,8 @@ export interface MirrorInput {
   emotionTags: string[]
   intensity: number
   contextText: string
+  /** Human-readable life situation label selected by the user (e.g. "Work or career") */
+  situation?: string
 }
 
 function assignSeason(
@@ -78,10 +80,11 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
   const systemPrompt = BRANCH_PROMPTS[input.branch]
   const userMessage = [
     `Branch: ${input.branch}`,
+    input.situation ? `Life situation: ${input.situation}` : null,
     `Emotion tags selected: ${input.emotionTags.join(', ')}`,
     `Intensity: ${input.intensity}/10`,
     `What they shared: ${input.contextText}`,
-  ].join('\n')
+  ].filter(Boolean).join('\n')
 
   // Retry on 529 (Anthropic overloaded) with exponential backoff.
   // Attempts: immediate → 2 s → 4 s → throw MirrorOverloadedError

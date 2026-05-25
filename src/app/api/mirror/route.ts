@@ -13,6 +13,8 @@ const MirrorSchema = z.object({
   emotionTags: z.array(z.string()).min(1).max(15),
   intensity: z.number().int().min(1).max(10),
   contextText: z.string().max(800),
+  /** Human-readable situation label from the situation picker (optional) */
+  situation: z.string().max(80).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -67,6 +69,7 @@ export async function POST(req: NextRequest) {
       emotionTags: input.emotionTags,
       intensity: input.intensity,
       contextText: input.contextText,
+      situation: input.situation,
     })
 
     const responseMs = Date.now() - startTime

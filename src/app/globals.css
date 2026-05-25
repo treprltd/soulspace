@@ -113,6 +113,53 @@ html, body {
     @apply flex items-start gap-2 py-1.5 last:border-0;
     border-bottom: 1px solid rgba(255,255,255,0.04);
   }
+
+  /* ── Life situation picker cards ─────────────────────────────────────────── */
+  .situation-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 14px 8px 13px;
+    border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.12);
+    background: rgba(15,30,46,0.5);
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease;
+    text-align: center;
+    min-height: 78px;
+  }
+  .situation-card:hover {
+    border-color: rgba(201,168,76,0.35);
+    background: rgba(201,168,76,0.04);
+  }
+  .situation-card.selected {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+
+  .situation-symbol {
+    font-size: 16px;
+    line-height: 1;
+    color: rgba(201,168,76,0.45);
+    font-style: normal;
+    transition: color 0.18s ease;
+  }
+  .situation-card.selected .situation-symbol {
+    color: var(--gold2);
+  }
+
+  .situation-label {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--mist);
+    font-family: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+    transition: color 0.18s ease;
+  }
+  .situation-card.selected .situation-label {
+    color: var(--sand2);
+  }
 }
 
 /* Custom scrollbar */
