@@ -29,24 +29,24 @@ export default function Emotions() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right="Step 1 of 3" />
+      <NavBar />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={1} total={3} />
 
         {/* AFFIRMATION MOMENT 2 — frozen copy */}
-        <div className="affirm-copy mb-3.5">
+        <div className="affirm-copy mb-4">
           Something here already has a shape.<br />
           You do not have to name all of it.
         </div>
 
-        <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
+        <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
           What are you carrying <em className="text-gold2">right now?</em>
         </h2>
-        <p className="text-xs text-mist mb-4">
+        <p className="text-xs text-mist mb-6">
           Choose what feels most present. More than one can be true.
         </p>
 
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-2 mb-5">
           {EMOTION_TAGS.map(tag => (
             <button
               key={tag}
@@ -67,7 +67,7 @@ export default function Emotions() {
         <button
           onClick={handleContinue}
           disabled={selected.length === 0}
-          className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+          className="btn-primary w-full py-3.5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Continue →
         </button>

@@ -20,7 +20,7 @@ export default function ContextField() {
 
     // ── Create a session row in Supabase for authenticated users ─────────────
     // This is the earliest point at which we have all info needed to create a
-    // session (branch is already in sessionStorage from the resonance screen).
+    // session (branch is already in sessionStorage from the situation screen).
     // The session ID is stored in sessionStorage so the loading page can pass
     // it to the mirror API, which then links session_content to this row.
     //
@@ -43,20 +43,14 @@ export default function ContextField() {
 
         if (res.ok) {
           const { session: dbSession } = await res.json() as { session: { id: string } }
-          // Store the real DB session ID so the mirror API can link to this row
           sessionStorage.setItem('ss_session_id', dbSession.id)
-        }
-        // If session creation fails (e.g. network error), we clear any stale ID
-        // so the loading page uses a random UUID — mirror still works, no persistence
-        else {
+        } else {
           sessionStorage.removeItem('ss_session_id')
         }
       } else {
-        // Not authenticated — clear any leftover session ID from a previous run
         sessionStorage.removeItem('ss_session_id')
       }
     } catch {
-      // Non-blocking — unauthenticated / offline users still get the mirror
       sessionStorage.removeItem('ss_session_id')
     }
 
@@ -65,56 +59,62 @@ export default function ContextField() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right="Step 3 of 3" />
+      <NavBar />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={3} total={3} />
 
         <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
           What&apos;s <em className="text-gold2">happening?</em>
         </h2>
-        <p className="text-xs text-mist mb-3">
+        <p className="text-xs text-mist mb-5 leading-relaxed">
           In your own words. As much or as little as feels right.
         </p>
 
-        <div className="relative mb-1.5">
+        <div className="relative mb-2">
           <textarea
             value={text}
             onChange={e => setText(e.target.value.slice(0, MAX_CHARS))}
             placeholder="Start wherever feels natural..."
-            rows={5}
-            className="w-full rounded-xl p-3 text-xs text-mist leading-relaxed resize-none focus:outline-none focus:border-gold/30 transition-colors italic"
+            rows={7}
+            className="w-full rounded-2xl p-4 text-sm leading-relaxed resize-none focus:outline-none transition-colors"
             style={{
               background: 'rgba(245,237,216,.03)',
-              border: '1px solid rgba(245,237,216,.07)',
-              color: 'var(--mist)',
-              fontFamily: 'inherit',
+              border: '1px solid rgba(245,237,216,.08)',
+              color: 'var(--sand2)',
+              fontFamily: 'var(--font-cormorant), Georgia, serif',
+              fontStyle: 'italic',
+              fontSize: '15px',
+              lineHeight: '1.75',
+            }}
+            onFocus={e => {
+              e.target.style.borderColor = 'rgba(201,168,76,.25)'
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = 'rgba(245,237,216,.08)'
             }}
           />
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-[8px] italic" style={{ color: 'rgba(139,167,184,.35)' }}>
-            Just start — no minimum
-          </span>
-          <span className="text-[8px]" style={{ color: 'rgba(139,167,184,.35)' }}>
-            {text.length} / {MAX_CHARS}
-          </span>
+        <div className="flex justify-end mb-6">
+          {text.length > 0 && (
+            <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.3)' }}>
+              {text.length} / {MAX_CHARS}
+            </span>
+          )}
         </div>
 
-        <div className="flex gap-2.5">
-          <button onClick={() => router.back()} className="btn-outline text-xs">Back</button>
+        <div className="flex gap-3">
+          <button onClick={() => router.back()} className="btn-outline text-xs px-5">
+            ← Back
+          </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="btn-primary disabled:opacity-50"
+            className="btn-primary flex-1 py-3.5 disabled:opacity-50"
           >
             {submitting ? 'Finding the shape…' : 'See your reflection →'}
           </button>
         </div>
-
-        <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
-          Note: Voice input is approved clinically but not built in Phase 1.
-        </p>
       </div>
     </main>
   )

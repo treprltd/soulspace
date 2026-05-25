@@ -95,7 +95,7 @@ html, body {
   }
 
   .emotion-tag {
-    @apply px-3 py-1.5 rounded-full text-[11px] text-mist cursor-pointer transition-all;
+    @apply px-4 py-2 rounded-full text-[12px] text-mist cursor-pointer transition-all;
     border: 1px solid rgba(201,168,76,0.18);
   }
   .emotion-tag.selected {
@@ -169,6 +169,57 @@ html, body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 .animate-spin-slow { animation: spin 1.2s linear infinite; }
+
+/* ── Breathing pause screen ──────────────────────────────────────────────── */
+.breathe-ring {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.breathe-ring::before,
+.breathe-ring::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,0.2);
+  animation: breathe-expand 4s ease-in-out infinite;
+}
+.breathe-ring::before {
+  width: 100%;
+  height: 100%;
+}
+.breathe-ring::after {
+  width: 100%;
+  height: 100%;
+  animation-delay: -2s;
+  border-color: rgba(201,168,76,0.12);
+}
+.breathe-core {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.18);
+  animation: breathe-core 4s ease-in-out infinite;
+}
+
+@keyframes breathe-expand {
+  0%, 100% { transform: scale(1);   opacity: 0.6; }
+  50%       { transform: scale(1.8); opacity: 0;   }
+}
+@keyframes breathe-core {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.25); opacity: 0.9; }
+}
+
+/* ── Dot progress indicator ──────────────────────────────────────────────── */
+.progress-dot {
+  height: 6px;
+  border-radius: 3px;
+  transition: width 0.3s ease, background 0.3s ease, opacity 0.3s ease;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
