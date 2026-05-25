@@ -36,8 +36,8 @@ export default function AuthCallback() {
 
     let redirected = false
 
-    // Fire-and-forget welcome email for brand-new users.
-    // The /api/user/welcome route checks session count and skips if not a new user.
+    // ── Welcome email (fire-and-forget) ────────────────────────────────────
+    // Checks session count server-side — skips for returning users.
     async function maybeWelcome(session: import('@supabase/supabase-js').Session) {
       try {
         await fetch('/api/user/welcome', {
@@ -54,9 +54,8 @@ export default function AuthCallback() {
     // in a NEW tab, so sessionStorage is empty by the time this callback runs.
     // localStorage survives across tabs, so the snapshot is still here.
     //
-    // We call POST /api/sessions/recover which creates the DB row and encrypts
-    // the content — same path as a live authenticated session. The dashboard will
-    // then show the correct session count without the user having to do anything.
+    // IMPORTANT: await this before navigating — the dashboard fetches
+    // sessionsThisMonth on mount, and the count must be up-to-date.
     async function maybeRecoverSession(session: import('@supabase/supabase-js').Session) {
       try {
         const raw = localStorage.getItem('ss_pending_session')
@@ -101,13 +100,89 @@ export default function AuthCallback() {
       localStorage.removeItem('ss_pending_session')
     }
 
+    // ── Profile save ────────────────────────────────────────────────────────
+    // When a user registers via /auth/register, their profile data (first_name,
+    // last_name, dob, phone) is stored in localStorage as `ss_pending_profile`
+    // before the magic link is sent. Magic links open in a new tab (destroying
+    // sessionStorage), so localStorage is the bridge.
+    //
+    // Returns true if a pending profile was found (even if save failed), so we
+    // can skip the profile-complete check for new registrants.
+    async function maybeSaveProfile(session: import('@supabase/supabase-js').Session): Promise<boolean> {
+      try {
+        const raw = localStorage.getItem('ss_pending_profile')
+        if (!raw) return false
+
+        const data = JSON.parse(raw) as {
+          firstName: string
+          lastName: string
+          dob: string
+          phone: string
+        }
+
+        await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(data),
+        })
+
+        return true
+      } catch {
+        return false
+      } finally {
+        // Always clear — don't retry on next login
+        localStorage.removeItem('ss_pending_profile')
+      }
+    }
+
+    // ── Profile completeness check ──────────────────────────────────────────
+    // For users who sign in via the normal magic link (not /auth/register),
+    // check if they've completed their profile. Incomplete → /profile/setup.
+    async function isProfileComplete(session: import('@supabase/supabase-js').Session): Promise<boolean> {
+      try {
+        const res = await fetch('/api/user/profile', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: AbortSignal.timeout(5000),
+        })
+        if (!res.ok) return true // assume complete if check fails — don't block sign-in
+        const data = await res.json() as { profile_complete?: boolean }
+        return data.profile_complete === true
+      } catch {
+        return true // assume complete on network error
+      }
+    }
+
+    // ── Main post-auth flow ─────────────────────────────────────────────────
+    async function handleSession(session: import('@supabase/supabase-js').Session) {
+      // 1. Recover anonymous session FIRST — dashboard reads count on mount.
+      //    Must be awaited so the DB row exists before we navigate.
+      await maybeRecoverSession(session)
+
+      // 2. Save pending profile from /auth/register flow (if present)
+      const hadPendingProfile = await maybeSaveProfile(session)
+
+      // 3. Welcome email — fire-and-forget (non-critical)
+      maybeWelcome(session)
+
+      // 4. Check profile completeness for returning users who bypassed /auth/register
+      const profileComplete = hadPendingProfile || await isProfileComplete(session)
+
+      if (!profileComplete) {
+        // Redirect to profile setup, preserving the intended destination
+        router.replace(`/profile/setup?next=${encodeURIComponent(next)}`)
+      } else {
+        router.replace(next)
+      }
+    }
+
     // 1. Check if SDK already processed the hash before this component mounted
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && !redirected) {
         redirected = true
-        maybeWelcome(session)
-        maybeRecoverSession(session)
-        router.replace(next)
+        handleSession(session)
       }
     })
 
@@ -115,9 +190,7 @@ export default function AuthCallback() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session && !redirected) {
         redirected = true
-        maybeWelcome(session)
-        maybeRecoverSession(session)
-        router.replace(next)
+        handleSession(session)
         return
       }
       // If INITIAL_SESSION fires with no session and no hash token, the link is bad

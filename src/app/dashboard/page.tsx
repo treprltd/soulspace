@@ -83,7 +83,7 @@ function formatRelative(iso: string) {
 export default function Dashboard() {
   const router = useRouter()
   const [email, setEmail] = useState('')
-  const [emailPrefix, setEmailPrefix] = useState('')
+  const [displayName, setDisplayName] = useState('')  // first_name if set, else email prefix
   const [joinedDate, setJoinedDate] = useState<string | null>(null)
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
   const [sessions, setSessions] = useState<Session[]>([])
@@ -101,7 +101,6 @@ export default function Dashboard() {
       }
 
       setEmail(user.email ?? '')
-      setEmailPrefix(user.email?.split('@')[0] ?? '')
       setJoinedDate(user.created_at ? formatDate(user.created_at) : null)
 
       // Pass JWT so server-side routes can authenticate (implicit-flow client)
@@ -109,10 +108,15 @@ export default function Dashboard() {
       const authHeaders: Record<string, string> = {}
       if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
 
-      const [subRes, histRes] = await Promise.all([
+      const [subRes, histRes, profileRes] = await Promise.all([
         fetch('/api/subscription', { headers: authHeaders }).then(r => r.json()).catch(() => null),
         fetch('/api/sessions/history?limit=50', { headers: authHeaders }).then(r => r.json()).catch(() => ({ sessions: [] })),
+        fetch('/api/user/profile', { headers: authHeaders }).then(r => r.json()).catch(() => null),
       ])
+
+      // Use first name if available, else fall back to email prefix
+      const firstName = (profileRes as { first_name?: string } | null)?.first_name
+      setDisplayName(firstName?.trim() ? firstName.trim() : (user.email?.split('@')[0] ?? ''))
 
       if (subRes) setSubStatus(subRes as SubStatus)
       setSessions((histRes as { sessions: Session[] }).sessions ?? [])
@@ -139,7 +143,7 @@ export default function Dashboard() {
   const usageBarPct = isPaid ? 0 : Math.min((sessionsThisMonth / FREE_SESSIONS_PER_MONTH) * 100, 100)
   const remaining = FREE_SESSIONS_PER_MONTH - sessionsThisMonth
 
-  if (loading && !emailPrefix) {
+  if (loading && !displayName) {
     return (
       <main style={{ background: '#060E18', minHeight: '100vh' }}>
         <NavBar />
@@ -179,7 +183,7 @@ export default function Dashboard() {
         <div className="mb-5">
           <p className="text-[9px] tracking-[.12em] uppercase text-mist mb-0.5">{greetingWord()}</p>
           <h1 className="font-serif font-light text-sand2 leading-tight" style={{ fontSize: '26px' }}>
-            {emailPrefix || 'Welcome back'}.
+            {displayName || 'Welcome back'}.
           </h1>
           {joinedDate && (
             <p className="text-[9px] mt-1" style={{ color: 'rgba(139,167,184,.45)' }}>

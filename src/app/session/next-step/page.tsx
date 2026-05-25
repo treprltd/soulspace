@@ -239,7 +239,10 @@ export default function NextStep() {
                     }))
                   }
                 } catch { /* non-fatal — if localStorage is blocked, session is lost */ }
-                router.push('/auth/signin')
+                // /auth/register collects first name, last name, DOB, phone + email
+                // before sending the magic link. Profile is stored in ss_pending_profile
+                // and saved by auth/callback after the magic link is clicked.
+                router.push('/auth/register')
               }}
               className="btn-outline text-xs py-2 px-4"
             >
