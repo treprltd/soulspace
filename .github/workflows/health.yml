@@ -48,8 +48,8 @@ jobs:
       - name: Check resonance accuracy rate
         run: node scripts/check-mirror-accuracy.js
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_PROD }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_PROD_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_PROD_SERVICE_KEY }}
           # Alert threshold: fail if accuracy drops below 50% (CLAUDE.md: stop all work below 50%)
           ACCURACY_THRESHOLD: '50'
           # Sample window: last N sessions
@@ -70,8 +70,8 @@ jobs:
       - name: Check safety flag rate
         run: node scripts/check-safety-rate.js
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PROD }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_PROD }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_PROD_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_PROD_SERVICE_KEY }}
           # Alert if safety flagged rate exceeds 5% in last 24h (possible abuse/injection)
           SAFETY_FLAG_THRESHOLD: '5'
 

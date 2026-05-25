@@ -2,29 +2,48 @@ import { createClient } from '@supabase/supabase-js'
 
 export type AdminEnv = 'dev' | 'qa' | 'prod'
 
+// Required env vars per environment — shown in the admin UI when missing.
+const ENV_VARS: Record<AdminEnv, [string, string]> = {
+  dev:  ['SUPABASE_DEV_URL',  'SUPABASE_DEV_SERVICE_KEY'],
+  qa:   ['SUPABASE_QA_URL',   'SUPABASE_QA_SERVICE_KEY'],
+  prod: ['SUPABASE_PROD_URL', 'SUPABASE_PROD_SERVICE_KEY'],
+}
+
 // Returns a service-role Supabase client for the given environment.
-// Each env has its own Supabase project with separate credentials.
+//
+// IMPORTANT: dev and qa NEVER fall back to the current deployment's
+// credentials. Without this guard, an unconfigured dev tab on the production
+// deployment would silently query the production database, showing production
+// data in the "Dev" column — which is exactly the bug we're fixing.
+//
+// prod falls back to NEXT_PUBLIC_* / SUPABASE_SERVICE_ROLE_KEY so the Prod
+// tab works on the production deployment before explicit vars are set.
 export function getAdminClient(env: AdminEnv) {
-  let url: string
-  let serviceKey: string
+  let url: string | undefined
+  let serviceKey: string | undefined
 
   switch (env) {
     case 'dev':
-      url = process.env.SUPABASE_DEV_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-      serviceKey = process.env.SUPABASE_DEV_SERVICE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+      url        = process.env.SUPABASE_DEV_URL
+      serviceKey = process.env.SUPABASE_DEV_SERVICE_KEY
       break
     case 'qa':
-      url = process.env.SUPABASE_QA_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-      serviceKey = process.env.SUPABASE_QA_SERVICE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+      url        = process.env.SUPABASE_QA_URL
+      serviceKey = process.env.SUPABASE_QA_SERVICE_KEY
       break
     case 'prod':
-      url = process.env.SUPABASE_PROD_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-      serviceKey = process.env.SUPABASE_PROD_SERVICE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+      // Safe fallback: on the prod deployment NEXT_PUBLIC_SUPABASE_URL IS prod.
+      url        = process.env.SUPABASE_PROD_URL        ?? process.env.NEXT_PUBLIC_SUPABASE_URL
+      serviceKey = process.env.SUPABASE_PROD_SERVICE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY
       break
   }
 
   if (!url || !serviceKey) {
-    throw new Error(`Missing Supabase credentials for env: ${env}`)
+    const [urlVar, keyVar] = ENV_VARS[env]
+    throw new Error(
+      `${env.toUpperCase()} not configured — add ${urlVar} and ${keyVar} ` +
+      `to Amplify environment variables (all branches).`
+    )
   }
 
   return createClient(url, serviceKey, {
@@ -32,12 +51,23 @@ export function getAdminClient(env: AdminEnv) {
   })
 }
 
-// Detect which env this deployment is, to set the default tab in the UI.
-export function getCurrentEnv(): AdminEnv {
-  const e = process.env.NEXT_PUBLIC_ENV
-  if (e === 'production') return 'prod'
-  if (e === 'test') return 'qa'
-  return 'dev'
+// Safe wrapper — returns a discriminated union so TypeScript can narrow `db`
+// after the configError guard without requiring non-null assertions.
+//
+//   const result = getAdminClientSafe(env)
+//   if (!result.ok) return NextResponse.json({ error: result.error, not_configured: true }, { status: 503 })
+//   const { db } = result  // ← db is guaranteed non-null here
+//
+export type AdminClientResult =
+  | { ok: true;  db: ReturnType<typeof getAdminClient> }
+  | { ok: false; error: string }
+
+export function getAdminClientSafe(env: AdminEnv): AdminClientResult {
+  try {
+    return { ok: true, db: getAdminClient(env) }
+  } catch (e) {
+    return { ok: false, error: (e as Error).message }
+  }
 }
 
 // Human-readable labels and badge colors for each env

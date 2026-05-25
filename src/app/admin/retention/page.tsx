@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface RetentionData {
   activeUsers: {
@@ -131,13 +132,15 @@ function RetentionInner() {
   const [data, setData]     = useState<RetentionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
 
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     fetch(`/api/admin/retention?env=${env}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env])
@@ -158,7 +161,8 @@ function RetentionInner() {
         </h1>
       </div>
 
-      {error && (
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && (
         <div style={{ padding: '14px 16px', background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.3)', borderRadius: 'var(--r-lg)', color: '#D44040', fontSize: 'var(--fs-sm)', marginBottom: '20px' }}>
           {error}
         </div>

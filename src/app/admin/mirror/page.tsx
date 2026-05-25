@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface MirrorData {
   overall: { rate: number | null; accurate: number; total: number; targetMet: boolean | null }
@@ -113,6 +114,7 @@ function MirrorInner() {
   const [data, setData] = useState<MirrorData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
 
   function setDays(d: number) {
     const p = new URLSearchParams(searchParams.toString())
@@ -123,9 +125,10 @@ function MirrorInner() {
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     fetch(`/api/admin/mirror?env=${env}&days=${days}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env, days])
@@ -162,7 +165,8 @@ function MirrorInner() {
       </div>
 
       {loading && <p style={{ color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>Loading…</p>}
-      {error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
 
       {data && !loading && (
         <>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, AdminEnv } from '@/lib/admin/db'
+import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -8,9 +9,11 @@ export async function GET(req: NextRequest) {
   }
 
   const params = req.nextUrl.searchParams
-  const env = (params.get('env') ?? 'dev') as AdminEnv
+  const env = (params.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const days = Math.min(parseInt(params.get('days') ?? '30', 10), 90)
-  const db = getAdminClient(env)
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
 
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
   const since90 = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, AdminEnv } from '@/lib/admin/db'
+import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -8,7 +9,7 @@ export async function GET(req: NextRequest) {
   }
 
   const params = req.nextUrl.searchParams
-  const env = (params.get('env') ?? 'dev') as AdminEnv
+  const env = (params.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const page = Math.max(1, parseInt(params.get('page') ?? '1', 10))
   const limit = 50
   const offset = (page - 1) * limit
@@ -17,7 +18,9 @@ export async function GET(req: NextRequest) {
   const from = params.get('from')
   const to = params.get('to')
 
-  const db = getAdminClient(env)
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
 
   let query = db
     .from('sessions')

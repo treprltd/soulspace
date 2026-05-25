@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface User {
   id: string
@@ -45,6 +46,7 @@ function UsersInner() {
   const [data, setData] = useState<UsersResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
   const [search, setSearch] = useState(q)
   const [editingUser, setEditingUser] = useState<string | null>(null)
   const [savingPlan, setSavingPlan] = useState<string | null>(null)
@@ -84,12 +86,13 @@ function UsersInner() {
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     const params = new URLSearchParams({ env, page: String(page) })
     if (plan) params.set('plan', plan)
     if (q) params.set('q', q)
     fetch(`/api/admin/users?${params}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env, page, plan, q])
@@ -148,7 +151,8 @@ function UsersInner() {
       </div>
 
       {loading && <p style={{ color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>Loading…</p>}
-      {error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
 
       {data && !loading && data.users.length === 0 && (
         <div style={{

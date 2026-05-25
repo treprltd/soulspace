@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, AdminEnv } from '@/lib/admin/db'
+import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const env = (req.nextUrl.searchParams.get('env') ?? 'dev') as AdminEnv
-  const db = getAdminClient(env)
+  const env = (req.nextUrl.searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
 
   const now = new Date()
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface Session {
   id: string
@@ -61,6 +62,7 @@ function SessionsInner() {
   const [data, setData] = useState<SessionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
 
   function setParam(key: string, val: string) {
     const p = new URLSearchParams(searchParams.toString())
@@ -72,6 +74,7 @@ function SessionsInner() {
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     const q = new URLSearchParams({ env, page: String(page) })
     if (branch) q.set('branch', branch)
     if (safety) q.set('safety', safety)
@@ -80,7 +83,7 @@ function SessionsInner() {
 
     fetch(`/api/admin/sessions?${q}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env, page, branch, safety, from, to])
@@ -178,7 +181,8 @@ function SessionsInner() {
 
       {/* Table */}
       {loading && <p style={{ color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>Loading…</p>}
-      {error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
 
       {data && !loading && (
         <>

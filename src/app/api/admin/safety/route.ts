@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, AdminEnv } from '@/lib/admin/db'
+import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -8,13 +9,15 @@ export async function GET(req: NextRequest) {
   }
 
   const params = req.nextUrl.searchParams
-  const env = (params.get('env') ?? 'dev') as AdminEnv
+  const env = (params.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const page = Math.max(1, parseInt(params.get('page') ?? '1', 10))
   const limit = 50
   const offset = (page - 1) * limit
   const reviewed = params.get('reviewed') // 'true'|'false'|null
 
-  const db = getAdminClient(env)
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
 
   let query = db
     .from('safety_events')
@@ -58,7 +61,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'id and env required' }, { status: 400 })
   }
 
-  const db = getAdminClient(env)
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
   const { error } = await db
     .from('safety_events')
     .update({ reviewed: true, reviewed_at: new Date().toISOString() })

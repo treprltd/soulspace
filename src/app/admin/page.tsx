@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface Stats {
   users: {
@@ -132,14 +133,18 @@ function DashboardInner() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
 
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     fetch(`/api/admin/stats?env=${env}`)
       .then(r => r.json())
       .then(d => {
+        if (d.not_configured) { setNotConfigured(true); return }
         if (d.error) throw new Error(d.error)
+        setNotConfigured(false)
         setStats(d)
       })
       .catch(e => setError(e.message))
@@ -147,6 +152,14 @@ function DashboardInner() {
   }, [env])
 
   if (loading) return <LoadingShell />
+  if (notConfigured) return (
+    <div style={{ padding: '28px 32px' }}>
+      <div style={{ fontSize: 'var(--fs-3xs)', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '4px' }}>
+        Dashboard · {env.toUpperCase()}
+      </div>
+      <AdminEnvNotConfigured env={env} />
+    </div>
+  )
   if (error) return <ErrorShell message={error} />
   if (!stats) return null
 

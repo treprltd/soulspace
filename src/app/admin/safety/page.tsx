@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface SafetyEvent {
   id: string
@@ -44,6 +45,7 @@ function SafetyInner() {
   const [data, setData] = useState<SafetyResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
   const [reviewing, setReviewing] = useState<string | null>(null)
 
   function setParam(key: string, val: string) {
@@ -73,11 +75,12 @@ function SafetyInner() {
   function loadData() {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     const q = new URLSearchParams({ env, page: String(page) })
     if (reviewed) q.set('reviewed', reviewed)
     fetch(`/api/admin/safety?${q}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }
@@ -150,7 +153,8 @@ function SafetyInner() {
       </div>
 
       {loading && <p style={{ color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>Loading…</p>}
-      {error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
 
       {data && !loading && data.events.length === 0 && (
         <div style={{

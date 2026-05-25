@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface RevenueData {
   mrr: number
@@ -140,6 +141,7 @@ function RevenueInner() {
   const [data, setData] = useState<RevenueData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
 
   function setParam(key: string, val: string) {
     const p = new URLSearchParams(searchParams.toString())
@@ -150,9 +152,10 @@ function RevenueInner() {
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     fetch(`/api/admin/revenue?env=${env}&days=${days}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env, days])

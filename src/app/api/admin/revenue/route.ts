@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, AdminEnv } from '@/lib/admin/db'
+import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 const ESSENTIALS_PRICE = 9.99
 const INSIGHTS_PRICE = 19.99
@@ -10,9 +11,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const env = (req.nextUrl.searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (req.nextUrl.searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const days = parseInt(req.nextUrl.searchParams.get('days') ?? '30', 10)
-  const db = getAdminClient(env)
+  const _result = getAdminClientSafe(env)
+  if (!_result.ok) return NextResponse.json({ error: _result.error, not_configured: true }, { status: 503 })
+  const { db } = _result
 
   const startOfWindow = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
   const start30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)

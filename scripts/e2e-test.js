@@ -1215,6 +1215,110 @@ async function testUserDataEndpoint() {
   })
 }
 
+// ── User Profile API ──────────────────────────────────────────────────────────
+
+async function testUserProfileAPI() {
+  section('User Profile API (GET & POST /api/user/profile)')
+
+  // Auth guard — unauthenticated requests must be rejected
+  await run('GET /api/user/profile without token → 401', true, async () => {
+    const { status } = await api('GET', '/api/user/profile')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('POST /api/user/profile without token → 401', true, async () => {
+    const { status } = await api('POST', '/api/user/profile', {
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: '+15550000001' },
+    })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  // GET — returns profile shape even before any data is saved
+  await run('GET /api/user/profile returns profile fields', true, async () => {
+    const { status, json } = await api('GET', '/api/user/profile', { token: accessToken })
+    const hasField = typeof json.profile_complete === 'boolean'
+    return {
+      pass: status === 200 && hasField,
+      detail: `status=${status} profile_complete=${json.profile_complete ?? 'MISSING'}`,
+    }
+  })
+
+  // POST — validation rejections
+  await run('POST /api/user/profile empty firstName → 400', false, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: '', lastName: 'Test', dob: '1990-01-01', phone: '+15559999001' },
+    })
+    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+  })
+
+  await run('POST /api/user/profile under-18 DOB → 400', false, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'Young', lastName: 'User', dob: '2010-01-01', phone: '+15559999002' },
+    })
+    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+  })
+
+  await run('POST /api/user/profile invalid phone → 400', false, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '123' },
+    })
+    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+  })
+
+  // POST — successful save
+  const testPhone = `+1555${Date.now().toString().slice(-7)}`
+  await run('POST /api/user/profile saves valid profile → 200', true, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: testPhone },
+    })
+    return { pass: status === 200 && json.ok === true, detail: `status=${status} ok=${json.ok}` }
+  })
+
+  // GET — profile_complete should now be true
+  await run('GET /api/user/profile profile_complete=true after save', true, async () => {
+    const { status, json } = await api('GET', '/api/user/profile', { token: accessToken })
+    return {
+      pass: status === 200 && json.profile_complete === true,
+      detail: `status=${status} profile_complete=${json.profile_complete}`,
+    }
+  })
+
+  // GET — name fields returned
+  await run('GET /api/user/profile returns saved name fields', false, async () => {
+    const { status, json } = await api('GET', '/api/user/profile', { token: accessToken })
+    return {
+      pass: status === 200 && json.first_name === 'E2E' && json.last_name === 'Test',
+      detail: `first_name=${json.first_name ?? 'n/a'} last_name=${json.last_name ?? 'n/a'}`,
+    }
+  })
+
+  section('Phone Availability (GET /api/user/profile/check-phone)')
+
+  // Unused number should be available
+  await run('check-phone unused number → available=true', false, async () => {
+    const phone = encodeURIComponent('+15550000099')
+    const { status, json } = await api('GET', `/api/user/profile/check-phone?phone=${phone}`)
+    return { pass: status === 200 && json.available === true, detail: `available=${json.available}` }
+  })
+
+  // The phone we just saved should NOT be available to another registration
+  await run('check-phone taken number → available=false', false, async () => {
+    const phone = encodeURIComponent(testPhone)
+    const { status, json } = await api('GET', `/api/user/profile/check-phone?phone=${phone}`)
+    return { pass: status === 200 && json.available === false, detail: `available=${json.available}` }
+  })
+
+  // Missing query param
+  await run('check-phone missing phone param → 400', false, async () => {
+    const { status } = await api('GET', '/api/user/profile/check-phone')
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+}
+
 // ── Report generation ─────────────────────────────────────────────────────────
 
 function buildReport() {
@@ -1331,6 +1435,9 @@ async function main() {
     await testAdminPortalAuth()
     await testStripeRoutes()
     await testAdminDigest()
+
+    // ── User profile & phone availability ─────────────────────────────────────
+    await testUserProfileAPI()
 
     // ── User data ──────────────────────────────────────────────────────────────
     await testUserDataEndpoint()

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
+import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface Event {
   id: string
@@ -58,6 +59,7 @@ function EventsInner() {
   const [data, setData] = useState<EventsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notConfigured, setNotConfigured] = useState(false)
   const [sessionSearch, setSessionSearch] = useState(sessionId)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -71,6 +73,7 @@ function EventsInner() {
   useEffect(() => {
     setLoading(true)
     setError('')
+    setNotConfigured(false)
     const q = new URLSearchParams({ env, page: String(page) })
     if (eventName) q.set('event', eventName)
     if (sessionId) q.set('session', sessionId)
@@ -79,7 +82,7 @@ function EventsInner() {
 
     fetch(`/api/admin/events?${q}`)
       .then(r => r.json())
-      .then(d => { if (d.error) throw new Error(d.error); setData(d) })
+      .then(d => { if (d.not_configured) { setNotConfigured(true); return }; if (d.error) throw new Error(d.error); setNotConfigured(false); setData(d) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [env, page, eventName, sessionId, from, to])
@@ -162,7 +165,8 @@ function EventsInner() {
       </div>
 
       {loading && <p style={{ color: 'var(--mist)', fontSize: 'var(--fs-sm)' }}>Loading…</p>}
-      {error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
+      {notConfigured && <AdminEnvNotConfigured env={env} />}
+      {!notConfigured && error && <p style={{ color: '#D44040', fontSize: 'var(--fs-sm)' }}>Error: {error}</p>}
 
       {data && !loading && data.events.length === 0 && (
         <div style={{

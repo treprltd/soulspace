@@ -9,46 +9,10 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/ui/Logo'
 import { NavBar } from '@/components/ui/NavBar'
-
-const inputClass = `
-  w-full px-4 py-3 rounded-xl text-sm text-sand2 focus:outline-none transition-colors
-  placeholder:text-mist/40
-`.trim()
-
-const inputStyle = {
-  background: 'rgba(245,237,216,.04)',
-  border: '1px solid rgba(245,237,216,.08)',
-}
-
-const inputFocusStyle = {
-  background: 'rgba(245,237,216,.04)',
-  border: '1px solid rgba(201,168,76,.35)',
-}
-
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string
-  hint?: string
-  error?: string | null
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[10px] tracking-[.08em] uppercase text-mist pl-0.5">{label}</label>
-      {children}
-      {hint && !error && (
-        <p className="text-[9px] pl-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>{hint}</p>
-      )}
-      {error && (
-        <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>
-      )}
-    </div>
-  )
-}
+import {
+  ProfileFields,
+  validateProfileFields,
+} from '@/components/ui/ProfileFields'
 
 export default function ProfileSetup() {
   const router = useRouter()
@@ -84,29 +48,7 @@ export default function ProfileSetup() {
   }, [router])
 
   function validate() {
-    const errs: Record<string, string> = {}
-    if (!firstName.trim()) errs.firstName = 'First name is required.'
-    if (!lastName.trim())  errs.lastName  = 'Last name is required.'
-
-    if (!dob) {
-      errs.dob = 'Date of birth is required.'
-    } else {
-      const dobDate = new Date(dob)
-      const threshold = new Date()
-      threshold.setFullYear(threshold.getFullYear() - 18)
-      if (isNaN(dobDate.getTime()) || dobDate > threshold) {
-        errs.dob = 'You must be 18 or older.'
-      }
-    }
-
-    const digits = phone.replace(/\D/g, '')
-    if (!phone.trim()) {
-      errs.phone = 'Phone number is required.'
-    } else if (digits.length < 7 || digits.length > 15) {
-      errs.phone = 'Please enter a valid phone number (include country code).'
-    }
-
-    return errs
+    return validateProfileFields({ firstName, lastName, dob, phone })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -189,72 +131,14 @@ export default function ProfileSetup() {
             </p>
           )}
 
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="First name" error={errors.firstName}>
-              <input
-                type="text"
-                value={firstName}
-                onChange={e => setFirstName(e.target.value)}
-                onFocus={() => setFocusedField('firstName')}
-                onBlur={() => setFocusedField(null)}
-                placeholder="Jane"
-                autoComplete="given-name"
-                className={inputClass}
-                style={focusedField === 'firstName' ? inputFocusStyle : inputStyle}
-              />
-            </Field>
-            <Field label="Last name" error={errors.lastName}>
-              <input
-                type="text"
-                value={lastName}
-                onChange={e => setLastName(e.target.value)}
-                onFocus={() => setFocusedField('lastName')}
-                onBlur={() => setFocusedField(null)}
-                placeholder="Doe"
-                autoComplete="family-name"
-                className={inputClass}
-                style={focusedField === 'lastName' ? inputFocusStyle : inputStyle}
-              />
-            </Field>
-          </div>
-
-          <Field label="Date of birth" error={errors.dob}>
-            <input
-              type="date"
-              value={dob}
-              onChange={e => setDob(e.target.value)}
-              onFocus={() => setFocusedField('dob')}
-              onBlur={() => setFocusedField(null)}
-              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18))
-                .toISOString()
-                .split('T')[0]}
-              autoComplete="bday"
-              className={inputClass}
-              style={{
-                ...(focusedField === 'dob' ? inputFocusStyle : inputStyle),
-                colorScheme: 'dark',
-              }}
-            />
-          </Field>
-
-          <Field
-            label="Phone number"
-            hint="Include country code. Used only for account communications."
-            error={errors.phone}
-          >
-            <input
-              type="tel"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              onFocus={() => setFocusedField('phone')}
-              onBlur={() => setFocusedField(null)}
-              placeholder="+1 555 000 0000"
-              autoComplete="tel"
-              className={inputClass}
-              style={focusedField === 'phone' ? inputFocusStyle : inputStyle}
-            />
-          </Field>
+          <ProfileFields
+            values={{ firstName, lastName, dob, phone }}
+            setters={{ setFirstName, setLastName, setDob, setPhone }}
+            errors={errors}
+            focusedField={focusedField}
+            onFocus={setFocusedField}
+            onBlur={() => setFocusedField(null)}
+          />
 
           <button
             type="submit"

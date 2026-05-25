@@ -8,9 +8,9 @@ name: E2E API Tests
 # Manually: Actions → E2E API Tests → Run workflow → enter any URL
 #
 # Required GitHub SECRETS (Settings → Secrets → Actions):
-#   NEXT_PUBLIC_SUPABASE_URL       (same as Amplify)
-#   NEXT_PUBLIC_SUPABASE_ANON_KEY  (same as Amplify)
-#   SUPABASE_SERVICE_ROLE_KEY      (same as Amplify)
+#   SUPABASE_DEV_URL               (dev Supabase project URL)
+#   SUPABASE_DEV_ANON_KEY          (dev Supabase anon key)
+#   SUPABASE_DEV_SERVICE_KEY       (dev Supabase service role key)
 #   CRON_SECRET                    (optional — enables digest test)
 #   ANTHROPIC_API_KEY              (optional — enables mirror paywall test)
 #
@@ -67,17 +67,17 @@ jobs:
 
           # Check required secrets are present
           if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
-            echo "❌  NEXT_PUBLIC_SUPABASE_URL secret is not set."
+            echo "❌  SUPABASE_DEV_URL secret is not set."
             echo "    Go to: Settings → Secrets → Actions → New repository secret"
             exit 1
           fi
           if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "❌  NEXT_PUBLIC_SUPABASE_ANON_KEY secret is not set."
+            echo "❌  SUPABASE_DEV_ANON_KEY secret is not set."
             echo "    Go to: Settings → Secrets → Actions → New repository secret"
             exit 1
           fi
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "❌  SUPABASE_SERVICE_ROLE_KEY secret is not set."
+            echo "❌  SUPABASE_DEV_SERVICE_KEY secret is not set."
             echo "    Go to: Settings → Secrets → Actions → New repository secret"
             exit 1
           fi
@@ -90,18 +90,18 @@ jobs:
           fi
           echo "✅  $URL is reachable (HTTP $HTTP_CODE)"
         env:
-          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.SUPABASE_DEV_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_DEV_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
 
       # ── Run E2E test suite ─────────────────────────────────────────────────
       - name: Run E2E test suite
         run: node scripts/e2e-test.js --report
         env:
           BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
-          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.SUPABASE_DEV_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.SUPABASE_DEV_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
           ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
           CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
           REPORT_PATH:                    e2e-report.md
@@ -117,9 +117,9 @@ jobs:
         env:
           BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
           TEST_EMAIL:                    ${{ inputs.test_email || vars.TEST_EMAIL }}
-          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.SUPABASE_DEV_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.SUPABASE_DEV_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
           CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
 
       # ── Upload the report as a build artifact ─────────────────────────────
