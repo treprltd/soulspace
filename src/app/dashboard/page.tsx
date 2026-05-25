@@ -27,6 +27,12 @@ interface Session {
   season_assigned: 'W' | 'Sp' | 'Su' | 'Au' | null
   resonance_tap: 'accurate' | 'not_quite' | null
   intensity: number | null
+  safety_flagged?: boolean
+}
+
+interface SessionDetail extends Session {
+  contextText: string | null
+  mirrorOutput: string | null
 }
 
 const BRANCH_LABELS: Record<string, string> = {
@@ -89,6 +95,9 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [detailCache, setDetailCache] = useState<Record<string, SessionDetail>>({})
+  const [detailLoading, setDetailLoading] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -125,6 +134,29 @@ export default function Dashboard() {
 
     load()
   }, [router])
+
+  async function toggleDetail(session: Session) {
+    const id = session.id
+    if (expandedId === id) { setExpandedId(null); return }
+    setExpandedId(id)
+    if (detailCache[id]) return            // already fetched
+
+    setDetailLoading(id)
+    try {
+      const supabase = createClient()
+      const { data: { session: authSession } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (authSession?.access_token) headers['Authorization'] = `Bearer ${authSession.access_token}`
+
+      const res = await fetch(`/api/sessions/${id}`, { headers })
+      if (res.ok) {
+        const detail = await res.json() as SessionDetail
+        setDetailCache(prev => ({ ...prev, [id]: detail }))
+      }
+    } catch { /* noop */ } finally {
+      setDetailLoading(null)
+    }
+  }
 
   const isPaid = subStatus?.planTier !== 'free'
   const sessionsThisMonth = subStatus?.sessionsThisMonth ?? 0
@@ -368,99 +400,230 @@ export default function Dashboard() {
 
           ) : (
             <>
-              {visibleSessions.map((s, i) => (
-                <div
-                  key={s.id}
-                  className="px-4 py-3.5"
-                  style={{
-                    borderBottom: i < visibleSessions.length - 1
-                      ? '1px solid rgba(245,237,216,.04)'
-                      : 'none',
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3">
+              {visibleSessions.map((s, i) => {
+                const isExpanded = expandedId === s.id
+                const isLoadingDetail = detailLoading === s.id
+                const detail = detailCache[s.id]
+                return (
+                  <div key={s.id}>
+                    {/* ── Session row (clickable) ── */}
+                    <div
+                      className="px-4 py-3.5"
+                      onClick={() => toggleDetail(s)}
+                      style={{
+                        borderBottom: (!isExpanded && i < visibleSessions.length - 1)
+                          ? '1px solid rgba(245,237,216,.04)'
+                          : 'none',
+                        cursor: 'pointer',
+                        transition: 'background .15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,237,216,.018)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <div className="flex items-start justify-between gap-3">
 
-                    {/* Left block */}
-                    <div className="flex-1 min-w-0">
-                      {/* Branch + season dot */}
-                      <div className="flex items-center gap-2 mb-0.5">
-                        {s.season_assigned && (
+                        {/* Left block */}
+                        <div className="flex-1 min-w-0">
+                          {/* Branch + season dot */}
+                          <div className="flex items-center gap-2 mb-0.5">
+                            {s.season_assigned && (
+                              <span
+                                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                style={{ background: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}
+                              />
+                            )}
+                            <span className="text-[11px] text-sand font-medium leading-tight">
+                              {BRANCH_LABELS[s.branch] ?? s.branch}
+                            </span>
+                          </div>
+
+                          {/* Branch description */}
+                          <p className="text-[9px] leading-relaxed mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
+                            {BRANCH_DESC[s.branch]}
+                          </p>
+
+                          {/* Meta row */}
+                          <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
+                            <span className="text-[9px] text-mist">{formatRelative(s.created_at)}</span>
+
+                            {s.season_assigned && (
+                              <>
+                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
+                                <span className="text-[9px]" style={{ color: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}>
+                                  {SEASON_LABELS[s.season_assigned]}
+                                </span>
+                              </>
+                            )}
+
+                            {s.intensity !== null && (
+                              <>
+                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
+                                <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.45)' }}>
+                                  intensity {s.intensity}/10
+                                </span>
+                              </>
+                            )}
+
+                            {!s.completed_at && (
+                              <>
+                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
+                                <span className="text-[9px]" style={{ color: 'rgba(212,64,64,.45)' }}>incomplete</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right: resonance badge + chevron */}
+                        <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
+                          {s.resonance_tap ? (
+                            <div
+                              className="text-[8px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                              style={{
+                                background: s.resonance_tap === 'accurate'
+                                  ? 'rgba(42,140,122,.1)'
+                                  : 'rgba(139,167,184,.07)',
+                                color: s.resonance_tap === 'accurate' ? 'var(--teal2)' : 'var(--mist)',
+                                border: s.resonance_tap === 'accurate'
+                                  ? '1px solid rgba(42,140,122,.2)'
+                                  : '1px solid rgba(139,167,184,.1)',
+                              }}
+                            >
+                              {s.resonance_tap === 'accurate' ? '✓ Felt accurate' : 'Not quite'}
+                            </div>
+                          ) : s.completed_at ? (
+                            <div
+                              className="text-[8px] px-2 py-0.5 rounded-full"
+                              style={{
+                                color: 'rgba(139,167,184,.3)',
+                                border: '1px solid rgba(139,167,184,.08)',
+                              }}
+                            >
+                              No tap
+                            </div>
+                          ) : null}
+
+                          {/* Chevron indicator */}
                           <span
-                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                            style={{ background: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}
-                          />
-                        )}
-                        <span className="text-[11px] text-sand font-medium leading-tight">
-                          {BRANCH_LABELS[s.branch] ?? s.branch}
-                        </span>
-                      </div>
-
-                      {/* Branch description */}
-                      <p className="text-[9px] leading-relaxed mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
-                        {BRANCH_DESC[s.branch]}
-                      </p>
-
-                      {/* Meta row */}
-                      <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
-                        <span className="text-[9px] text-mist">{formatRelative(s.created_at)}</span>
-
-                        {s.season_assigned && (
-                          <>
-                            <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
-                            <span className="text-[9px]" style={{ color: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}>
-                              {SEASON_LABELS[s.season_assigned]}
-                            </span>
-                          </>
-                        )}
-
-                        {s.intensity !== null && (
-                          <>
-                            <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
-                            <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.45)' }}>
-                              intensity {s.intensity}/10
-                            </span>
-                          </>
-                        )}
-
-                        {!s.completed_at && (
-                          <>
-                            <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '9px' }}>·</span>
-                            <span className="text-[9px]" style={{ color: 'rgba(212,64,64,.45)' }}>incomplete</span>
-                          </>
-                        )}
+                            style={{
+                              color: 'rgba(139,167,184,.3)',
+                              fontSize: '9px',
+                              transition: 'transform .2s',
+                              display: 'inline-block',
+                              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                            }}
+                          >
+                            ▾
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Right: resonance badge */}
-                    {s.resonance_tap ? (
+                    {/* ── Expanded detail panel ── */}
+                    {isExpanded && (
                       <div
-                        className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap mt-0.5"
+                        className="px-4 pb-4"
                         style={{
-                          background: s.resonance_tap === 'accurate'
-                            ? 'rgba(42,140,122,.1)'
-                            : 'rgba(139,167,184,.07)',
-                          color: s.resonance_tap === 'accurate' ? 'var(--teal2)' : 'var(--mist)',
-                          border: s.resonance_tap === 'accurate'
-                            ? '1px solid rgba(42,140,122,.2)'
-                            : '1px solid rgba(139,167,184,.1)',
+                          borderBottom: i < visibleSessions.length - 1
+                            ? '1px solid rgba(245,237,216,.04)'
+                            : 'none',
+                          borderTop: '1px solid rgba(245,237,216,.04)',
+                          background: 'rgba(6,14,24,.4)',
                         }}
                       >
-                        {s.resonance_tap === 'accurate' ? '✓ Felt accurate' : 'Not quite'}
+                        {isLoadingDetail ? (
+                          <div className="py-5 flex justify-center">
+                            <div
+                              className="w-4 h-4 rounded-full"
+                              style={{ border: '1.5px solid rgba(201,168,76,.1)', borderTopColor: 'var(--gold)', animation: 'spin 0.9s linear infinite' }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="pt-3 space-y-3">
+
+                            {/* Full timestamp */}
+                            <div className="text-[9px]" style={{ color: 'rgba(139,167,184,.35)' }}>
+                              {new Date(s.created_at).toLocaleString('en-US', {
+                                weekday: 'long', month: 'long', day: 'numeric',
+                                year: 'numeric', hour: 'numeric', minute: '2-digit',
+                              })}
+                            </div>
+
+                            {/* Safety suppressed */}
+                            {(detail?.safety_flagged || s.safety_flagged) && (
+                              <div
+                                className="rounded-lg px-3 py-2.5 text-[10px] leading-relaxed"
+                                style={{
+                                  background: 'rgba(212,64,64,.06)',
+                                  border: '1px solid rgba(212,64,64,.15)',
+                                  color: 'rgba(212,64,64,.7)',
+                                }}
+                              >
+                                This session was routed to support resources. Mirror output was not generated.
+                              </div>
+                            )}
+
+                            {/* What you shared */}
+                            {detail?.contextText && (
+                              <div>
+                                <div
+                                  className="text-[7px] tracking-[.11em] uppercase mb-1.5"
+                                  style={{ color: 'rgba(139,167,184,.4)' }}
+                                >
+                                  What you shared
+                                </div>
+                                <p
+                                  className="text-[11px] leading-relaxed"
+                                  style={{
+                                    color: 'rgba(245,237,216,.55)',
+                                    fontStyle: 'italic',
+                                    borderLeft: '2px solid rgba(245,237,216,.08)',
+                                    paddingLeft: '10px',
+                                  }}
+                                >
+                                  {detail.contextText}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Mirror reflection */}
+                            {detail?.mirrorOutput && !(detail?.safety_flagged) && (
+                              <div>
+                                <div
+                                  className="text-[7px] tracking-[.11em] uppercase mb-1.5"
+                                  style={{ color: 'rgba(201,168,76,.5)' }}
+                                >
+                                  Mirror reflection
+                                </div>
+                                <p
+                                  className="text-[9px] leading-relaxed mb-2"
+                                  style={{ color: 'rgba(201,168,76,.4)', fontStyle: 'italic' }}
+                                >
+                                  This is not a diagnosis. It is what seemed to be here, from what you shared.
+                                </p>
+                                <p
+                                  className="text-[11px] leading-relaxed"
+                                  style={{ color: 'rgba(245,237,216,.7)' }}
+                                >
+                                  {detail.mirrorOutput}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Incomplete / no content */}
+                            {!detail?.contextText && !detail?.mirrorOutput && !isLoadingDetail && !detail?.safety_flagged && (
+                              <p className="text-[10px] text-mist italic">
+                                {!s.completed_at
+                                  ? 'This session was not completed.'
+                                  : 'No content stored for this session.'}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ) : s.completed_at ? (
-                      <div
-                        className="text-[8px] px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
-                        style={{
-                          color: 'rgba(139,167,184,.3)',
-                          border: '1px solid rgba(139,167,184,.08)',
-                        }}
-                      >
-                        No tap
-                      </div>
-                    ) : null}
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
 
               {/* Show more */}
               {sessions.length > 6 && (

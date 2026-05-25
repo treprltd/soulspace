@@ -26,6 +26,13 @@ const PLAN_LABELS: Record<string, string> = {
   insights: 'Insights',
 }
 
+interface ProfileFields {
+  firstName: string
+  lastName: string
+  dob: string
+  phone: string
+}
+
 export default function Settings() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
@@ -35,6 +42,16 @@ export default function Settings() {
   const [signingOut, setSigningOut] = useState(false)
   const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
+
+  // ── Profile editing state ──────────────────────────────────────────────────
+  const [profile, setProfile] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '' })
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const [profileEditing, setProfileEditing] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileError, setProfileError] = useState('')
+  const [profileSaved, setProfileSaved] = useState(false)
+  // Keep a snapshot to allow cancel
+  const [profileSnapshot, setProfileSnapshot] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '' })
 
   useEffect(() => {
     const supabase = createClient()
@@ -50,14 +67,71 @@ export default function Settings() {
       const headers: Record<string, string> = {}
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
 
-      fetch('/api/subscription', { headers })
-        .then(r => r.json())
-        .then(d => setSubStatus(d as SubscriptionStatus))
-        .catch(() => {})
+      const [subData, profileData] = await Promise.all([
+        fetch('/api/subscription', { headers }).then(r => r.json()).catch(() => null),
+        fetch('/api/user/profile', { headers }).then(r => r.json()).catch(() => null),
+      ])
+
+      if (subData) setSubStatus(subData as SubscriptionStatus)
+
+      if (profileData && !profileData.error) {
+        const loaded: ProfileFields = {
+          firstName: profileData.first_name ?? '',
+          lastName:  profileData.last_name  ?? '',
+          dob:       profileData.dob        ?? '',
+          phone:     profileData.phone      ?? '',
+        }
+        setProfile(loaded)
+        setProfileSnapshot(loaded)
+      }
+      setProfileLoaded(true)
     }
 
     load()
   }, [])
+
+  function startEditing() {
+    setProfileSnapshot({ ...profile })
+    setProfileEditing(true)
+    setProfileError('')
+    setProfileSaved(false)
+  }
+
+  function cancelEditing() {
+    setProfile({ ...profileSnapshot })
+    setProfileEditing(false)
+    setProfileError('')
+  }
+
+  async function saveProfile() {
+    setProfileSaving(true)
+    setProfileError('')
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(profile),
+      })
+      const data = await res.json() as { ok?: boolean; error?: string }
+      if (!res.ok || data.error) {
+        setProfileError(data.error ?? 'Failed to save. Please try again.')
+      } else {
+        setProfileSnapshot({ ...profile })
+        setProfileEditing(false)
+        setProfileSaved(true)
+        setTimeout(() => setProfileSaved(false), 3000)
+      }
+    } catch {
+      setProfileError('Network error. Please try again.')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
 
   const handleSignOut = async () => {
     setSigningOut(true)
@@ -183,6 +257,165 @@ export default function Settings() {
             </Link>
           </div>
         ) : null}
+
+        {/* ── Personal info ── */}
+        {user && profileLoaded && (
+          <div
+            className="rounded-xl p-4 mb-4"
+            style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+          >
+            <div className="flex items-center justify-between mb-3 pb-1.5" style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
+              <div className="text-[7px] tracking-[.11em] uppercase text-mist">Personal info</div>
+              {!profileEditing ? (
+                <button
+                  onClick={startEditing}
+                  className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
+                  style={{ color: 'var(--gold2)', border: '1px solid rgba(201,168,76,.2)', background: 'rgba(201,168,76,.06)' }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={cancelEditing}
+                    className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
+                    style={{ color: 'var(--mist)', border: '1px solid rgba(139,167,184,.15)', background: 'transparent' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveProfile}
+                    disabled={profileSaving}
+                    className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80 disabled:opacity-50"
+                    style={{ color: '#060E18', background: 'var(--gold)', border: 'none', fontWeight: 600 }}
+                  >
+                    {profileSaving ? 'Saving…' : 'Save'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Success toast */}
+            {profileSaved && (
+              <div
+                className="rounded-lg px-3 py-2 text-[10px] mb-3"
+                style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)', color: 'var(--teal2)' }}
+              >
+                ✓ Profile updated successfully.
+              </div>
+            )}
+
+            {/* Error */}
+            {profileError && (
+              <div
+                className="rounded-lg px-3 py-2 text-[10px] mb-3"
+                style={{ background: 'rgba(212,64,64,.06)', border: '1px solid rgba(212,64,64,.2)', color: 'rgba(212,64,64,.8)' }}
+              >
+                {profileError}
+              </div>
+            )}
+
+            {/* Email — always read-only */}
+            <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
+              <div className="text-sm text-sand">Email</div>
+              <div className="text-xs truncate max-w-[200px]" style={{ color: 'rgba(139,167,184,.45)' }}>
+                {user.email}
+              </div>
+            </div>
+
+            {/* First name */}
+            <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
+              <div className="text-sm text-sand">First name</div>
+              {profileEditing ? (
+                <input
+                  type="text"
+                  value={profile.firstName}
+                  onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
+                  placeholder="First name"
+                  className="text-xs text-right bg-transparent outline-none border-b"
+                  style={{
+                    color: 'var(--sand)',
+                    borderColor: 'rgba(201,168,76,.3)',
+                    width: '140px',
+                    paddingBottom: '2px',
+                  }}
+                />
+              ) : (
+                <div className="text-xs text-mist">{profile.firstName || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+              )}
+            </div>
+
+            {/* Last name */}
+            <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
+              <div className="text-sm text-sand">Last name</div>
+              {profileEditing ? (
+                <input
+                  type="text"
+                  value={profile.lastName}
+                  onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
+                  placeholder="Last name"
+                  className="text-xs text-right bg-transparent outline-none border-b"
+                  style={{
+                    color: 'var(--sand)',
+                    borderColor: 'rgba(201,168,76,.3)',
+                    width: '140px',
+                    paddingBottom: '2px',
+                  }}
+                />
+              ) : (
+                <div className="text-xs text-mist">{profile.lastName || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+              )}
+            </div>
+
+            {/* Date of birth */}
+            <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
+              <div className="text-sm text-sand">Date of birth</div>
+              {profileEditing ? (
+                <input
+                  type="date"
+                  value={profile.dob}
+                  onChange={e => setProfile(p => ({ ...p, dob: e.target.value }))}
+                  className="text-xs text-right bg-transparent outline-none border-b"
+                  style={{
+                    color: 'var(--sand)',
+                    borderColor: 'rgba(201,168,76,.3)',
+                    width: '140px',
+                    paddingBottom: '2px',
+                    colorScheme: 'dark',
+                  }}
+                />
+              ) : (
+                <div className="text-xs text-mist">
+                  {profile.dob
+                    ? new Date(profile.dob + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                    : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Phone */}
+            <div className="flex justify-between items-center pt-2.5">
+              <div className="text-sm text-sand">Phone</div>
+              {profileEditing ? (
+                <input
+                  type="tel"
+                  value={profile.phone}
+                  onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
+                  placeholder="+1 555 000 0000"
+                  className="text-xs text-right bg-transparent outline-none border-b"
+                  style={{
+                    color: 'var(--sand)',
+                    borderColor: 'rgba(201,168,76,.3)',
+                    width: '140px',
+                    paddingBottom: '2px',
+                  }}
+                />
+              ) : (
+                <div className="text-xs text-mist">{profile.phone || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Subscription ── */}
         <div
