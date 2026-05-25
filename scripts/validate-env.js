@@ -14,12 +14,35 @@
 const env = process.env
 
 // ---------------------------------------------------------------------------
+// Supabase var resolution — accept either generic or env-specific naming.
+//
+// Amplify branches use SUPABASE_PROD_URL / SUPABASE_DEV_URL / SUPABASE_QA_URL
+// (and matching ANON_KEY / SERVICE_KEY). The app code uses the generic names.
+// next.config.mjs resolves them at build time; validate-env.js must do the
+// same check here so missing values are caught early before the build spends time.
+// ---------------------------------------------------------------------------
+const _e = env.NEXT_PUBLIC_ENV
+const _supabaseAliases = [
+  {
+    name:  'NEXT_PUBLIC_SUPABASE_URL',
+    alias: _e === 'production' ? 'SUPABASE_PROD_URL'         : _e === 'test' ? 'SUPABASE_QA_URL'         : 'SUPABASE_DEV_URL',
+  },
+  {
+    name:  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    alias: _e === 'production' ? 'SUPABASE_PROD_ANON_KEY'    : _e === 'test' ? 'SUPABASE_QA_ANON_KEY'    : 'SUPABASE_DEV_ANON_KEY',
+  },
+  {
+    name:  'SUPABASE_SERVICE_ROLE_KEY',
+    alias: _e === 'production' ? 'SUPABASE_PROD_SERVICE_KEY' : _e === 'test' ? 'SUPABASE_QA_SERVICE_KEY' : 'SUPABASE_DEV_SERVICE_KEY',
+  },
+]
+
+// ---------------------------------------------------------------------------
 // 1. REQUIRED — build/runtime will be broken without these
 // ---------------------------------------------------------------------------
 const REQUIRED = [
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
+  // Note: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  // and SUPABASE_SERVICE_ROLE_KEY are checked via _supabaseAliases above.
   'ANTHROPIC_API_KEY',
   'ENCRYPTION_KEY',
   'BREVO_API_KEY',
@@ -86,6 +109,18 @@ let warnings = 0
 const isProd = env.NEXT_PUBLIC_ENV === 'production'
 
 console.log(`\n🔍  Soul Space env validator  [env: ${env.NEXT_PUBLIC_ENV ?? '(unset)'}]\n`)
+
+// Supabase vars — accept either generic name or env-specific alias
+for (const { name, alias } of _supabaseAliases) {
+  const value = env[name] ?? env[alias]
+  if (!value) {
+    console.error(`  ✗  MISSING: ${name} (or ${alias})`)
+    errors++
+  } else {
+    const resolvedFrom = env[name] ? name : alias
+    console.log(`  ✓  ${name} (resolved from ${resolvedFrom})`)
+  }
+}
 
 // Required vars
 for (const key of REQUIRED) {
