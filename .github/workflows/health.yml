@@ -31,7 +31,7 @@ jobs:
         run: node scripts/smoke-test.js
         env:
           BASE_URL: https://soulspacehealth.org
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET_PROD }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
 
   # ── 2. Mirror accuracy sentinel ───────────────────────────────────────────
   mirror-accuracy:
@@ -92,6 +92,6 @@ jobs:
       - name: Check for failed Stripe webhook deliveries
         run: node scripts/check-stripe-webhooks.js
         env:
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_PROD }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           # Alert if any webhook failed in last 24h
           LOOKBACK_HOURS: '24'
