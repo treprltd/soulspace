@@ -3,14 +3,19 @@ name: E2E API Tests
 # ── When does this run? ────────────────────────────────────────────────────────
 # Automatically: only when E2E_BASE_URL is set as a GitHub repository variable.
 #   Go to: Settings → Variables → Actions → New repository variable
-#   Name: E2E_BASE_URL   Value: https://dev.soulspacehealth.org
+#   Name: E2E_BASE_URL   Value: https://soulspacehealth.org
 #
 # Manually: Actions → E2E API Tests → Run workflow → enter any URL
 #
+# Supabase credentials are auto-selected from the target URL:
+#   dev.soulspacehealth.org  →  SUPABASE_DEV_*   secrets
+#   qa.soulspacehealth.org   →  SUPABASE_QA_*    secrets
+#   soulspacehealth.org      →  SUPABASE_PROD_*  secrets
+#
 # Required GitHub SECRETS (Settings → Secrets → Actions):
-#   SUPABASE_DEV_URL               (dev Supabase project URL)
-#   SUPABASE_DEV_ANON_KEY          (dev Supabase anon key)
-#   SUPABASE_DEV_SERVICE_KEY       (dev Supabase service role key)
+#   SUPABASE_PROD_URL / SUPABASE_PROD_ANON_KEY / SUPABASE_PROD_SERVICE_KEY
+#   SUPABASE_DEV_URL  / SUPABASE_DEV_ANON_KEY  / SUPABASE_DEV_SERVICE_KEY
+#   SUPABASE_QA_URL   / SUPABASE_QA_ANON_KEY   / SUPABASE_QA_SERVICE_KEY
 #   CRON_SECRET                    (optional — enables digest test)
 #   ANTHROPIC_API_KEY              (optional — enables mirror paywall test)
 #
@@ -36,6 +41,11 @@ on:
         required: false
         default: ''
 
+# Force GitHub-hosted actions (checkout, setup-node, upload-artifact) to run
+# on Node.js 24, eliminating the Node.js 20 deprecation warnings.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   e2e:
     name: E2E API Suite
@@ -60,6 +70,8 @@ jobs:
         run: npm ci
 
       # ── Preflight: verify secrets and connectivity ─────────────────────────
+      # Supabase credentials are selected based on the target URL:
+      #   dev.*  → DEV project   qa.* → QA project   else → PROD project
       - name: Preflight checks
         run: |
           URL="${{ inputs.base_url || vars.E2E_BASE_URL }}"
@@ -67,18 +79,15 @@ jobs:
 
           # Check required secrets are present
           if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
-            echo "❌  SUPABASE_DEV_URL secret is not set."
-            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            echo "❌  Supabase URL secret is not set for this environment."
             exit 1
           fi
           if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "❌  SUPABASE_DEV_ANON_KEY secret is not set."
-            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            echo "❌  Supabase anon key secret is not set for this environment."
             exit 1
           fi
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "❌  SUPABASE_DEV_SERVICE_KEY secret is not set."
-            echo "    Go to: Settings → Secrets → Actions → New repository secret"
+            echo "❌  Supabase service role key secret is not set for this environment."
             exit 1
           fi
 
@@ -90,37 +99,61 @@ jobs:
           fi
           echo "✅  $URL is reachable (HTTP $HTTP_CODE)"
         env:
-          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.SUPABASE_DEV_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_DEV_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_URL ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_URL  ||
+                secrets.SUPABASE_PROD_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_ANON_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_ANON_KEY  ||
+                secrets.SUPABASE_PROD_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_SERVICE_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_SERVICE_KEY  ||
+                secrets.SUPABASE_PROD_SERVICE_KEY }}
 
       # ── Run E2E test suite ─────────────────────────────────────────────────
       - name: Run E2E test suite
         run: node scripts/e2e-test.js --report
         env:
-          BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
-          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.SUPABASE_DEV_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.SUPABASE_DEV_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
-          ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
-          CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
-          REPORT_PATH:                    e2e-report.md
+          BASE_URL:                     ${{ inputs.base_url || vars.E2E_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_URL ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_URL  ||
+                secrets.SUPABASE_PROD_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_ANON_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_ANON_KEY  ||
+                secrets.SUPABASE_PROD_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_SERVICE_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_SERVICE_KEY  ||
+                secrets.SUPABASE_PROD_SERVICE_KEY }}
+          ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+          CRON_SECRET:                  ${{ secrets.CRON_SECRET }}
+          REPORT_PATH:                  e2e-report.md
 
       # ── Run email delivery test suite ─────────────────────────────────────
       # Runs when TEST_EMAIL variable or workflow_dispatch input is set.
-      # Creates a real test user with that address, fires every notification
-      # path (welcome email, digest auth guard, session flow), then deletes
-      # the test user. Check the inbox after the run for delivery confirmation.
       - name: Run email delivery tests
         if: vars.TEST_EMAIL != '' || (github.event_name == 'workflow_dispatch' && inputs.test_email != '')
         run: node scripts/e2e-email-test.js
         env:
-          BASE_URL:                      ${{ inputs.base_url || vars.E2E_BASE_URL }}
-          TEST_EMAIL:                    ${{ inputs.test_email || vars.TEST_EMAIL }}
-          NEXT_PUBLIC_SUPABASE_URL:       ${{ secrets.SUPABASE_DEV_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY:  ${{ secrets.SUPABASE_DEV_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY:      ${{ secrets.SUPABASE_DEV_SERVICE_KEY }}
-          CRON_SECRET:                    ${{ secrets.CRON_SECRET }}
+          BASE_URL:                     ${{ inputs.base_url || vars.E2E_BASE_URL }}
+          TEST_EMAIL:                   ${{ inputs.test_email || vars.TEST_EMAIL }}
+          NEXT_PUBLIC_SUPABASE_URL: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_URL ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_URL  ||
+                secrets.SUPABASE_PROD_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_ANON_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_ANON_KEY  ||
+                secrets.SUPABASE_PROD_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: >-
+            ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_SERVICE_KEY ||
+                contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_SERVICE_KEY  ||
+                secrets.SUPABASE_PROD_SERVICE_KEY }}
+          CRON_SECRET:                  ${{ secrets.CRON_SECRET }}
 
       # ── Upload the report as a build artifact ─────────────────────────────
       - name: Upload E2E report
