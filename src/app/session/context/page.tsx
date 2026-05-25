@@ -32,13 +32,14 @@ export default function ContextField() {
 
       if (session?.access_token) {
         const branch = sessionStorage.getItem('ss_branch') ?? 'A'
+        const situation = sessionStorage.getItem('ss_situation') ?? undefined
         const res = await fetch('/api/sessions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ branch }),
+          body: JSON.stringify({ branch, ...(situation ? { situation } : {}) }),
         })
 
         if (res.ok) {

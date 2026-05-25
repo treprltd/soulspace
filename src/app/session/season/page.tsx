@@ -55,17 +55,6 @@ export default function SeasonCard() {
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: season.color }}>Your season</span>} />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
-        {/* Clinical badge */}
-        <div
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] mb-4"
-          style={{ background: 'rgba(42,140,122,.07)', border: '1px solid rgba(42,140,122,.22)', color: 'var(--teal2)' }}
-        >
-          <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-            <path d="M6 1l3.5 1.75v3.5C9.5 8.75 7.9 10.5 6 11c-1.9-.5-3.5-2.25-3.5-4.75v-3.5L6 1z" />
-          </svg>
-          Clinically reviewed · Dr. Sofia Georgiadou · March 2026 · Verbatim — do not modify
-        </div>
-
         {/* Season card */}
         <div
           className="rounded-2xl p-6 mb-4 relative overflow-hidden"
@@ -111,11 +100,12 @@ export default function SeasonCard() {
           </div>
         </div>
 
-        <div className="text-center">
-          <button onClick={() => router.push('/session/next-step')} className="btn-primary">
-            Choose your next step →
-          </button>
-        </div>
+        <button
+          onClick={() => router.push('/session/next-step')}
+          className="btn-primary w-full py-3.5"
+        >
+          Choose your next step →
+        </button>
       </div>
     </main>
   )

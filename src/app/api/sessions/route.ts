@@ -5,12 +5,14 @@ import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
 const CreateSessionSchema = z.object({
   branch: z.enum(['A', 'B', 'C', 'D']),
+  /** Human-readable life situation label from the situation picker (optional) */
+  situation: z.string().max(80).optional(),
 })
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { branch } = CreateSessionSchema.parse(body)
+    const { branch, situation } = CreateSessionSchema.parse(body)
 
     const supabase = await createClient()
     // Accept both Bearer token (implicit flow) and cookie-based auth
@@ -26,8 +28,8 @@ export async function POST(req: NextRequest) {
     const service = createServiceClient()
     const { data, error } = await service
       .from('sessions')
-      .insert({ user_id: user.id, branch })
-      .select('id, branch, created_at')
+      .insert({ user_id: user.id, branch, ...(situation ? { situation } : {}) })
+      .select('id, branch, situation, created_at')
       .single()
 
     if (error) throw error

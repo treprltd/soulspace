@@ -52,10 +52,6 @@ export default function CrisisPage() {
           </div>
         </div>
 
-        <p className="text-[9px] italic mb-1.5" style={{ color: 'rgba(107,140,174,.5)' }}>
-          No Season is shown when this screen appears. Hard constraint — zero exceptions.
-        </p>
-
         <p className="font-serif text-sm italic text-mist mb-4">
           Soul Space will be here when you are ready to return.
         </p>

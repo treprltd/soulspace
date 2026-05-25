@@ -158,8 +158,7 @@ export default function SignIn() {
           <>
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Sign in to Soul Space</h2>
             <p className="text-xs text-mist mb-6 leading-relaxed">
-              No password. We&rsquo;ll send a magic link to your email.<br />
-              New here? It creates your account automatically.
+              No password. We&rsquo;ll send a sign-in link to your email.
             </p>
             {/* noValidate disables the browser's native red validation bubble (the "{}") */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
@@ -177,7 +176,7 @@ export default function SignIn() {
               {error && typeof error === 'string' && error.length > 0 && (
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>
               )}
-              <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 disabled:opacity-50">
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>

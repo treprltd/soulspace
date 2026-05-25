@@ -22,6 +22,7 @@ interface SubStatus {
 interface Session {
   id: string
   branch: 'A' | 'B' | 'C' | 'D'
+  situation?: string | null   // human-readable label, stored from migration 008 onward
   created_at: string
   completed_at: string | null
   season_assigned: 'W' | 'Sp' | 'Su' | 'Au' | null
@@ -35,18 +36,36 @@ interface SessionDetail extends Session {
   mirrorOutput: string | null
 }
 
+// Fallback labels used only when situation is not stored (sessions before migration 008).
+// Newer sessions display the human-readable situation label directly.
 const BRANCH_LABELS: Record<string, string> = {
-  A: 'Decision pressure',
-  B: 'Something unnamed',
-  C: 'Pattern repeating',
-  D: 'Carrying alone',
+  A: 'A decision',
+  B: 'Hard to name',
+  C: 'A pattern',
+  D: 'Carrying it alone',
 }
 
 const BRANCH_DESC: Record<string, string> = {
-  A: 'A decision kept pulling you back.',
-  B: "You felt something you couldn't name.",
-  C: "A pattern that wouldn't shift.",
-  D: 'Something you were carrying alone.',
+  A: 'Something kept pulling you back to a decision.',
+  B: "You felt something you couldn't quite explain.",
+  C: "Something kept repeating — not crisis, but not right.",
+  D: 'Something you had been carrying on your own.',
+}
+
+// Maps the stored situation id back to a display label
+const SITUATION_LABELS: Record<string, string> = {
+  'work-career':  'Work or career',
+  'relationship': 'A relationship',
+  'family':       'Family',
+  'money':        'Money',
+  'big-decision': 'A big decision',
+  'my-health':    'My health',
+  'who-i-am':     'Who I am',
+  'loss-grief':   'Loss or grief',
+  'anxiety':      'Anxiety',
+  'life-change':  'A life change',
+  'friendship':   'Friendship',
+  'not-sure':     'Not sure yet',
 }
 
 const SEASON_LABELS: Record<string, string> = {
@@ -424,7 +443,7 @@ export default function Dashboard() {
 
                         {/* Left block */}
                         <div className="flex-1 min-w-0">
-                          {/* Branch + season dot */}
+                          {/* Situation / branch + season dot */}
                           <div className="flex items-center gap-2 mb-0.5">
                             {s.season_assigned && (
                               <span
@@ -433,14 +452,18 @@ export default function Dashboard() {
                               />
                             )}
                             <span className="text-[11px] text-sand font-medium leading-tight">
-                              {BRANCH_LABELS[s.branch] ?? s.branch}
+                              {s.situation
+                                ? (SITUATION_LABELS[s.situation] ?? s.situation)
+                                : (BRANCH_LABELS[s.branch] ?? s.branch)}
                             </span>
                           </div>
 
-                          {/* Branch description */}
-                          <p className="text-[9px] leading-relaxed mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
-                            {BRANCH_DESC[s.branch]}
-                          </p>
+                          {/* Description — only shown when no situation stored (legacy sessions) */}
+                          {!s.situation && (
+                            <p className="text-[9px] leading-relaxed mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
+                              {BRANCH_DESC[s.branch]}
+                            </p>
+                          )}
 
                           {/* Meta row */}
                           <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">

@@ -30,6 +30,7 @@ const SESSION_TTL_MS = 60 * 60 * 1000 // 1 hour
 
 const RecoverSchema = z.object({
   branch:       z.enum(['A', 'B', 'C', 'D']),
+  situation:    z.string().max(80).optional(),  // life situation label, migration 008+
   contextText:  z.string().max(800).default(''),
   mirrorOutput: z.string(),       // JSON-encoded MirrorOutput
   emotions:     z.string(),       // JSON-encoded string[]
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id:         user.id,
         branch:          parsed.branch,
+        ...(parsed.situation ? { situation: parsed.situation } : {}),
         intensity:       parsed.intensity,
         season_assigned: mirrorOutput.season ?? null,
         char_count:      parsed.contextText.length,

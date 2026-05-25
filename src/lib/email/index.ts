@@ -99,22 +99,22 @@ function alertBox(text: string, color = '#C9A84C'): string {
 /** Sent when a user signs in for the very first time (new account created). */
 export function welcomeEmail(): { subject: string; htmlContent: string; textContent: string } {
   return {
-    subject: 'Welcome to Soul Space',
+    subject: 'You found a quiet place.',
     htmlContent: emailShell(`
-      ${heading('You found a quiet place.')}
-      ${para('Soul Space is the structured pause between what you feel and what you decide to do about it. Not therapy. Not journaling. Just a moment to stop, acknowledge what\'s here, and move forward with a little more clarity.')}
-      ${para('Each session takes 5–10 minutes. You pick what feels closest. The Mirror reflects it back without judgment.')}
+      ${heading('Whatever brought you here —')}
+      ${para('You do not need to have it figured out yet. Soul Space is a quiet 5–10 minute space to hear what you are carrying — without judgment, without advice, without a diagnosis.')}
+      ${para('Pick what feels closest. The Mirror reflects it back. That\'s it.')}
       ${alertBox('Everything you share is end-to-end encrypted. We can\'t read it — and we never try.')}
       ${btn('Begin your first session →', `${APP_URL}/age-gate`)}
     `, 'You received this because you created a Soul Space account.<br>'),
-    textContent: `Welcome to Soul Space.\n\nSoul Space is the structured pause between what you feel and what you decide to do about it. Not therapy. Not journaling.\n\nEach session takes 5–10 minutes. Everything you share is encrypted.\n\nBegin your first session: ${APP_URL}/age-gate`,
+    textContent: `Whatever brought you here — you do not need to have it figured out yet.\n\nSoul Space is a quiet 5–10 minute space to hear what you are carrying. No judgment, no advice, no diagnosis.\n\nBegin your first session: ${APP_URL}/age-gate`,
   }
 }
 
 /** Sent when checkout.session.completed fires — subscription now active. */
 export function subscriptionConfirmationEmail(planName: string): { subject: string; htmlContent: string; textContent: string } {
   return {
-    subject: `You're on Soul Space ${planName}`,
+    subject: `${planName} is ready for you.`,
     htmlContent: emailShell(`
       ${heading(`Welcome to <em style="color:#E8C97A;">${planName}.</em>`)}
       ${para('Your subscription is active. Unlimited sessions are now available whenever you need them.')}
@@ -129,7 +129,7 @@ export function subscriptionConfirmationEmail(planName: string): { subject: stri
 export function subscriptionCancellationEmail(planName: string, periodEnd: string): { subject: string; htmlContent: string; textContent: string } {
   const endDate = new Date(periodEnd).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   return {
-    subject: 'Your Soul Space subscription has been cancelled',
+    subject: 'Cancellation confirmed — your access continues.',
     htmlContent: emailShell(`
       ${heading('Cancellation confirmed.')}
       ${para(`Your <strong style="color:#FAF7F0;">${planName}</strong> subscription has been cancelled.`)}
@@ -144,7 +144,7 @@ export function subscriptionCancellationEmail(planName: string, periodEnd: strin
 /** Sent when customer.subscription.deleted fires — access now ended. */
 export function subscriptionExpiredEmail(): { subject: string; htmlContent: string; textContent: string } {
   return {
-    subject: 'Your Soul Space subscription has ended',
+    subject: 'Until next time.',
     htmlContent: emailShell(`
       ${heading('Your subscription has ended.')}
       ${para('Your paid access to Soul Space has ended. Your account is now on the free plan.')}
@@ -161,7 +161,7 @@ export function paymentFailedEmail(planName: string, retryDate?: string): { subj
     ? `Stripe will automatically retry your payment on <strong style="color:#FAF7F0;">${new Date(retryDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</strong>.`
     : 'Stripe will automatically retry your payment in the next few days.'
   return {
-    subject: 'Payment failed — action needed',
+    subject: 'A quick note about your payment.',
     htmlContent: emailShell(`
       ${heading('We couldn\'t process your payment.')}
       ${alertBox('Your Soul Space payment failed. Please update your payment method to keep your access.', '#D44040')}
@@ -176,7 +176,7 @@ export function paymentFailedEmail(planName: string, retryDate?: string): { subj
 /** Sent when invoice.payment_succeeded after a previous failure. */
 export function paymentRecoveredEmail(planName: string): { subject: string; htmlContent: string; textContent: string } {
   return {
-    subject: 'Payment successful — you\'re all set',
+    subject: 'All good — you\'re back.',
     htmlContent: emailShell(`
       ${heading('Payment successful.')}
       ${para(`Your <strong style="color:#FAF7F0;">${planName}</strong> subscription is active again. No further action needed.`)}
@@ -189,7 +189,7 @@ export function paymentRecoveredEmail(planName: string): { subject: string; html
 /** Sent immediately before the user's data is deleted. */
 export function accountDeletionEmail(): { subject: string; htmlContent: string; textContent: string } {
   return {
-    subject: 'Your Soul Space account has been deleted',
+    subject: 'Your account and data have been removed.',
     htmlContent: emailShell(`
       ${heading('Account deleted.')}
       ${para('Your Soul Space account and all associated session data have been permanently deleted.')}
@@ -203,21 +203,21 @@ export function accountDeletionEmail(): { subject: string; htmlContent: string; 
 /** Sent to inactive users who haven't had a session in 7+ days. */
 export function reEngagementEmail(daysSinceLastSession: number): { subject: string; htmlContent: string; textContent: string } {
   const subjects = [
-    'It\'s been a little while.',
     'Whenever you\'re ready.',
     'The pause is still here.',
-    'Something worth coming back to.',
+    'It\'s been a little while.',
+    'No need to have it figured out.',
   ]
   const subject = subjects[Math.floor(daysSinceLastSession / 7) % subjects.length]
   return {
     subject,
     htmlContent: emailShell(`
       ${heading('You don\'t need to have it figured out.')}
-      ${para(`It\'s been ${daysSinceLastSession} days since your last session. That\'s fine — Soul Space isn\'t something you need to use every day.`)}
-      ${para('But if something\'s been sitting with you, this is a quiet place to put it down for a moment.')}
-      ${btn('Return to Soul Space →', `${APP_URL}/age-gate`)}
+      ${para('Soul Space isn\'t something you need to use every day. There\'s no schedule. No streak to maintain.')}
+      ${para('But if something\'s been sitting with you — something you haven\'t quite been able to name — this is a quiet place to put it down for a moment.')}
+      ${btn('Return whenever you\'re ready →', `${APP_URL}/age-gate`)}
     `, 'To stop receiving these emails, visit your account settings.<br>'),
-    textContent: `It's been ${daysSinceLastSession} days since your last Soul Space session.\n\nWhenever you're ready: ${APP_URL}/age-gate\n\nTo unsubscribe from these emails: ${APP_URL}/settings`,
+    textContent: `Soul Space is here whenever you're ready.\n\nNo schedule. No streak to maintain. Just a quiet place for what you're carrying.\n\nReturn: ${APP_URL}/age-gate\n\nTo unsubscribe: ${APP_URL}/settings`,
   }
 }
 

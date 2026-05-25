@@ -10,9 +10,9 @@ import type { PaidPlan } from '@/lib/stripe/plans'
 
 const FREE_FEATURES = [
   '1 session per month',
-  'All 4 resonance branches',
+  'Full Mirror reflection each session',
   'All 4 seasonal responses',
-  'Mirror output every session',
+  'Private · Encrypted · No ads',
 ]
 
 export default function Pricing() {

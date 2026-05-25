@@ -90,7 +90,7 @@ export default function NextStep() {
       await fetch(`/api/sessions/${sessionId}/complete`, { method: 'POST', headers }).catch(() => {})
     }
     // Clear session state
-    ;['ss_branch', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']
+    ;['ss_branch', 'ss_situation', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']
       .forEach(k => sessionStorage.removeItem(k))
 
     // Authenticated users go to their dashboard; others go home
@@ -115,7 +115,7 @@ export default function NextStep() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right="Your next step" />
+      <NavBar />
       <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* AFFIRMATION MOMENT 5 — frozen copy */}
         <div className="affirm-copy mb-3">
@@ -170,22 +170,13 @@ export default function NextStep() {
           </div>
         </div>
 
-        <div className="flex gap-2.5">
-          <button
-            onClick={handleDone}
-            disabled={done}
-            className="btn-outline text-xs disabled:opacity-50"
-          >
-            Save session
-          </button>
-          <button
-            onClick={handleDone}
-            disabled={done}
-            className="btn-primary disabled:opacity-50"
-          >
-            {done ? 'Saving…' : "I'm done for now"}
-          </button>
-        </div>
+        <button
+          onClick={handleDone}
+          disabled={done}
+          className="btn-primary w-full py-3.5 disabled:opacity-50"
+        >
+          {done ? 'Saving…' : "I'm done for now →"}
+        </button>
 
         {/* Upgrade nudge — only for authenticated free users near their limit */}
         {showUpgradeNudge && (
@@ -230,6 +221,7 @@ export default function NextStep() {
                   if (mirror) {
                     localStorage.setItem('ss_pending_session', JSON.stringify({
                       branch:       sessionStorage.getItem('ss_branch') ?? 'A',
+                      situation:    sessionStorage.getItem('ss_situation') ?? undefined,
                       emotions:     sessionStorage.getItem('ss_emotions') ?? '[]',
                       intensity:    sessionStorage.getItem('ss_intensity') ?? '5',
                       contextText:  sessionStorage.getItem('ss_context') ?? '',
