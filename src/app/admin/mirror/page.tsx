@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface MirrorData {
   overall: { rate: number | null; accurate: number; total: number; targetMet: boolean | null }
@@ -107,7 +107,7 @@ function MirrorInner() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const env = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const days = parseInt(searchParams.get('days') ?? '30', 10)
 
   const [data, setData] = useState<MirrorData | null>(null)

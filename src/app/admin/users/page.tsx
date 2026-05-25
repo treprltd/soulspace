@@ -3,11 +3,15 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface User {
   id: string
   email: string
+  first_name: string | null
+  last_name: string | null
+  phone: string | null
+  profile_complete: boolean
   created_at: string
   plan_tier: string
   age_bracket: string | null
@@ -33,7 +37,7 @@ function UsersInner() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const env = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const page = parseInt(searchParams.get('page') ?? '1', 10)
   const plan = searchParams.get('plan') ?? ''
   const q = searchParams.get('q') ?? ''
@@ -162,7 +166,7 @@ function UsersInner() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-3xs)' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  {['Email', 'Plan', 'Sessions', 'Age', 'Joined', 'Stripe ID', 'Actions'].map(h => (
+                  {['Name', 'Email', 'Phone', 'Plan', 'Profile', 'Sessions', 'Joined', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--gold)', fontWeight: 500, letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
@@ -175,9 +179,25 @@ function UsersInner() {
                   const isEditing = editingUser === u.id
                   return (
                     <tr key={u.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                      <td style={{ padding: '10px 12px', color: 'var(--sand)', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {/* Name */}
+                      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                        {u.first_name || u.last_name ? (
+                          <span style={{ color: 'var(--sand)', fontSize: '12px' }}>
+                            {[u.first_name, u.last_name].filter(Boolean).join(' ')}
+                          </span>
+                        ) : (
+                          <span style={{ color: 'rgba(139,167,184,.3)', fontSize: '11px' }}>—</span>
+                        )}
+                      </td>
+                      {/* Email */}
+                      <td style={{ padding: '10px 12px', color: 'var(--sand)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {u.email}
                       </td>
+                      {/* Phone */}
+                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                        {u.phone ?? <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                      </td>
+                      {/* Plan */}
                       <td style={{ padding: '10px 12px' }}>
                         {isEditing ? (
                           <select
@@ -205,17 +225,23 @@ function UsersInner() {
                           </span>
                         )}
                       </td>
+                      {/* Profile complete */}
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{
+                          fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+                          color: u.profile_complete ? '#3DAF96' : 'rgba(139,167,184,.5)',
+                          background: u.profile_complete ? 'rgba(42,140,122,.12)' : 'rgba(139,167,184,.07)',
+                        }}>
+                          {u.profile_complete ? '✓' : '—'}
+                        </span>
+                      </td>
+                      {/* Sessions */}
                       <td style={{ padding: '10px 12px', color: 'var(--sand)', textAlign: 'center' }}>
                         {u.session_count}
                       </td>
-                      <td style={{ padding: '10px 12px', color: 'var(--mist)' }}>
-                        {u.age_bracket ?? '—'}
-                      </td>
+                      {/* Joined */}
                       <td style={{ padding: '10px 12px', color: 'var(--mist)', whiteSpace: 'nowrap' }}>
                         {new Date(u.created_at).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: '11px', color: 'var(--mist)' }}>
-                        {u.stripe_customer_id ? `${u.stripe_customer_id.slice(0, 14)}…` : '—'}
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         {!isEditing && (

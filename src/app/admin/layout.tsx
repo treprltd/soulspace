@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { Suspense } from 'react'
-
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 const ENV_META: Record<AdminEnv, { label: string; color: string; bg: string }> = {
   dev:  { label: 'Dev',  color: '#3DAF96', bg: 'rgba(42,140,122,.18)' },
@@ -43,7 +42,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const currentEnv = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const currentEnv = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
 
   function switchEnv(env: AdminEnv) {
     const p = new URLSearchParams(searchParams.toString())

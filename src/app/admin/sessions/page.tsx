@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface Session {
   id: string
@@ -51,7 +51,7 @@ function SessionsInner() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const env = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const page = parseInt(searchParams.get('page') ?? '1', 10)
   const branch = searchParams.get('branch') ?? ''
   const safety = searchParams.get('safety') ?? ''

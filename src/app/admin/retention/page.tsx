@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface RetentionData {
   activeUsers: {
@@ -126,7 +126,7 @@ function CohortCell({ rate, label }: { rate: number | null; label?: string }) {
 // ── Main ───────────────────────────────────────────────────────────────────────
 function RetentionInner() {
   const searchParams = useSearchParams()
-  const env = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
 
   const [data, setData]     = useState<RetentionData | null>(null)
   const [loading, setLoading] = useState(true)

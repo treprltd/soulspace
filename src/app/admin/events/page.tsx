@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface Event {
   id: string
@@ -48,7 +48,7 @@ function EventsInner() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const env = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const page = parseInt(searchParams.get('page') ?? '1', 10)
   const eventName = searchParams.get('event') ?? ''
   const sessionId = searchParams.get('session') ?? ''

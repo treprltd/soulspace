@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-type AdminEnv = 'dev' | 'qa' | 'prod'
+import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 
 interface RevenueData {
   mrr: number
@@ -134,7 +134,7 @@ function RevenueInner() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const env  = (searchParams.get('env') ?? 'dev') as AdminEnv
+  const env  = (searchParams.get('env') ?? getDefaultAdminEnv()) as AdminEnv
   const days = parseInt(searchParams.get('days') ?? '30', 10)
 
   const [data, setData] = useState<RevenueData | null>(null)
