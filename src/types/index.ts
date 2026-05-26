@@ -52,6 +52,31 @@ export interface EventPayload {
   properties?: Record<string, unknown>
 }
 
+// ── Beta feedback ─────────────────────────────────────────────────────────────
+
+export type FeedbackRating    = 1 | 2 | 3 | 4 | 5
+export type FeedbackFrequency = 'first_time' | 'few_times' | 'weekly' | 'daily_or_more'
+export type FeedbackEase      = 'very_difficult' | 'difficult' | 'neutral' | 'easy' | 'very_easy'
+export type FeedbackRecommend = 'yes_already' | 'yes_likely' | 'maybe' | 'not_yet'
+
+export interface FeedbackPayload {
+  overall_rating:   FeedbackRating | null
+  use_frequency:    FeedbackFrequency | null
+  most_valuable:    string[]
+  ease_of_use:      FeedbackEase | null
+  improvements:     string[]
+  would_recommend:  FeedbackRecommend | null
+  comments:         string
+}
+
+export interface FeedbackRow extends FeedbackPayload {
+  id:         string
+  user_id:    string
+  created_at: string
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
 export type EventName =
   | 'session_start'
   | 'branch_selected'

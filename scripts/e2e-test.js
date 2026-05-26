@@ -996,6 +996,7 @@ async function testAdminPortalAuth() {
     ['GET',  '/api/admin/revenue'],
     ['GET',  '/api/admin/health'],
     ['GET',  '/api/admin/retention'],
+    ['GET',  '/api/admin/feedback'],
   ]
 
   await run('All admin GET routes return 401 without cookie', true, async () => {
@@ -1195,6 +1196,96 @@ async function testSessionRecoveryDBState() {
     }
   })
 }
+
+// ── Beta Feedback API ─────────────────────────────────────────────────────────
+
+async function testFeedbackAPI() {
+  section('Beta Feedback API (GET & POST /api/feedback)')
+
+  // Auth guards
+  await run('GET /api/feedback without token → 401', true, async () => {
+    const { status } = await api('GET', '/api/feedback')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('POST /api/feedback without token → 401', true, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      body: { overall_rating: 5, would_recommend: 'yes_likely' },
+    })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  // GET before any submission — should return { feedback: null }
+  await run('GET /api/feedback returns null before first submission', true, async () => {
+    const { status, json } = await api('GET', '/api/feedback', { token: accessToken })
+    // May return null (no prior submission) or an existing submission if test user is reused
+    const ok = status === 200 && ('feedback' in json)
+    return { pass: ok, detail: `status=${status}  feedback=${json.feedback === null ? 'null' : 'exists'}` }
+  })
+
+  // Validation — invalid rating
+  await run('POST /api/feedback with invalid rating → 400', false, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      token: accessToken,
+      body: { overall_rating: 99 },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+
+  // Validation — invalid enum value
+  await run('POST /api/feedback with invalid use_frequency → 400', false, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      token: accessToken,
+      body: { use_frequency: 'every_hour' },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+
+  // Full valid submission
+  let feedbackId = null
+  await run('CRITICAL POST /api/feedback saves valid submission → 201', true, async () => {
+    const { status, json } = await api('POST', '/api/feedback', {
+      token: accessToken,
+      body: {
+        overall_rating:  4,
+        use_frequency:   'few_times',
+        most_valuable:   ['mirror_reflection', 'calming_design'],
+        ease_of_use:     'easy',
+        improvements:    ['session_insights'],
+        would_recommend: 'yes_likely',
+        comments:        'E2E test submission — automated.',
+      },
+    })
+    if (json.id) feedbackId = json.id
+    return {
+      pass: status === 201 && json.ok === true && !!json.id,
+      detail: `status=${status}  id=${json.id?.slice(0, 8) ?? 'none'}`,
+    }
+  })
+
+  // GET after submission — should return the row
+  await run('GET /api/feedback returns last submission after POST', true, async () => {
+    const { status, json } = await api('GET', '/api/feedback', { token: accessToken })
+    const fb = json.feedback
+    return {
+      pass: status === 200 && fb !== null && fb.overall_rating === 4,
+      detail: `status=${status}  rating=${fb?.overall_rating}  id=${fb?.id?.slice(0, 8) ?? 'none'}`,
+    }
+  })
+
+  // Minimal submission — all fields optional except at least one answer
+  await run('POST /api/feedback with only comments → 201', false, async () => {
+    const { status, json } = await api('POST', '/api/feedback', {
+      token: accessToken,
+      body: { comments: 'Minimal feedback test.' },
+    })
+    return { pass: status === 201, detail: `status=${status}  id=${json.id?.slice(0, 8) ?? 'none'}` }
+  })
+
+  void feedbackId // suppress unused warning
+}
+
+// ── User Data Deletion ────────────────────────────────────────────────────────
 
 async function testUserDataEndpoint() {
   section('User Data Deletion (DELETE /api/user/data)')
@@ -1441,6 +1532,9 @@ async function main() {
 
     // ── User data ──────────────────────────────────────────────────────────────
     await testUserDataEndpoint()
+
+    // ── Beta feedback ──────────────────────────────────────────────────────────
+    await testFeedbackAPI()
   } finally {
     await teardown()
   }
