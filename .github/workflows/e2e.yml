@@ -37,7 +37,7 @@ on:
         required: false
         default: ''
       test_email:
-        description: 'Email address for delivery tests (optional)'
+        description: 'Dedicated TEST-ONLY email for delivery tests (must not be a real user account)'
         required: false
         default: ''
 
@@ -134,9 +134,14 @@ jobs:
           REPORT_PATH:                  e2e-report.md
 
       # ── Run email delivery test suite ─────────────────────────────────────
-      # Runs when TEST_EMAIL variable or workflow_dispatch input is set.
+      # EMAIL TESTS ARE MANUAL-ONLY — they create real test users in production
+      # and send real emails, making them side-effectful by design.
+      #
+      # To run: Actions → E2E API Tests → Run workflow → supply test_email.
+      # They never run automatically on push/PR — set TEST_EMAIL in repo vars
+      # only if you want this; but automatic runs are intentionally disabled.
       - name: Run email delivery tests
-        if: vars.TEST_EMAIL != '' || (github.event_name == 'workflow_dispatch' && inputs.test_email != '')
+        if: github.event_name == 'workflow_dispatch' && inputs.test_email != ''
         run: node scripts/e2e-email-test.js --report
         env:
           BASE_URL:                     ${{ inputs.base_url || vars.E2E_BASE_URL }}
