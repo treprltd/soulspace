@@ -7,39 +7,39 @@ import Link from 'next/link'
 export function LegalFooter() {
   return (
     <footer
-      className="py-5 px-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-center"
-      style={{ borderTop: '1px solid rgba(245,237,216,.04)' }}
+      className="py-6 px-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center"
+      style={{ borderTop: '1px solid rgba(245,237,216,.08)' }}
     >
       <Link
         href="/privacy"
-        className="text-[10px] transition-opacity hover:opacity-70"
-        style={{ color: 'rgba(139,167,184,.35)' }}
+        className="text-xs transition-opacity hover:opacity-100"
+        style={{ color: 'rgba(139,167,184,.75)' }}
       >
         Privacy
       </Link>
       <Link
         href="/terms"
-        className="text-[10px] transition-opacity hover:opacity-70"
-        style={{ color: 'rgba(139,167,184,.35)' }}
+        className="text-xs transition-opacity hover:opacity-100"
+        style={{ color: 'rgba(139,167,184,.75)' }}
       >
         Terms
       </Link>
       <Link
         href="/cookies"
-        className="text-[10px] transition-opacity hover:opacity-70"
-        style={{ color: 'rgba(139,167,184,.35)' }}
+        className="text-xs transition-opacity hover:opacity-100"
+        style={{ color: 'rgba(139,167,184,.75)' }}
       >
         Cookies
       </Link>
       <span
-        className="text-[10px]"
-        style={{ color: 'rgba(139,167,184,.25)' }}
+        className="text-xs"
+        style={{ color: 'rgba(139,167,184,.6)' }}
       >
         Not therapy · Not a diagnosis
       </span>
       <span
-        className="text-[10px]"
-        style={{ color: 'rgba(139,167,184,.2)' }}
+        className="text-xs font-medium"
+        style={{ color: 'rgba(139,167,184,.75)' }}
       >
         Crisis line: call or text 988
       </span>

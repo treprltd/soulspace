@@ -608,29 +608,52 @@ export default function Dashboard() {
                               </div>
                             )}
 
-                            {/* Mirror reflection */}
-                            {detail?.mirrorOutput && !(detail?.safety_flagged) && (
-                              <div>
-                                <div
-                                  className="text-[7px] tracking-[.11em] uppercase mb-1.5"
-                                  style={{ color: 'rgba(201,168,76,.5)' }}
-                                >
-                                  Mirror reflection
+                            {/* Mirror reflection — parse stored JSON into readable sections */}
+                            {detail?.mirrorOutput && !(detail?.safety_flagged) && (() => {
+                              let parsed: { carrying?: string; underneath?: string; question?: string } | null = null
+                              try { parsed = JSON.parse(detail.mirrorOutput) } catch { /* show nothing if unparseable */ }
+                              if (!parsed) return null
+                              return (
+                                <div className="space-y-2.5">
+                                  <div
+                                    className="text-[7px] tracking-[.11em] uppercase"
+                                    style={{ color: 'rgba(201,168,76,.5)' }}
+                                  >
+                                    Mirror reflection
+                                  </div>
+                                  {parsed.carrying && (
+                                    <div>
+                                      <div className="text-[7px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+                                        What you were carrying
+                                      </div>
+                                      <p className="font-serif italic text-[11px] leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>
+                                        {parsed.carrying}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {parsed.underneath && (
+                                    <div>
+                                      <div className="text-[7px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+                                        What appeared underneath
+                                      </div>
+                                      <p className="font-serif italic text-[11px] leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>
+                                        {parsed.underneath}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {parsed.question && (
+                                    <div>
+                                      <div className="text-[7px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(61,175,150,.5)' }}>
+                                        Question back to you
+                                      </div>
+                                      <p className="font-serif italic text-[11px] leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(42,140,122,.25)', paddingLeft: '10px' }}>
+                                        {parsed.question}
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
-                                <p
-                                  className="text-[9px] leading-relaxed mb-2"
-                                  style={{ color: 'rgba(201,168,76,.4)', fontStyle: 'italic' }}
-                                >
-                                  This is not a diagnosis. It is what seemed to be here, from what you shared.
-                                </p>
-                                <p
-                                  className="text-[11px] leading-relaxed"
-                                  style={{ color: 'rgba(245,237,216,.7)' }}
-                                >
-                                  {detail.mirrorOutput}
-                                </p>
-                              </div>
-                            )}
+                              )
+                            })()}
 
                             {/* Incomplete / no content */}
                             {!detail?.contextText && !detail?.mirrorOutput && !isLoadingDetail && !detail?.safety_flagged && (
