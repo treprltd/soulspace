@@ -157,15 +157,18 @@ export default function AuthCallback() {
 
     // ── Main post-auth flow ─────────────────────────────────────────────────
     async function handleSession(session: import('@supabase/supabase-js').Session) {
-      // 1. Recover anonymous session FIRST — dashboard reads count on mount.
+      // 1. Welcome email FIRST — must run before session recovery creates any
+      //    sessions rows, otherwise the idempotency check on the server sees
+      //    count > 0 and skips the email for users who tried the app anonymously
+      //    before registering. Awaited so the column is stamped before we proceed.
+      await maybeWelcome(session)
+
+      // 2. Recover anonymous session — dashboard reads count on mount.
       //    Must be awaited so the DB row exists before we navigate.
       await maybeRecoverSession(session)
 
-      // 2. Save pending profile from /auth/register flow (if present)
+      // 3. Save pending profile from /auth/register flow (if present)
       const hadPendingProfile = await maybeSaveProfile(session)
-
-      // 3. Welcome email — fire-and-forget (non-critical)
-      maybeWelcome(session)
 
       // 4. Check profile completeness for returning users who bypassed /auth/register
       const profileComplete = hadPendingProfile || await isProfileComplete(session)

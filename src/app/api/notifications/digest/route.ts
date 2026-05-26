@@ -75,8 +75,10 @@ export async function POST(req: NextRequest) {
   if (mode === 'user_digest' || mode === 'all') {
     try {
       const now = new Date()
-      const cutoff7d  = new Date(now.getTime() - 7  * 24 * 60 * 60 * 1000).toISOString()
-      const cutoff30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoff7d    = new Date(now.getTime() -  7 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoff30d   = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      // Don't re-send to anyone who received a re-engagement email in the last 14 days
+      const cutoff14d   = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
 
       // Find users whose last session was 7–30 days ago
       // Strategy: get users with at least 1 session, join with latest session date
@@ -103,22 +105,38 @@ export async function POST(req: NextRequest) {
           results.userDigest = { sent: 0, reason: 'no eligible users' }
         } else {
           // Fetch emails for eligible users (batch, max 50 per run to avoid rate limits)
+          // Also fetch last_re_engagement_sent_at to enforce the 14-day cooldown
           const batchIds = eligibleUserIds.slice(0, 50)
           const { data: userData } = await db
             .from('users')
-            .select('id, email')
+            .select('id, email, last_re_engagement_sent_at')
             .in('id', batchIds)
 
           let sent = 0
           let failed = 0
+          let skippedCooldown = 0
           for (const u of userData ?? []) {
             if (!u.email) continue
+
+            // Skip if re-engagement email sent within the last 14 days
+            if (u.last_re_engagement_sent_at && u.last_re_engagement_sent_at > cutoff14d) {
+              skippedCooldown++
+              continue
+            }
+
             try {
               // Days since last session
               const lastAt = latestSession[u.id]
               const daysSince = Math.round((now.getTime() - new Date(lastAt).getTime()) / (1000 * 60 * 60 * 24))
               const template = reEngagementEmail(daysSince)
               await sendEmail({ to: u.email, ...template })
+
+              // Stamp the send time so we don't re-send within the cooldown window
+              await db
+                .from('users')
+                .update({ last_re_engagement_sent_at: now.toISOString() })
+                .eq('id', u.id)
+
               sent++
               // Small delay to stay within Brevo rate limits (300 emails/min on free plan)
               await new Promise(r => setTimeout(r, 200))
@@ -126,7 +144,7 @@ export async function POST(req: NextRequest) {
               failed++
             }
           }
-          results.userDigest = { sent, failed, eligible: eligibleUserIds.length }
+          results.userDigest = { sent, failed, skippedCooldown, eligible: eligibleUserIds.length }
         }
       }
     } catch (err) {

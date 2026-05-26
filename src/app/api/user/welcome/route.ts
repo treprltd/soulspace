@@ -4,9 +4,11 @@ import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { sendEmail, welcomeEmail } from '@/lib/email'
 
 // Called client-side after the very first sign-in (new account).
-// Idempotent — checks that the user has 0 sessions before sending.
-// This prevents re-sending the welcome email to returning users who
-// clear their browser storage or sign in from a new device.
+// Idempotent — checks welcome_email_sent_at column (set at first send).
+// This prevents re-sending to returning users who clear storage or use a new device.
+// NOTE: Does NOT use session count — that check is unreliable when a user tries the
+//       app anonymously before registering (session recovery creates a row before
+//       this endpoint fires, making the user look non-new).
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -17,15 +19,16 @@ export async function POST(req: NextRequest) {
 
     const service = createServiceClient()
 
-    // Only send if this user has no sessions yet (true new user)
-    const { count } = await service
-      .from('sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+    // Only send if welcome_email_sent_at is null (email never sent before)
+    const { data: userRow } = await service
+      .from('users')
+      .select('welcome_email_sent_at')
+      .eq('id', user.id)
+      .single()
 
-    if ((count ?? 0) > 0) {
-      // Returning user — not their first sign-in
-      return NextResponse.json({ skipped: true, reason: 'not_new_user' })
+    if (userRow?.welcome_email_sent_at) {
+      // Already sent — idempotency guard
+      return NextResponse.json({ skipped: true, reason: 'already_sent' })
     }
 
     const email = user.email ?? ''
@@ -35,6 +38,12 @@ export async function POST(req: NextRequest) {
 
     const template = welcomeEmail()
     await sendEmail({ to: email, ...template })
+
+    // Mark as sent — prevents duplicate sends on future sign-ins
+    await service
+      .from('users')
+      .update({ welcome_email_sent_at: new Date().toISOString() })
+      .eq('id', user.id)
 
     return NextResponse.json({ sent: true })
   } catch (err) {
