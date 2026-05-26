@@ -104,12 +104,30 @@ async function setup() {
   log(`    Target:  ${BASE_URL}`)
   log(`    Email:   ${TEST_EMAIL}\n`)
 
-  // Delete any existing test user with this email (cleanup from previous run)
-  const { data: existing } = await adminClient.auth.admin.listUsers()
-  const prev = (existing?.users ?? []).find(u => u.email === TEST_EMAIL && u.user_metadata?.e2e_email_test)
-  if (prev) {
-    await adminClient.auth.admin.deleteUser(prev.id)
-    log(`    Cleaned up previous test user (${prev.id})`)
+  // Delete any existing test user with this email (cleanup from previous run).
+  // We look up by email in public.users instead of auth.admin.listUsers() because
+  // listUsers() paginates (default 50 per page) and may miss the stale user,
+  // causing createUser to fail with a duplicate-email error.
+  const { data: existingRow } = await adminClient
+    .from('users')
+    .select('id')
+    .eq('email', TEST_EMAIL)
+    .maybeSingle()
+
+  if (existingRow?.id) {
+    // Confirm it carries the e2e_email_test flag before deleting — safety guard
+    // so we never accidentally delete a real production user.
+    const { data: { user: staleAuth } } = await adminClient.auth.admin.getUserById(existingRow.id)
+      .catch(() => ({ data: { user: null } }))
+    if (staleAuth?.user_metadata?.e2e_email_test) {
+      await adminClient.auth.admin.deleteUser(staleAuth.id)
+      log(`    Cleaned up previous test user (${staleAuth.id})`)
+    } else if (staleAuth) {
+      throw new Error(
+        `${TEST_EMAIL} exists as a real user (no e2e_email_test metadata). ` +
+        'Set TEST_EMAIL to a dedicated test address that is not a real account.'
+      )
+    }
   }
 
   // Create test user with the real email address

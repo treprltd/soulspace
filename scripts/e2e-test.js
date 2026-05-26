@@ -1018,16 +1018,16 @@ async function testAdminPortalAuth() {
   })
 
   await run('Admin routes also reject Bearer token (not admin cookie)', true, async () => {
-    // A regular user JWT should NOT grant admin access. Test first 3 as sample.
+    // A regular user JWT should NOT grant admin access. Test all admin routes.
     const failures = []
-    for (const [method, path] of adminRoutes.slice(0, 3)) {
+    for (const [method, path] of adminRoutes) {
       const { status } = await api(method, path, { token: accessToken })
       if (status === 404) continue  // not deployed — skip this route
       if (status !== 401) failures.push(`${method} ${path} → ${status}`)
     }
     return {
       pass: failures.length === 0,
-      detail: failures.length > 0 ? failures.join(' | ') : 'Bearer token correctly rejected on admin routes',
+      detail: failures.length > 0 ? failures.join(' | ') : `Bearer token correctly rejected on ${adminRoutes.length} admin routes`,
     }
   })
 
