@@ -51,11 +51,27 @@ export async function POST(req: NextRequest) {
         startOfMonth.setDate(1)
         startOfMonth.setHours(0, 0, 0, 0)
 
+        // Count only sessions where the mirror actually ran (season_assigned IS NOT NULL).
+        // Also exclude the current in-progress session by ID.
+        //
+        // Why both conditions?
+        //
+        // 1. .neq('id', input.sessionId)
+        //    The sessions row is created on the context page BEFORE the mirror fires.
+        //    Without this, the user's own in-progress session is counted against their
+        //    limit and the paywall fires before they see any reflection.
+        //
+        // 2. .not('season_assigned', 'is', null)
+        //    Only rows where the mirror completed count as a "used" session. This
+        //    prevents orphaned rows (e.g. user reached context page then navigated
+        //    away before the mirror ran) from consuming the monthly allowance.
         const { count } = await gate
           .from('sessions')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .gte('created_at', startOfMonth.toISOString())
+          .neq('id', input.sessionId)
+          .not('season_assigned', 'is', null)
 
         if ((count ?? 0) >= FREE_SESSIONS_PER_MONTH) {
           return NextResponse.json({ paywall: true }, { status: 200 })
