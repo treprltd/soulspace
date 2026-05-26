@@ -17,6 +17,7 @@
  *   BASE_URL              Target base URL (default: http://localhost:3000)
  *   ANTHROPIC_API_KEY     If set, mirror tests are run (costs ~$0.01 per run)
  *   CRON_SECRET           If set, digest endpoint live-fire tests run
+ *   ADMIN_SECRET          If set, admin feedback data tests run (logs in with admin cookie)
  *   REPORT_PATH           Where to write the markdown report (default: e2e-report.md)
  */
 
@@ -1410,6 +1411,173 @@ async function testUserProfileAPI() {
   })
 }
 
+// ── Admin Feedback Endpoint ───────────────────────────────────────────────────
+// Tests GET /api/admin/feedback:
+//   • Auth guard (no cookie, Bearer token)
+//   • With ADMIN_SECRET: full data-quality checks, filtering, stats shape,
+//     presence of email join, pagination, and visibility of test user's feedback
+
+async function testAdminFeedbackEndpoint() {
+  section('Admin Feedback Endpoint (GET /api/admin/feedback)')
+
+  // ── Auth guard ─────────────────────────────────────────────────────────────
+
+  await run('GET /api/admin/feedback without cookie → 401', true, async () => {
+    const { status } = await api('GET', '/api/admin/feedback')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  await run('GET /api/admin/feedback with user Bearer token → 401', true, async () => {
+    // Regular user JWT must not grant admin access
+    const { status } = await api('GET', '/api/admin/feedback', { token: accessToken })
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  // ── Data-quality checks (only when ADMIN_SECRET is available) ──────────────
+
+  const adminSecret = process.env.ADMIN_SECRET
+  if (!adminSecret) {
+    log('  ⏭️   Admin feedback data tests skipped (ADMIN_SECRET not set)')
+    const skippedNames = [
+      'Admin login sets admin_session cookie',
+      'Authenticated GET returns feedback array with stats',
+      'Stats shape: avg_rating, total_responses, rating_counts, recommend_counts',
+      'Test user feedback visible in admin list',
+      'Rating filter (?rating=4) returns only matching rows',
+      'Recommend filter (?recommend=yes_likely) returns only matching rows',
+      'Each feedback row includes user_email field',
+      'Pagination fields (page, pages, total) are present and numeric',
+      'Admin logout clears session',
+    ]
+    skippedNames.forEach(name =>
+      results.push({ name, pass: null, critical: false, detail: 'skipped — ADMIN_SECRET not set' })
+    )
+    return
+  }
+
+  // Acquire admin cookie
+  let adminCookie = ''
+
+  await run('Admin login sets admin_session cookie', true, async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminSecret }),
+    })
+    const cookieHeader = res.headers.get('set-cookie') ?? ''
+    const match = cookieHeader.match(/admin_session=([^;]+)/)
+    if (match) adminCookie = `admin_session=${match[1]}`
+    return {
+      pass: res.status === 200 && !!adminCookie,
+      detail: `status=${res.status} cookie=${adminCookie ? 'obtained' : 'MISSING'}`,
+    }
+  })
+
+  if (!adminCookie) {
+    log('  ⏭️   Skipping data tests — could not obtain admin cookie')
+    return
+  }
+
+  // Helper: GET admin feedback with cookie
+  async function adminFeedback(query = '') {
+    const res = await fetch(`${BASE_URL}/api/admin/feedback${query}`, {
+      headers: { Cookie: adminCookie },
+    })
+    const json = await res.json().catch(() => ({}))
+    return { status: res.status, json }
+  }
+
+  // Full response shape
+  await run('Authenticated GET returns feedback array with stats', true, async () => {
+    const { status, json } = await adminFeedback()
+    const hasShape = Array.isArray(json.feedback) && typeof json.stats === 'object'
+    return {
+      pass: status === 200 && hasShape,
+      detail: `status=${status} total=${json.total} hasStats=${!!json.stats}`,
+    }
+  })
+
+  await run('Stats shape: avg_rating, total_responses, rating_counts, recommend_counts', true, async () => {
+    const { json } = await adminFeedback()
+    const s = json.stats ?? {}
+    const hasAllFields =
+      'avg_rating'       in s &&
+      'total_responses'  in s &&
+      'rating_counts'    in s &&
+      'recommend_counts' in s
+    return {
+      pass: hasAllFields,
+      detail: `avg_rating=${s.avg_rating ?? 'MISSING'} total_responses=${s.total_responses ?? 'MISSING'}`,
+    }
+  })
+
+  // Test user feedback visibility — feedback was submitted in testFeedbackAPI()
+  await run('Test user feedback visible in admin list', true, async () => {
+    if (!testUser) return { pass: null, detail: 'skipped — no test user' }
+    const { json } = await adminFeedback()
+    const found = (json.feedback ?? []).some(f => f.user_id === testUser.id)
+    return {
+      pass: found,
+      detail: found ? `found test user feedback (user_id=${testUser.id.slice(0, 8)}…)` : 'test user feedback NOT found',
+    }
+  })
+
+  // Rating filter
+  await run('Rating filter (?rating=4) returns only matching rows', false, async () => {
+    const { status, json } = await adminFeedback('?rating=4')
+    const allMatch = (json.feedback ?? []).every(f => f.overall_rating === 4 || f.overall_rating === null)
+    return {
+      pass: status === 200 && allMatch,
+      detail: `status=${status} rows=${json.feedback?.length ?? 0} allRating4=${allMatch}`,
+    }
+  })
+
+  // Recommend filter
+  await run('Recommend filter (?recommend=yes_likely) returns only matching rows', false, async () => {
+    const { status, json } = await adminFeedback('?recommend=yes_likely')
+    const allMatch = (json.feedback ?? []).every(f => f.would_recommend === 'yes_likely')
+    return {
+      pass: status === 200 && allMatch,
+      detail: `status=${status} rows=${json.feedback?.length ?? 0} allMatch=${allMatch}`,
+    }
+  })
+
+  // user_email field presence
+  await run('Each feedback row includes user_email field', false, async () => {
+    const { json } = await adminFeedback()
+    const rows = json.feedback ?? []
+    if (rows.length === 0) return { pass: null, detail: 'skipped — no feedback rows yet' }
+    const allHaveField = rows.every(f => 'user_email' in f)
+    return {
+      pass: allHaveField,
+      detail: `user_email field present on all ${rows.length} rows: ${allHaveField}`,
+    }
+  })
+
+  // Pagination shape
+  await run('Pagination fields (page, pages, total) are present and numeric', false, async () => {
+    const { json } = await adminFeedback()
+    const valid =
+      typeof json.page  === 'number' &&
+      typeof json.pages === 'number' &&
+      typeof json.total === 'number'
+    return {
+      pass: valid,
+      detail: `page=${json.page} pages=${json.pages} total=${json.total}`,
+    }
+  })
+
+  // Cleanup admin session
+  await run('Admin logout clears session', false, async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/auth`, {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    adminCookie = ''
+    return { pass: res.status === 200, detail: `status=${res.status}` }
+  })
+}
+
 // ── Report generation ─────────────────────────────────────────────────────────
 
 function buildReport() {
@@ -1535,6 +1703,7 @@ async function main() {
 
     // ── Beta feedback ──────────────────────────────────────────────────────────
     await testFeedbackAPI()
+    await testAdminFeedbackEndpoint()
   } finally {
     await teardown()
   }

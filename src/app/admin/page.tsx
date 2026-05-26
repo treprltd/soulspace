@@ -402,6 +402,7 @@ function DashboardInner() {
           { href: `/admin/sessions?env=${env}`, label: 'All Sessions', desc: 'Browse & filter sessions' },
           { href: `/admin/safety?env=${env}`, label: 'Safety Monitor', desc: 'Review flagged sessions' },
           { href: `/admin/users?env=${env}`, label: 'User Management', desc: 'Plan tiers & search' },
+          { href: `/admin/feedback?env=${env}`, label: 'Feedback',   desc: 'Beta user feedback & ratings' },
           { href: `/admin/events?env=${env}`, label: 'Event Log', desc: 'Raw analytics events' },
         ].map(link => (
           <Link key={link.href} href={link.href} style={{ textDecoration: 'none' }}>

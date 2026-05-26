@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: '/admin/retention',   label: 'Retention',      icon: '⟳' },
   { href: '/admin/revenue',     label: 'Revenue',        icon: '◇' },
   { href: '/admin/mirror',      label: 'Mirror Quality', icon: '◎' },
+  { href: '/admin/feedback',    label: 'Feedback',       icon: '★' },
   { href: '/admin/sessions',    label: 'Sessions',       icon: '⊟' },
   { href: '/admin/safety',      label: 'Safety',         icon: '⚑' },
   { href: '/admin/users',       label: 'Users',          icon: '⊕' },
