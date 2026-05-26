@@ -137,10 +137,11 @@ jobs:
       # Runs when TEST_EMAIL variable or workflow_dispatch input is set.
       - name: Run email delivery tests
         if: vars.TEST_EMAIL != '' || (github.event_name == 'workflow_dispatch' && inputs.test_email != '')
-        run: node scripts/e2e-email-test.js
+        run: node scripts/e2e-email-test.js --report
         env:
           BASE_URL:                     ${{ inputs.base_url || vars.E2E_BASE_URL }}
           TEST_EMAIL:                   ${{ inputs.test_email || vars.TEST_EMAIL }}
+          EMAIL_REPORT_PATH:            e2e-email-report.md
           NEXT_PUBLIC_SUPABASE_URL: >-
             ${{ contains(inputs.base_url || vars.E2E_BASE_URL, 'dev.') && secrets.SUPABASE_DEV_URL ||
                 contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_URL  ||
@@ -155,20 +156,28 @@ jobs:
                 secrets.SUPABASE_PROD_SERVICE_KEY }}
           CRON_SECRET:                  ${{ secrets.CRON_SECRET }}
 
-      # ── Upload the report as a build artifact ─────────────────────────────
-      - name: Upload E2E report
+      # ── Upload the reports as build artifacts ─────────────────────────────
+      - name: Upload E2E reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-report-${{ github.sha }}
-          path: e2e-report.md
+          path: |
+            e2e-report.md
+            e2e-email-report.md
+          if-no-files-found: ignore
           retention-days: 30
 
-      # ── Post report to the job summary ────────────────────────────────────
-      - name: Post report to job summary
+      # ── Post reports to the job summary ───────────────────────────────────
+      - name: Post reports to job summary
         if: always()
         run: |
           if [ -f e2e-report.md ]; then
             echo "### E2E Test Report" >> $GITHUB_STEP_SUMMARY
             cat e2e-report.md >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f e2e-email-report.md ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Email Delivery Test Report" >> $GITHUB_STEP_SUMMARY
+            cat e2e-email-report.md >> $GITHUB_STEP_SUMMARY
           fi
