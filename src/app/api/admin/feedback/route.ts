@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   let dataQuery = db
     .from('feedback')
     .select(
-      'id, user_id, overall_rating, use_frequency, most_valuable, ease_of_use, improvements, would_recommend, comments, created_at',
+      'id, user_id, guest_email, overall_rating, use_frequency, most_valuable, ease_of_use, improvements, would_recommend, comments, created_at',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -70,7 +70,12 @@ export async function GET(req: NextRequest) {
   }, {})
 
   // ── User email lookup (batch, current page only) ──────────────────────────
-  const userIds = Array.from(new Set((data ?? []).map((r: { user_id: string }) => r.user_id).filter(Boolean)))
+  // For authenticated rows look up email from users table; guests already carry guest_email.
+  const userIds = Array.from(new Set(
+    (data ?? [])
+      .map((r: { user_id: string | null }) => r.user_id)
+      .filter((id): id is string => !!id)
+  ))
   const emailMap: Record<string, string | null> = {}
   if (userIds.length > 0) {
     const { data: usersData } = await db
@@ -82,9 +87,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const feedbackWithEmails = (data ?? []).map((r: { user_id: string; [key: string]: unknown }) => ({
+  const feedbackWithEmails = (data ?? []).map((r: { user_id: string | null; guest_email?: string | null; [key: string]: unknown }) => ({
     ...r,
-    user_email: emailMap[r.user_id] ?? null,
+    user_email: r.user_id ? (emailMap[r.user_id] ?? null) : null,
+    guest_email: r.guest_email ?? null,
   }))
 
   return NextResponse.json({

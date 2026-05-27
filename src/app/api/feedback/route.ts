@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
-// ── Zod schema ────────────────────────────────────────────────────────────────
+// ── Zod schemas ───────────────────────────────────────────────────────────────
 
 const VALID_VALUABLE = [
   'mirror_reflection', 'season_insights', 'next_step', 'privacy_security',
@@ -15,7 +15,7 @@ const VALID_IMPROVEMENTS = [
   'therapist_sharing', 'mobile_app', 'nothing',
 ] as const
 
-const FeedbackSchema = z.object({
+const FeedbackBaseSchema = z.object({
   overall_rating:  z.number().int().min(1).max(5).nullable().default(null),
   use_frequency:   z.enum(['first_time', 'few_times', 'weekly', 'daily_or_more']).nullable().default(null),
   most_valuable:   z.array(z.enum(VALID_VALUABLE)).default([]),
@@ -25,40 +25,72 @@ const FeedbackSchema = z.object({
   comments:        z.string().max(2000).default(''),
 })
 
+// Guest submissions require a valid email
+const GuestFeedbackSchema = FeedbackBaseSchema.extend({
+  guest_email: z.string().email('A valid email address is required to submit feedback.'),
+})
+
 // ── POST /api/feedback ────────────────────────────────────────────────────────
-// Submit beta feedback. Authenticated users only.
-// Multiple submissions are allowed — each row is a unique response.
+// Submit beta feedback.
+// - Authenticated users: standard submission (user_id stored, no email required)
+// - Guest users: guest_email is mandatory; user_id is null
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const user = await getAuthUser(req, supabase)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const user     = await getAuthUser(req, supabase)
 
     const body = await req.json()
-    const parsed = FeedbackSchema.parse(body)
 
-    const service = createServiceClient()
-    const { data, error } = await service
-      .from('feedback')
-      .insert({
-        user_id:         user.id,
-        overall_rating:  parsed.overall_rating,
-        use_frequency:   parsed.use_frequency,
-        most_valuable:   parsed.most_valuable,
-        ease_of_use:     parsed.ease_of_use,
-        improvements:    parsed.improvements,
-        would_recommend: parsed.would_recommend,
-        comments:        parsed.comments || null,
-      })
-      .select('id, created_at')
-      .single()
+    if (user) {
+      // ── Authenticated path ──────────────────────────────────────────────────
+      const parsed  = FeedbackBaseSchema.parse(body)
+      const service = createServiceClient()
 
-    if (error) throw error
+      const { data, error } = await service
+        .from('feedback')
+        .insert({
+          user_id:         user.id,
+          guest_email:     null,
+          overall_rating:  parsed.overall_rating,
+          use_frequency:   parsed.use_frequency,
+          most_valuable:   parsed.most_valuable,
+          ease_of_use:     parsed.ease_of_use,
+          improvements:    parsed.improvements,
+          would_recommend: parsed.would_recommend,
+          comments:        parsed.comments || null,
+        })
+        .select('id, created_at')
+        .single()
 
-    return NextResponse.json({ ok: true, id: data.id }, { status: 201 })
+      if (error) throw error
+      return NextResponse.json({ ok: true, id: data.id }, { status: 201 })
+
+    } else {
+      // ── Guest path ──────────────────────────────────────────────────────────
+      const parsed  = GuestFeedbackSchema.parse(body)
+      const service = createServiceClient()
+
+      const { data, error } = await service
+        .from('feedback')
+        .insert({
+          user_id:         null,
+          guest_email:     parsed.guest_email.toLowerCase().trim(),
+          overall_rating:  parsed.overall_rating,
+          use_frequency:   parsed.use_frequency,
+          most_valuable:   parsed.most_valuable,
+          ease_of_use:     parsed.ease_of_use,
+          improvements:    parsed.improvements,
+          would_recommend: parsed.would_recommend,
+          comments:        parsed.comments || null,
+        })
+        .select('id, created_at')
+        .single()
+
+      if (error) throw error
+      return NextResponse.json({ ok: true, id: data.id }, { status: 201 })
+    }
+
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 })
@@ -71,13 +103,16 @@ export async function POST(req: NextRequest) {
 // ── GET /api/feedback ─────────────────────────────────────────────────────────
 // Returns the authenticated user's most recent feedback submission (if any),
 // so the UI can show "last submitted X ago" and pre-fill answers.
+// Guests cannot pre-fill (no stable identity) — return 200 with feedback: null.
 
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const user = await getAuthUser(req, supabase)
+    const user     = await getAuthUser(req, supabase)
+
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // Guests have no prior submissions to load
+      return NextResponse.json({ feedback: null })
     }
 
     const service = createServiceClient()

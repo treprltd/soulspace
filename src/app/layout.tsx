@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { FooterWrapper } from '@/components/ui/FooterWrapper'
+import { FeedbackWrapper } from '@/components/ui/FeedbackWrapper'
 import './globals.css'
 
 // Self-hosted via next/font — eliminates the render-blocking Google Fonts
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen antialiased flex flex-col">
         <div className="flex-1 flex flex-col">{children}</div>
         <FooterWrapper />
+        <FeedbackWrapper />
       </body>
     </html>
   )

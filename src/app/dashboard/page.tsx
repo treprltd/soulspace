@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
-import { FeedbackPanel } from '@/components/dashboard/FeedbackPanel'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
@@ -118,7 +117,6 @@ export default function Dashboard() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [detailCache, setDetailCache] = useState<Record<string, SessionDetail>>({})
   const [detailLoading, setDetailLoading] = useState<string | null>(null)
-  const [authToken, setAuthToken] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -138,8 +136,6 @@ export default function Dashboard() {
       const authHeaders: Record<string, string> = {}
       if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
 
-      // Expose auth token for client-side components (FeedbackPanel)
-      if (session?.access_token) setAuthToken(session.access_token)
 
       const [subRes, histRes, profileRes] = await Promise.all([
         fetch('/api/subscription', { headers: authHeaders }).then(r => r.json()).catch(() => null),
@@ -704,8 +700,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* ── Beta Feedback Panel (fixed right-edge tab + sliding drawer) ── */}
-      <FeedbackPanel authToken={authToken} />
+      {/* FeedbackPanel is now rendered globally via FeedbackWrapper in root layout */}
 
     </main>
   )

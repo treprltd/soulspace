@@ -59,8 +59,9 @@ const IMPROVEMENT_LABELS: Record<string, string> = {
 
 interface FeedbackRow {
   id:               string
-  user_id:          string
+  user_id:          string | null
   user_email:       string | null
+  guest_email:      string | null
   overall_rating:   number | null
   use_frequency:    string | null
   most_valuable:    string[]
@@ -415,10 +416,29 @@ function FeedbackInner() {
                             onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}
                           >
                             {/* User */}
-                            <td style={{ padding: '11px 14px', maxWidth: '180px' }}>
-                              <div style={{ color: 'var(--sand)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
-                                {row.user_email ?? <span style={{ color: 'rgba(139,167,184,.35)' }}>—</span>}
-                              </div>
+                            <td style={{ padding: '11px 14px', maxWidth: '200px' }}>
+                              {row.user_email ? (
+                                <div style={{ color: 'var(--sand)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
+                                  {row.user_email}
+                                </div>
+                              ) : row.guest_email ? (
+                                <div>
+                                  <span style={{
+                                    display: 'inline-block', fontSize: '8px', padding: '1px 5px',
+                                    borderRadius: '3px', background: 'rgba(201,168,76,.08)',
+                                    border: '1px solid rgba(201,168,76,.22)', color: 'var(--gold)',
+                                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                                    marginBottom: '2px', marginRight: '4px',
+                                  }}>
+                                    Guest
+                                  </span>
+                                  <div style={{ color: 'rgba(245,237,216,.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
+                                    {row.guest_email}
+                                  </div>
+                                </div>
+                              ) : (
+                                <span style={{ color: 'rgba(139,167,184,.35)', fontSize: '11px' }}>—</span>
+                              )}
                             </td>
                             {/* Date */}
                             <td style={{ padding: '11px 14px', color: 'var(--mist)', whiteSpace: 'nowrap', fontSize: '11px' }}>
@@ -527,14 +547,29 @@ function FeedbackInner() {
                                     </div>
                                   )}
 
-                                  {/* User ID */}
+                                  {/* Identifier — user UUID or guest email */}
                                   <div>
-                                    <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
-                                      User ID
-                                    </div>
-                                    <span style={{ color: 'rgba(139,167,184,.45)', fontSize: '10px', fontFamily: 'monospace' }}>
-                                      {row.user_id}
-                                    </span>
+                                    {row.user_id ? (
+                                      <>
+                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
+                                          User ID
+                                        </div>
+                                        <span style={{ color: 'rgba(139,167,184,.45)', fontSize: '10px', fontFamily: 'monospace' }}>
+                                          {row.user_id}
+                                        </span>
+                                      </>
+                                    ) : row.guest_email ? (
+                                      <>
+                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
+                                          Guest Email
+                                        </div>
+                                        <span style={{ color: 'var(--sand)', fontSize: '11px' }}>
+                                          {row.guest_email}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <span style={{ color: 'rgba(139,167,184,.35)', fontSize: '11px' }}>—</span>
+                                    )}
                                   </div>
                                 </div>
                               </td>

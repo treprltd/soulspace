@@ -65,22 +65,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Question({ n, children }: { n: number; children: React.ReactNode }) {
-  return (
-    <div className="mb-5">
-      <div className="flex items-start gap-2 mb-2.5">
-        <span
-          className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] font-medium mt-0.5"
-          style={{ background: 'rgba(201,168,76,.1)', color: 'var(--gold2)', border: '1px solid rgba(201,168,76,.2)' }}
-        >
-          {n}
-        </span>
-        {children}
-      </div>
-    </div>
-  )
-}
-
 function ChoiceChip({
   label, selected, onClick,
 }: { label: string; selected: boolean; onClick: () => void }) {
@@ -135,26 +119,38 @@ function StarRating({
   )
 }
 
+// ── Email validation helper ───────────────────────────────────────────────────
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
-  const [open, setOpen] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const isGuest = !authToken
+
+  const [open, setOpen]               = useState(false)
+  const [submitted, setSubmitted]     = useState(false)
+  const [saving, setSaving]           = useState(false)
   const [lastSubmitted, setLastSubmitted] = useState<string | null>(null)
 
-  // Form state
-  const [rating, setRating]         = useState<FeedbackRating | null>(null)
-  const [frequency, setFrequency]   = useState<FeedbackFrequency | null>(null)
-  const [valuable, setValuable]     = useState<string[]>([])
-  const [ease, setEase]             = useState<FeedbackEase | null>(null)
-  const [improvements, setImprovements] = useState<string[]>([])
-  const [recommend, setRecommend]   = useState<FeedbackRecommend | null>(null)
-  const [comments, setComments]     = useState('')
+  // Guest email (mandatory for guests)
+  const [guestEmail, setGuestEmail]   = useState('')
+  const [emailTouched, setEmailTouched] = useState(false)
 
-  // Load existing feedback on open
+  // Form state
+  const [rating, setRating]               = useState<FeedbackRating | null>(null)
+  const [frequency, setFrequency]         = useState<FeedbackFrequency | null>(null)
+  const [valuable, setValuable]           = useState<string[]>([])
+  const [ease, setEase]                   = useState<FeedbackEase | null>(null)
+  const [improvements, setImprovements]   = useState<string[]>([])
+  const [recommend, setRecommend]         = useState<FeedbackRecommend | null>(null)
+  const [comments, setComments]           = useState('')
+
+  // Load existing feedback on open (authenticated users only)
   useEffect(() => {
-    if (!open || !authToken) return
+    if (!open || isGuest) return
     const headers: Record<string, string> = { Authorization: `Bearer ${authToken}` }
     fetch('/api/feedback', { headers })
       .then(r => r.json())
@@ -163,16 +159,16 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
         if (!fb) return
         setLastSubmitted(fb.created_at)
         // Pre-fill answers from most recent submission
-        if (fb.overall_rating)  setRating(fb.overall_rating as FeedbackRating)
-        if (fb.use_frequency)   setFrequency(fb.use_frequency as FeedbackFrequency)
-        if (fb.most_valuable?.length)  setValuable(fb.most_valuable)
-        if (fb.ease_of_use)     setEase(fb.ease_of_use as FeedbackEase)
-        if (fb.improvements?.length)   setImprovements(fb.improvements)
-        if (fb.would_recommend) setRecommend(fb.would_recommend as FeedbackRecommend)
-        if (fb.comments)        setComments(fb.comments)
+        if (fb.overall_rating)        setRating(fb.overall_rating as FeedbackRating)
+        if (fb.use_frequency)         setFrequency(fb.use_frequency as FeedbackFrequency)
+        if (fb.most_valuable?.length) setValuable(fb.most_valuable)
+        if (fb.ease_of_use)           setEase(fb.ease_of_use as FeedbackEase)
+        if (fb.improvements?.length)  setImprovements(fb.improvements)
+        if (fb.would_recommend)       setRecommend(fb.would_recommend as FeedbackRecommend)
+        if (fb.comments)              setComments(fb.comments)
       })
       .catch(() => {})
-  }, [open, authToken])
+  }, [open, authToken, isGuest])
 
   // Close on Escape
   useEffect(() => {
@@ -186,25 +182,40 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
     set(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
   }, [])
 
+  const emailError = isGuest && emailTouched && !isValidEmail(guestEmail)
+    ? 'Please enter a valid email address.'
+    : null
+
   async function handleSubmit() {
+    // Guests must provide a valid email before submitting
+    if (isGuest) {
+      setEmailTouched(true)
+      if (!isValidEmail(guestEmail)) return
+    }
+
     setSaving(true)
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       }
+      const payload: Record<string, unknown> = {
+        overall_rating:  rating,
+        use_frequency:   frequency,
+        most_valuable:   valuable,
+        ease_of_use:     ease,
+        improvements,
+        would_recommend: recommend,
+        comments,
+      }
+      if (isGuest) {
+        payload.guest_email = guestEmail.toLowerCase().trim()
+      }
+
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          overall_rating:  rating,
-          use_frequency:   frequency,
-          most_valuable:   valuable,
-          ease_of_use:     ease,
-          improvements,
-          would_recommend: recommend,
-          comments,
-        }),
+        body: JSON.stringify(payload),
       })
       if (res.ok) {
         setSubmitted(true)
@@ -220,6 +231,10 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
   }
 
   const hasAnyAnswer = !!(rating || frequency || valuable.length || ease || improvements.length || recommend || comments.trim())
+  // Guests need a valid email AND at least one answer
+  const canSubmit = isGuest
+    ? hasAnyAnswer && isValidEmail(guestEmail)
+    : hasAnyAnswer
 
   return (
     <>
@@ -320,15 +335,19 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
                 Your feedback helps us understand what Soul Space means to you
                 and where to take it next.
               </p>
-              <p className="text-[10px] mb-6" style={{ color: 'rgba(139,167,184,.5)' }}>
-                You can update your feedback any time.
-              </p>
-              <button
-                onClick={resetAndReopen}
-                className="btn-outline text-[11px] py-2 px-5"
-              >
-                Update my feedback →
-              </button>
+              {!isGuest && (
+                <>
+                  <p className="text-[10px] mb-6" style={{ color: 'rgba(139,167,184,.5)' }}>
+                    You can update your feedback any time.
+                  </p>
+                  <button
+                    onClick={resetAndReopen}
+                    className="btn-outline text-[11px] py-2 px-5"
+                  >
+                    Update my feedback →
+                  </button>
+                </>
+              )}
             </div>
 
           ) : (
@@ -338,6 +357,52 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
                 You&apos;re part of our early beta. Your honest experience — what works,
                 what doesn&apos;t — shapes everything we build next.
               </p>
+
+              {/* Guest email field — mandatory for non-authenticated users */}
+              {isGuest && (
+                <div className="mb-6">
+                  <SectionLabel>Your email address</SectionLabel>
+                  <p className="text-[11px] mb-2" style={{ color: 'var(--sand)' }}>
+                    Required so we can follow up if needed.
+                    <span className="ml-1" style={{ color: 'rgba(212,64,64,.8)' }}>*</span>
+                  </p>
+                  <input
+                    type="email"
+                    value={guestEmail}
+                    onChange={e => setGuestEmail(e.target.value)}
+                    onBlur={() => setEmailTouched(true)}
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                    className="w-full rounded-xl px-3.5 py-3 text-[12px] focus:outline-none transition-all"
+                    style={{
+                      background: 'rgba(15,30,46,.6)',
+                      border: emailError
+                        ? '1px solid rgba(212,64,64,.5)'
+                        : guestEmail && isValidEmail(guestEmail)
+                          ? '1px solid rgba(42,140,122,.4)'
+                          : '1px solid rgba(245,237,216,.08)',
+                      color: 'var(--sand)',
+                      caretColor: 'var(--gold)',
+                    }}
+                  />
+                  {emailError && (
+                    <p className="text-[10px] mt-1.5" style={{ color: 'rgba(212,64,64,.8)' }}>
+                      {emailError}
+                    </p>
+                  )}
+                  {!emailError && guestEmail && isValidEmail(guestEmail) && (
+                    <p className="text-[10px] mt-1.5" style={{ color: 'rgba(42,140,122,.7)' }}>
+                      ✓ Looks good
+                    </p>
+                  )}
+                  <div
+                    className="mt-3 px-3 py-2.5 rounded-lg text-[10px] leading-relaxed"
+                    style={{ background: 'rgba(139,167,184,.05)', border: '1px solid rgba(139,167,184,.08)', color: 'rgba(139,167,184,.5)' }}
+                  >
+                    We use your email only for Soul Space product updates. Never shared.
+                  </div>
+                </div>
+              )}
 
               {/* Q1 — Star rating */}
               <div className="mb-5">
@@ -454,15 +519,22 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
               {/* Submit */}
               <button
                 onClick={handleSubmit}
-                disabled={saving || !hasAnyAnswer}
+                disabled={saving || !canSubmit}
                 className="btn-primary w-full py-3.5 disabled:opacity-40"
               >
                 {saving ? 'Saving…' : lastSubmitted ? 'Update feedback →' : 'Submit feedback →'}
               </button>
 
-              <p className="text-[9px] text-center mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
-                Your responses are private and used only to improve Soul Space.
-              </p>
+              {isGuest && (
+                <p className="text-[9px] text-center mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+                  Email required · never shared · used only to improve Soul Space.
+                </p>
+              )}
+              {!isGuest && (
+                <p className="text-[9px] text-center mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+                  Your responses are private and used only to improve Soul Space.
+                </p>
+              )}
             </div>
           )}
         </div>

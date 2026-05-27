@@ -1203,17 +1203,28 @@ async function testSessionRecoveryDBState() {
 async function testFeedbackAPI() {
   section('Beta Feedback API (GET & POST /api/feedback)')
 
-  // Auth guards
-  await run('GET /api/feedback without token → 401', true, async () => {
-    const { status } = await api('GET', '/api/feedback')
-    return { pass: status === 401, detail: `status=${status}` }
+  // Auth guards — GET is now open (guests get { feedback: null }); POST requires auth OR guest_email
+  await run('GET /api/feedback without token → 200 with null feedback (guest-safe)', true, async () => {
+    const { status, json } = await api('GET', '/api/feedback')
+    return {
+      pass: status === 200 && json.feedback === null,
+      detail: `status=${status} feedback=${JSON.stringify(json.feedback)}`,
+    }
   })
 
-  await run('POST /api/feedback without token → 401', true, async () => {
+  await run('POST /api/feedback without token and no guest_email → 400', true, async () => {
+    // Guests must supply guest_email — missing it should produce a validation error
     const { status } = await api('POST', '/api/feedback', {
       body: { overall_rating: 5, would_recommend: 'yes_likely' },
     })
-    return { pass: status === 401, detail: `status=${status}` }
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+
+  await run('POST /api/feedback without token but invalid email → 400', false, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      body: { overall_rating: 5, guest_email: 'not-an-email' },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
   })
 
   // GET before any submission — should return { feedback: null }
@@ -1284,6 +1295,69 @@ async function testFeedbackAPI() {
   })
 
   void feedbackId // suppress unused warning
+}
+
+// ── Guest Feedback API ────────────────────────────────────────────────────────
+
+async function testGuestFeedbackAPI() {
+  section('Guest Feedback API (unauthenticated POST /api/feedback with guest_email)')
+
+  // Missing guest_email → 400 (already tested in testFeedbackAPI but re-confirm here)
+  await run('POST without auth and no guest_email → 400', true, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      body: { comments: 'Guest test, missing email.' },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+
+  // Invalid email → 400
+  await run('POST with malformed guest_email → 400', false, async () => {
+    const { status } = await api('POST', '/api/feedback', {
+      body: { guest_email: 'bad-email', overall_rating: 4 },
+    })
+    return { pass: status === 400, detail: `status=${status}` }
+  })
+
+  // Valid guest submission — full payload
+  let guestFeedbackId = null
+  await run('CRITICAL POST with valid guest_email → 201', true, async () => {
+    const { status, json } = await api('POST', '/api/feedback', {
+      body: {
+        guest_email:     'e2e-guest-test@soulspace.test',
+        overall_rating:  3,
+        use_frequency:   'first_time',
+        most_valuable:   ['calming_design'],
+        ease_of_use:     'easy',
+        improvements:    ['mobile_app'],
+        would_recommend: 'maybe',
+        comments:        'E2E guest submission — automated.',
+      },
+    })
+    if (json.id) guestFeedbackId = json.id
+    return {
+      pass: status === 201 && json.ok === true && !!json.id,
+      detail: `status=${status} id=${json.id?.slice(0, 8) ?? 'none'}`,
+    }
+  })
+
+  // Minimal guest submission — only email + one field
+  await run('POST with guest_email and only rating → 201', false, async () => {
+    const { status, json } = await api('POST', '/api/feedback', {
+      body: { guest_email: 'e2e-guest-minimal@soulspace.test', overall_rating: 5 },
+    })
+    return { pass: status === 201 && json.ok === true, detail: `status=${status}` }
+  })
+
+  // GET is guest-safe (returns null, not 401)
+  await run('GET /api/feedback without auth → 200 { feedback: null }', true, async () => {
+    const { status, json } = await api('GET', '/api/feedback')
+    return {
+      pass: status === 200 && json.feedback === null,
+      detail: `status=${status} feedback=${JSON.stringify(json.feedback)}`,
+    }
+  })
+
+  void guestFeedbackId
 }
 
 // ── User Data Deletion ────────────────────────────────────────────────────────
@@ -1445,7 +1519,8 @@ async function testAdminFeedbackEndpoint() {
       'Test user feedback visible in admin list',
       'Rating filter (?rating=4) returns only matching rows',
       'Recommend filter (?recommend=yes_likely) returns only matching rows',
-      'Each feedback row includes user_email field',
+      'Each feedback row includes user_email and guest_email fields',
+      'Guest submission visible in admin list with guest_email populated',
       'Pagination fields (page, pages, total) are present and numeric',
       'Admin logout clears session',
     ]
@@ -1542,15 +1617,29 @@ async function testAdminFeedbackEndpoint() {
     }
   })
 
-  // user_email field presence
-  await run('Each feedback row includes user_email field', false, async () => {
+  // user_email and guest_email field presence on all rows
+  await run('Each feedback row includes user_email and guest_email fields', false, async () => {
     const { json } = await adminFeedback()
     const rows = json.feedback ?? []
     if (rows.length === 0) return { pass: null, detail: 'skipped — no feedback rows yet' }
-    const allHaveField = rows.every(f => 'user_email' in f)
+    const allHaveFields = rows.every(f => 'user_email' in f && 'guest_email' in f)
     return {
-      pass: allHaveField,
-      detail: `user_email field present on all ${rows.length} rows: ${allHaveField}`,
+      pass: allHaveFields,
+      detail: `user_email+guest_email present on all ${rows.length} rows: ${allHaveFields}`,
+    }
+  })
+
+  // Guest submission visibility — submitted by testGuestFeedbackAPI()
+  await run('Guest submission visible in admin list with guest_email populated', false, async () => {
+    const { json } = await adminFeedback()
+    const guestRow = (json.feedback ?? []).find(f =>
+      f.guest_email === 'e2e-guest-test@soulspace.test'
+    )
+    return {
+      pass: !!guestRow,
+      detail: guestRow
+        ? `found guest row (guest_email=${guestRow.guest_email})`
+        : 'guest feedback row NOT found in admin list',
     }
   })
 
@@ -1701,8 +1790,9 @@ async function main() {
     // ── User data ──────────────────────────────────────────────────────────────
     await testUserDataEndpoint()
 
-    // ── Beta feedback ──────────────────────────────────────────────────────────
+    // ── Beta feedback (auth + guest) ───────────────────────────────────────────
     await testFeedbackAPI()
+    await testGuestFeedbackAPI()
     await testAdminFeedbackEndpoint()
   } finally {
     await teardown()
