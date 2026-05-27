@@ -67,6 +67,7 @@ export async function GET() {
       latencyMs: elapsed,
       timestamp: new Date().toISOString(),
       version: process.env.NEXT_PUBLIC_ENV ?? 'unknown',
+      commit:  process.env.NEXT_PUBLIC_COMMIT_SHA ?? 'unknown',
     },
     {
       status: allOk ? 200 : 503,

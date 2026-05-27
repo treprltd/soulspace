@@ -13,6 +13,9 @@ frontend:
       commands:
         # Guard frozen affirmation copy has not been changed
         - node scripts/check-frozen-copy.js
+        # Bake the commit SHA into the build so /api/health can report it.
+        # AWS_COMMIT_ID is set automatically by Amplify for every build.
+        - export NEXT_PUBLIC_COMMIT_SHA=${AWS_COMMIT_ID}
         - npm run build
   artifacts:
     baseDirectory: .next

@@ -112,6 +112,30 @@ jobs:
                 contains(inputs.base_url || vars.E2E_BASE_URL, 'qa.')  && secrets.SUPABASE_QA_SERVICE_KEY  ||
                 secrets.SUPABASE_PROD_SERVICE_KEY }}
 
+      # ── Wait for Amplify deploy ────────────────────────────────────────────
+      # Amplify builds take 3-7 minutes. The E2E tests target the live URL, so
+      # we poll /api/health until it reports the current commit SHA before testing.
+      # Times out after 10 minutes — if the deploy hasn't finished by then,
+      # something is wrong with Amplify and the tests would be meaningless anyway.
+      - name: Wait for deploy (poll /api/health until commit matches)
+        run: |
+          TARGET_URL="${{ inputs.base_url || vars.E2E_BASE_URL }}"
+          EXPECTED_SHA="${{ github.sha }}"
+          echo "⏳  Waiting for $TARGET_URL to serve commit ${EXPECTED_SHA:0:8}…"
+          for i in $(seq 1 40); do
+            LIVE_SHA=$(curl -sf --max-time 10 "$TARGET_URL/api/health" \
+              | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('commit',''))" 2>/dev/null || echo "")
+            echo "  attempt $i/40 — live commit: ${LIVE_SHA:0:8} (want ${EXPECTED_SHA:0:8})"
+            if [ "${LIVE_SHA}" = "${EXPECTED_SHA}" ]; then
+              echo "✅  Deploy confirmed — proceeding to E2E tests."
+              break
+            fi
+            if [ "$i" = "40" ]; then
+              echo "⚠️  Deploy not confirmed after 10 minutes — running tests anyway (live SHA may differ)."
+            fi
+            sleep 15
+          done
+
       # ── Run E2E test suite ─────────────────────────────────────────────────
       - name: Run E2E test suite
         run: node scripts/e2e-test.js --report
