@@ -1,4 +1,9 @@
 // @ts-check
+// Load .env.local before evaluating testPathIgnorePatterns so that
+// ANTHROPIC_API_KEY is available when the ignore list is built.
+// (next/jest only loads env into the test runtime, not the config itself.)
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env.local'), override: true })
+
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({ dir: './' })
