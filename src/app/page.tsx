@@ -61,8 +61,8 @@ export default function Home() {
         </div>
 
         <h1
-          className="font-serif font-light leading-tight mb-4 max-w-3xl"
-          style={{ fontSize: 'clamp(30px, 5vw, 56px)', color: 'var(--sand2)' }}
+          className="hero-heading font-serif font-light leading-tight mb-4 max-w-3xl"
+          style={{ fontSize: 'clamp(26px, 5vw, 56px)', color: 'var(--sand2)' }}
         >
           The structured pause between<br />
           <em className="text-gold2">emotional overload</em> and consequential action.

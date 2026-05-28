@@ -54,7 +54,7 @@ export default function SeasonCard() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: season.color }}>Your season</span>} />
-      <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
+      <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
         {/* Season card */}
         <div
           className="rounded-2xl p-6 mb-4 relative overflow-hidden"
@@ -77,7 +77,7 @@ export default function SeasonCard() {
             {season.description}
           </p>
 
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {[
               { label: 'Grounding', text: season.grounding },
               { label: 'Reflection', text: season.reflection },
@@ -85,16 +85,16 @@ export default function SeasonCard() {
             ].map(({ label, text }) => (
               <div
                 key={label}
-                className="rounded-lg px-3 py-2.5"
+                className="rounded-lg px-3 py-2.5 sm:px-3"
                 style={{
                   background: `${season.color}08`,
                   border: `1px solid ${season.color}22`,
                 }}
               >
-                <div className="text-[7px] tracking-[.1em] uppercase mb-1.5" style={{ color: season.color }}>
+                <div className="season-tile-label text-[7px] tracking-[.1em] uppercase mb-1.5" style={{ color: season.color }}>
                   {label}
                 </div>
-                <p className="text-[10px] text-sand leading-relaxed">{text}</p>
+                <p className="season-tile-body text-[10px] text-sand leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

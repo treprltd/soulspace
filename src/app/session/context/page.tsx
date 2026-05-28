@@ -96,7 +96,7 @@ export default function ContextField() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
-      <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
+      <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={3} total={3} />
 
         <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">

@@ -30,7 +30,7 @@ export default function Emotions() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
-      <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
+      <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={1} total={3} />
 
         {/* AFFIRMATION MOMENT 2 — frozen copy */}

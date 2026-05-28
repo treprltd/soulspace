@@ -5,7 +5,7 @@ import Link from 'next/link'
 export default function CrisisPage() {
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-12 text-center"
+      className="min-h-screen flex flex-col items-center justify-center px-5 sm:px-12 text-center"
       style={{ background: '#060E18' }}
     >
       <div className="animate-fade-in">

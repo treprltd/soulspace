@@ -373,12 +373,12 @@ export default function Dashboard() {
                 style={{ background: 'rgba(15,30,46,.5)', border: '1px solid rgba(245,237,216,.04)' }}
               >
                 <div
-                  className="font-serif text-xl font-light"
+                  className="dash-stat-value font-serif text-xl font-light"
                   style={{ color: stat.color ?? 'var(--sand2)' }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-[8px] text-mist mt-0.5 leading-tight">{stat.label}</div>
+                <div className="dash-stat-label text-[8px] text-mist mt-0.5 leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -501,7 +501,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
                           {s.resonance_tap ? (
                             <div
-                              className="text-[8px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                              className="session-badge text-[8px] px-2 py-0.5 rounded-full whitespace-nowrap"
                               style={{
                                 background: s.resonance_tap === 'accurate'
                                   ? 'rgba(42,140,122,.1)'

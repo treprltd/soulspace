@@ -336,7 +336,8 @@ export default function Settings() {
                   style={{
                     color: 'var(--sand)',
                     borderColor: 'rgba(201,168,76,.3)',
-                    width: '140px',
+                    width: 'clamp(90px, 40%, 140px)',
+                    minWidth: 0,
                     paddingBottom: '2px',
                   }}
                 />
@@ -358,7 +359,8 @@ export default function Settings() {
                   style={{
                     color: 'var(--sand)',
                     borderColor: 'rgba(201,168,76,.3)',
-                    width: '140px',
+                    width: 'clamp(90px, 40%, 140px)',
+                    minWidth: 0,
                     paddingBottom: '2px',
                   }}
                 />
@@ -379,9 +381,10 @@ export default function Settings() {
                   style={{
                     color: 'var(--sand)',
                     borderColor: 'rgba(201,168,76,.3)',
-                    width: '140px',
+                    width: 'clamp(90px, 40%, 140px)',
+                    minWidth: 0,
                     paddingBottom: '2px',
-                    colorScheme: 'dark',
+                    colorScheme: 'dark' as const,
                   }}
                 />
               ) : (
@@ -406,7 +409,8 @@ export default function Settings() {
                   style={{
                     color: 'var(--sand)',
                     borderColor: 'rgba(201,168,76,.3)',
-                    width: '140px',
+                    width: 'clamp(90px, 40%, 140px)',
+                    minWidth: 0,
                     paddingBottom: '2px',
                   }}
                 />

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { FooterWrapper } from '@/components/ui/FooterWrapper'
 import { FeedbackWrapper } from '@/components/ui/FeedbackWrapper'
@@ -20,6 +20,14 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   display: 'swap',
 })
+
+// Viewport export is the Next.js 14 App Router way to set the <meta viewport> tag.
+// Without this, mobile browsers render at ~980 px and zoom out — everything looks tiny.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5, // allow user zoom for accessibility
+}
 
 export const metadata: Metadata = {
   title: 'Soul Space — The pause before the decision that changes things.',

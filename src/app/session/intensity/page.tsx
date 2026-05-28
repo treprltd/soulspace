@@ -19,7 +19,7 @@ export default function Intensity() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
-      <div className="px-6 py-5 max-w-xl mx-auto animate-fade-in">
+      <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={2} total={3} />
 
         <h2 className="font-serif font-light text-sand2 text-2xl mb-6 leading-tight">
@@ -66,14 +66,15 @@ export default function Intensity() {
 
           <div className="flex justify-between text-[9px] mt-1.5">
             <span className="text-mist">Barely there</span>
-            <span className="text-gold2 italic">Hard to think clearly</span>
+            {/* Hide mid-label on narrow phones — it collides with the outer labels */}
+            <span className="text-gold2 italic hidden sm:inline">Hard to think clearly</span>
             <span className="text-mist">Overwhelming</span>
           </div>
         </div>
 
-        <div className="flex gap-2.5">
-          <button onClick={() => router.back()} className="btn-outline text-xs">Back</button>
-          <button onClick={handleContinue} className="btn-primary">Continue →</button>
+        <div className="flex gap-3">
+          <button onClick={() => router.back()} className="btn-outline text-xs px-5 flex-shrink-0">← Back</button>
+          <button onClick={handleContinue} className="btn-primary flex-1">Continue →</button>
         </div>
       </div>
     </main>

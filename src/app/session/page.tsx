@@ -45,7 +45,7 @@ export default function SituationEntry() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
-      <div className="flex items-center justify-center px-5 py-10">
+      <div className="flex items-center justify-center px-4 sm:px-5 py-8 sm:py-10">
         <div className="w-full max-w-lg animate-fade-in">
 
           <div className="text-center mb-8">

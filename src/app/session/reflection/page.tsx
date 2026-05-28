@@ -51,7 +51,7 @@ export default function MirrorOutputPage() {
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: 'var(--gold)' }}>Your reflection</span>} />
 
-      <div className="px-6 py-6 max-w-xl mx-auto animate-fade-in">
+      <div className="session-outer-pad px-6 py-6 max-w-xl mx-auto animate-fade-in">
 
         {/* AFFIRMATION MOMENT 4 — frozen copy */}
         <div className="affirm-copy mb-5">
