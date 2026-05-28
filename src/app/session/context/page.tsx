@@ -1,17 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
 import { ProgressBar } from '@/components/session/ProgressBar'
+import { VoiceInput } from '@/components/session/VoiceInput'
 import { createClient } from '@/lib/supabase/client'
 
 const MAX_CHARS = 800
 
 export default function ContextField() {
   const router = useRouter()
-  const [text, setText] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [text, setText]                   = useState('')
+  const [submitting, setSubmitting]       = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isPaid, setIsPaid]               = useState(false)
+
+  // ── Check auth + subscription status on mount ────────────────────────────
+  useEffect(() => {
+    const checkStatus = async () => {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) return
+
+      setIsAuthenticated(true)
+
+      try {
+        const res = await fetch('/api/subscription', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (res.ok) {
+          const data = await res.json() as { planTier: string }
+          setIsPaid(data.planTier !== 'free')
+        }
+      } catch {
+        // Subscription check failed — voice input stays locked, session continues normally
+      }
+    }
+    checkStatus()
+  }, [])
+
+  // ── Transcript handler — appends to existing text ────────────────────────
+  const handleTranscript = (transcript: string) => {
+    setText(prev => {
+      const joined = prev.trim() ? `${prev.trim()} ${transcript}` : transcript
+      return joined.slice(0, MAX_CHARS)
+    })
+  }
 
   const handleSubmit = async () => {
     if (submitting) return
@@ -31,12 +66,12 @@ export default function ContextField() {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (session?.access_token) {
-        const branch = sessionStorage.getItem('ss_branch') ?? 'A'
+        const branch    = sessionStorage.getItem('ss_branch')    ?? 'A'
         const situation = sessionStorage.getItem('ss_situation') ?? undefined
         const res = await fetch('/api/sessions', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type':  'application/json',
             'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ branch, ...(situation ? { situation } : {}) }),
@@ -71,6 +106,7 @@ export default function ContextField() {
           In your own words. As much or as little as feels right.
         </p>
 
+        {/* Textarea + voice button ─────────────────────────────────────── */}
         <div className="relative mb-2">
           <textarea
             value={text}
@@ -79,24 +115,42 @@ export default function ContextField() {
             rows={7}
             className="w-full rounded-2xl p-4 text-sm leading-relaxed resize-none focus:outline-none transition-colors"
             style={{
-              background: 'rgba(245,237,216,.03)',
-              border: '1px solid rgba(245,237,216,.08)',
-              color: 'var(--sand2)',
-              fontFamily: 'var(--font-cormorant), Georgia, serif',
-              fontStyle: 'italic',
-              fontSize: '15px',
-              lineHeight: '1.75',
+              background:  'rgba(245,237,216,.03)',
+              border:      '1px solid rgba(245,237,216,.08)',
+              color:       'var(--sand2)',
+              fontFamily:  'var(--font-cormorant), Georgia, serif',
+              fontStyle:   'italic',
+              fontSize:    '15px',
+              lineHeight:  '1.75',
+              paddingBottom: '3rem', // room for the mic button
             }}
-            onFocus={e => {
-              e.target.style.borderColor = 'rgba(201,168,76,.25)'
-            }}
-            onBlur={e => {
-              e.target.style.borderColor = 'rgba(245,237,216,.08)'
-            }}
+            onFocus={e  => { e.target.style.borderColor = 'rgba(201,168,76,.25)' }}
+            onBlur={e   => { e.target.style.borderColor = 'rgba(245,237,216,.08)' }}
           />
+
+          {/* Voice input — bottom-right of textarea */}
+          <div className="absolute bottom-3 right-3">
+            <VoiceInput
+              onTranscript={handleTranscript}
+              isAuthenticated={isAuthenticated}
+              isPaid={isPaid}
+              disabled={submitting}
+            />
+          </div>
         </div>
 
-        <div className="flex justify-end mb-6">
+        {/* Char count row */}
+        <div className="flex items-center justify-between mb-6" style={{ minHeight: '16px' }}>
+          <span
+            className="text-[10px] leading-none"
+            style={{ color: 'rgba(139,167,184,.3)', visibility: (!isAuthenticated || !isPaid) ? 'visible' : 'hidden' }}
+          >
+            {!isAuthenticated
+              ? 'Voice input available for subscribers'
+              : !isPaid
+              ? 'Voice input available on paid plans'
+              : null}
+          </span>
           {text.length > 0 && (
             <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.3)' }}>
               {text.length} / {MAX_CHARS}
