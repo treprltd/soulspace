@@ -115,9 +115,10 @@ export default function AuthCallback() {
 
         const data = JSON.parse(raw) as {
           firstName: string
-          lastName: string
-          dob: string
-          phone: string
+          lastName:  string
+          dob:       string
+          phone:     string
+          gender?:   string
         }
 
         await fetch('/api/user/profile', {

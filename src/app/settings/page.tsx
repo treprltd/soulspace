@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+import { GENDER_OPTIONS } from '@/components/ui/ProfileFields'
 import type { User } from '@supabase/supabase-js'
 
 interface SubscriptionStatus {
@@ -28,9 +29,10 @@ const PLAN_LABELS: Record<string, string> = {
 
 interface ProfileFields {
   firstName: string
-  lastName: string
-  dob: string
-  phone: string
+  lastName:  string
+  dob:       string
+  phone:     string
+  gender:    string
 }
 
 export default function Settings() {
@@ -44,14 +46,14 @@ export default function Settings() {
   const [portalLoading, setPortalLoading] = useState(false)
 
   // ── Profile editing state ──────────────────────────────────────────────────
-  const [profile, setProfile] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '' })
+  const [profile, setProfile] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '', gender: '' })
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [profileEditing, setProfileEditing] = useState(false)
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileError, setProfileError] = useState('')
   const [profileSaved, setProfileSaved] = useState(false)
   // Keep a snapshot to allow cancel
-  const [profileSnapshot, setProfileSnapshot] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '' })
+  const [profileSnapshot, setProfileSnapshot] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '', gender: '' })
 
   useEffect(() => {
     const supabase = createClient()
@@ -80,6 +82,7 @@ export default function Settings() {
           lastName:  profileData.last_name  ?? '',
           dob:       profileData.dob        ?? '',
           phone:     profileData.phone      ?? '',
+          gender:    profileData.gender     ?? '',
         }
         setProfile(loaded)
         setProfileSnapshot(loaded)
@@ -115,7 +118,13 @@ export default function Settings() {
       const res = await fetch('/api/user/profile', {
         method: 'POST',
         headers,
-        body: JSON.stringify(profile),
+        body: JSON.stringify({
+        firstName: profile.firstName,
+        lastName:  profile.lastName,
+        dob:       profile.dob,
+        phone:     profile.phone,
+        gender:    profile.gender,
+      }),
       })
       const data = await res.json() as { ok?: boolean; error?: string }
       if (!res.ok || data.error) {
@@ -397,7 +406,7 @@ export default function Settings() {
             </div>
 
             {/* Phone */}
-            <div className="flex justify-between items-center pt-2.5">
+            <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
               <div className="text-sm text-sand">Phone</div>
               {profileEditing ? (
                 <input
@@ -416,6 +425,39 @@ export default function Settings() {
                 />
               ) : (
                 <div className="text-xs text-mist">{profile.phone || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+              )}
+            </div>
+
+            {/* Gender identity */}
+            <div className="flex justify-between items-center pt-2.5">
+              <div className="text-sm text-sand">Gender identity</div>
+              {profileEditing ? (
+                <select
+                  value={profile.gender}
+                  onChange={e => setProfile(p => ({ ...p, gender: e.target.value }))}
+                  className="text-xs text-right bg-transparent outline-none border-b"
+                  style={{
+                    color: 'var(--sand)',
+                    borderColor: 'rgba(201,168,76,.3)',
+                    width: 'clamp(90px, 40%, 160px)',
+                    minWidth: 0,
+                    paddingBottom: '2px',
+                    colorScheme: 'dark' as const,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="" disabled style={{ background: '#0F1E2E' }}>Select…</option>
+                  {GENDER_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value} style={{ background: '#0F1E2E' }}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-xs text-mist">
+                  {GENDER_OPTIONS.find(o => o.value === profile.gender)?.label
+                    || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                </div>
               )}
             </div>
           </div>

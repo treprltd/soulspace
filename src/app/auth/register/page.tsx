@@ -30,6 +30,7 @@ export default function Register() {
   const [lastName, setLastName]   = useState('')
   const [dob, setDob]             = useState('')
   const [phone, setPhone]         = useState('')
+  const [gender, setGender]       = useState('')
   const [email, setEmail]         = useState('')
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
@@ -58,7 +59,7 @@ export default function Register() {
   }, [router])
 
   function validate() {
-    const errs = validateProfileFields({ firstName, lastName, dob, phone })
+    const errs = validateProfileFields({ firstName, lastName, dob, phone, gender })
 
     if (!email.trim()) {
       errs.email = 'Email address is required.'
@@ -99,6 +100,7 @@ export default function Register() {
         lastName:  lastName.trim(),
         dob,
         phone:     phone.trim(),
+        gender,
       }))
     } catch { /* non-fatal */ }
 
@@ -226,8 +228,8 @@ export default function Register() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
 
               <ProfileFields
-                values={{ firstName, lastName, dob, phone }}
-                setters={{ setFirstName, setLastName, setDob, setPhone }}
+                values={{ firstName, lastName, dob, phone, gender }}
+                setters={{ setFirstName, setLastName, setDob, setPhone, setGender }}
                 errors={errors}
                 focusedField={focusedField}
                 onFocus={setFocusedField}

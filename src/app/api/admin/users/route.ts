@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   let query = db
     .from('users')
-    .select('id, email, first_name, last_name, phone, created_at, plan_tier, age_bracket, stripe_customer_id, profile_complete', { count: 'exact' })
+    .select('id, email, first_name, last_name, phone, dob, gender, created_at, plan_tier, age_bracket, stripe_customer_id, profile_complete', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 

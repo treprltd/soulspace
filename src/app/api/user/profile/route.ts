@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 
+const VALID_GENDERS = ['male', 'female', 'non_binary', 'prefer_not_to_say'] as const
+
 // ── GET /api/user/profile ─────────────────────────────────────────────────────
 // Returns the authenticated user's profile fields.
 export async function GET(req: NextRequest) {
@@ -12,7 +14,7 @@ export async function GET(req: NextRequest) {
   const service = createServiceClient()
   const { data, error } = await service
     .from('users')
-    .select('first_name, last_name, dob, phone, profile_complete')
+    .select('first_name, last_name, dob, phone, gender, profile_complete')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest) {
 
 // ── POST /api/user/profile ────────────────────────────────────────────────────
 // Creates or updates the authenticated user's profile.
-// Body: { firstName, lastName, dob, phone }
+// Body: { firstName, lastName, dob, phone, gender }
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
   const user = await getAuthUser(req, supabase)
@@ -30,12 +32,13 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({})) as {
     firstName?: string
-    lastName?: string
-    dob?: string
-    phone?: string
+    lastName?:  string
+    dob?:       string
+    phone?:     string
+    gender?:    string
   }
 
-  const { firstName, lastName, dob, phone } = body
+  const { firstName, lastName, dob, phone, gender } = body
 
   // ── Validation ────────────────────────────────────────────────────────────
   if (!firstName?.trim()) {
@@ -50,9 +53,12 @@ export async function POST(req: NextRequest) {
   if (!phone?.trim()) {
     return NextResponse.json({ error: 'Phone number is required.' }, { status: 400 })
   }
+  if (!gender || !(VALID_GENDERS as readonly string[]).includes(gender)) {
+    return NextResponse.json({ error: 'Please select your gender identity.' }, { status: 400 })
+  }
 
   // DOB: must be a valid date and user must be >= 18
-  const dobDate = new Date(dob)
+  const dobDate   = new Date(dob)
   const threshold = new Date()
   threshold.setFullYear(threshold.getFullYear() - 18)
   if (isNaN(dobDate.getTime())) {
@@ -69,7 +75,7 @@ export async function POST(req: NextRequest) {
   }
 
   const cleanPhone = phone.trim()
-  const service = createServiceClient()
+  const service    = createServiceClient()
 
   // ── Phone uniqueness ──────────────────────────────────────────────────────
   const { data: phoneOwner } = await service
@@ -97,6 +103,7 @@ export async function POST(req: NextRequest) {
         last_name:        lastName.trim(),
         dob,
         phone:            cleanPhone,
+        gender,
         profile_complete: true,
       },
       { onConflict: 'id' },

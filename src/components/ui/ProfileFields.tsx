@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * ProfileFields — shared form fields for first/last name, DOB, and phone.
+ * ProfileFields — shared form fields for first/last name, DOB, phone, and gender.
  * Used by /auth/register (new user sign-up) and /profile/setup (existing
  * users completing their profile).
  *
@@ -27,6 +27,17 @@ export const inputFocusStyle = {
   border: '1px solid rgba(201,168,76,.35)',
 }
 
+// ── Gender options ────────────────────────────────────────────────────────────
+
+export const GENDER_OPTIONS = [
+  { value: 'male',              label: 'Man' },
+  { value: 'female',            label: 'Woman' },
+  { value: 'non_binary',        label: 'Non-binary' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+] as const
+
+export type GenderValue = (typeof GENDER_OPTIONS)[number]['value']
+
 // ── Validation helper (used by both pages and the POST route on the server) ───
 
 /** Returns 18-years-ago date string formatted as YYYY-MM-DD. */
@@ -39,9 +50,10 @@ export function maxDobDate(): string {
 /** Client-side profile validation — returns a map of field → error string. */
 export function validateProfileFields(values: {
   firstName: string
-  lastName: string
-  dob: string
-  phone: string
+  lastName:  string
+  dob:       string
+  phone:     string
+  gender:    string
 }): Record<string, string> {
   const errs: Record<string, string> = {}
 
@@ -51,7 +63,7 @@ export function validateProfileFields(values: {
   if (!values.dob) {
     errs.dob = 'Date of birth is required.'
   } else {
-    const dobDate  = new Date(values.dob)
+    const dobDate   = new Date(values.dob)
     const threshold = new Date()
     threshold.setFullYear(threshold.getFullYear() - 18)
     if (isNaN(dobDate.getTime()) || dobDate > threshold) {
@@ -66,6 +78,11 @@ export function validateProfileFields(values: {
     errs.phone = 'Please enter a valid phone number (include country code).'
   }
 
+  const validGenders = GENDER_OPTIONS.map(o => o.value) as string[]
+  if (!values.gender || !validGenders.includes(values.gender)) {
+    errs.gender = 'Please select your gender identity.'
+  }
+
   return errs
 }
 
@@ -77,9 +94,9 @@ export function Field({
   error,
   children,
 }: {
-  label: string
-  hint?: string
-  error?: string | null
+  label:    string
+  hint?:    string
+  error?:   string | null
   children: React.ReactNode
 }) {
   return (
@@ -103,6 +120,7 @@ export interface ProfileFieldValues {
   lastName:  string
   dob:       string
   phone:     string
+  gender:    string
 }
 
 export interface ProfileFieldSetters {
@@ -110,6 +128,7 @@ export interface ProfileFieldSetters {
   setLastName:  (v: string) => void
   setDob:       (v: string) => void
   setPhone:     (v: string) => void
+  setGender:    (v: string) => void
 }
 
 interface ProfileFieldsProps {
@@ -176,9 +195,34 @@ export function ProfileFields({
           className={inputClass}
           style={{
             ...(focusedField === 'dob' ? inputFocusStyle : inputStyle),
-            colorScheme: 'dark',
+            colorScheme: 'dark' as const,
           }}
         />
+      </Field>
+
+      {/* Gender identity */}
+      <Field label="Gender identity" error={errors.gender}>
+        <select
+          value={values.gender}
+          onChange={e => setters.setGender(e.target.value)}
+          onFocus={() => onFocus('gender')}
+          onBlur={onBlur}
+          className={inputClass}
+          style={{
+            ...(focusedField === 'gender' ? inputFocusStyle : inputStyle),
+            colorScheme: 'dark' as const,
+            cursor: 'pointer',
+          }}
+        >
+          <option value="" disabled style={{ background: '#0F1E2E' }}>
+            Select…
+          </option>
+          {GENDER_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value} style={{ background: '#0F1E2E' }}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </Field>
 
       {/* Phone */}

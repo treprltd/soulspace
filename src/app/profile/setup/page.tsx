@@ -24,6 +24,7 @@ export default function ProfileSetup() {
   const [lastName, setLastName]   = useState('')
   const [dob, setDob]             = useState('')
   const [phone, setPhone]         = useState('')
+  const [gender, setGender]       = useState('')
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const [errors, setErrors]   = useState<Record<string, string>>({})
@@ -48,7 +49,7 @@ export default function ProfileSetup() {
   }, [router])
 
   function validate() {
-    return validateProfileFields({ firstName, lastName, dob, phone })
+    return validateProfileFields({ firstName, lastName, dob, phone, gender })
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -64,7 +65,7 @@ export default function ProfileSetup() {
     const res = await fetch('/api/user/profile', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ firstName, lastName, dob, phone }),
+      body: JSON.stringify({ firstName, lastName, dob, phone, gender }),
     })
 
     const body = await res.json().catch(() => ({})) as { ok?: boolean; error?: string }
@@ -132,8 +133,8 @@ export default function ProfileSetup() {
           )}
 
           <ProfileFields
-            values={{ firstName, lastName, dob, phone }}
-            setters={{ setFirstName, setLastName, setDob, setPhone }}
+            values={{ firstName, lastName, dob, phone, gender }}
+            setters={{ setFirstName, setLastName, setDob, setPhone, setGender }}
             errors={errors}
             focusedField={focusedField}
             onFocus={setFocusedField}

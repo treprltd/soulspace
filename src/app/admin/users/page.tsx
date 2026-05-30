@@ -7,17 +7,36 @@ import { type AdminEnv, getDefaultAdminEnv } from '@/lib/admin/env'
 import { AdminEnvNotConfigured } from '@/components/ui/AdminEnvNotConfigured'
 
 interface User {
-  id: string
-  email: string
-  first_name: string | null
-  last_name: string | null
-  phone: string | null
-  profile_complete: boolean
-  created_at: string
-  plan_tier: string
-  age_bracket: string | null
+  id:                 string
+  email:              string
+  first_name:         string | null
+  last_name:          string | null
+  phone:              string | null
+  dob:                string | null
+  gender:             string | null
+  profile_complete:   boolean
+  created_at:         string
+  plan_tier:          string
+  age_bracket:        string | null
   stripe_customer_id: string | null
-  session_count: number
+  session_count:      number
+}
+
+const GENDER_LABELS: Record<string, string> = {
+  male:              'Man',
+  female:            'Woman',
+  non_binary:        'Non-binary',
+  prefer_not_to_say: 'Prefer not to say',
+}
+
+function calcAge(dob: string | null): string {
+  if (!dob) return '—'
+  const birth = new Date(dob)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return String(age)
 }
 
 interface UsersResponse {
@@ -170,7 +189,7 @@ function UsersInner() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-3xs)' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  {['Name', 'Email', 'Phone', 'Plan', 'Profile', 'Sessions', 'Joined', 'Actions'].map(h => (
+                  {['Name', 'Email', 'Phone', 'Age', 'Gender', 'Plan', 'Profile', 'Sessions', 'Joined', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--gold)', fontWeight: 500, letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
@@ -200,6 +219,18 @@ function UsersInner() {
                       {/* Phone */}
                       <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', whiteSpace: 'nowrap' }}>
                         {u.phone ?? <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                      </td>
+                      {/* Age (calculated from DOB) */}
+                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        {u.dob
+                          ? <span style={{ color: 'var(--sand)' }}>{calcAge(u.dob)}</span>
+                          : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                      </td>
+                      {/* Gender */}
+                      <td style={{ padding: '10px 12px', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                        {u.gender
+                          ? <span style={{ color: 'var(--mist)' }}>{GENDER_LABELS[u.gender] ?? u.gender}</span>
+                          : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
                       </td>
                       {/* Plan */}
                       <td style={{ padding: '10px 12px' }}>
