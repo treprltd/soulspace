@@ -248,6 +248,12 @@ select,
 }
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 
+/* Feedback tab pulse dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 6px rgba(201,168,76,.8); }
+  50%       { opacity: .55; transform: scale(1.35); box-shadow: 0 0 10px rgba(201,168,76,.4); }
+}
+
 /* ── Mobile & tablet responsive typography + layout ──────────────────────────
    Rules are ordered from most impactful to most specific.
    !important is only used here, never in component files.

@@ -241,28 +241,59 @@ export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
       {/* ── Fixed tab on right edge ───────────────────────────────────── */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed z-40 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all"
+        className="fixed z-40 flex flex-col items-center justify-center gap-2 cursor-pointer feedback-tab"
         style={{
           right: 0,
           top: '50%',
           transform: 'translateY(-50%)',
-          padding: '12px 6px',
-          background: open ? 'rgba(201,168,76,.15)' : 'rgba(15,30,46,.95)',
-          border: '1px solid rgba(201,168,76,.25)',
+          padding: '18px 10px',
+          background: open
+            ? 'rgba(201,168,76,.22)'
+            : 'linear-gradient(180deg, rgba(201,168,76,.18) 0%, rgba(15,30,46,.98) 100%)',
+          border: '1px solid rgba(201,168,76,.55)',
           borderRight: 'none',
-          borderRadius: '8px 0 0 8px',
-          backdropFilter: 'blur(8px)',
+          borderRadius: '10px 0 0 10px',
+          backdropFilter: 'blur(12px)',
+          boxShadow: open
+            ? 'none'
+            : '-3px 0 20px rgba(201,168,76,.18), inset 0 1px 0 rgba(201,168,76,.25)',
+          transition: 'all .2s ease',
         }}
         aria-label="Open beta feedback"
       >
-        {/* Beta badge */}
+        {/* Star icon */}
+        <svg
+          width="13" height="13" viewBox="0 0 24 24" fill="currentColor"
+          style={{ color: 'var(--gold)', flexShrink: 0 }}
+        >
+          <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+        </svg>
+
+        {/* Label */}
         <span
-          className="text-[7px] tracking-[.1em] uppercase font-medium"
-          style={{ color: 'var(--gold)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+          className="font-medium tracking-[.13em] uppercase"
+          style={{
+            color: 'var(--gold2)',
+            fontSize: '9px',
+            writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)',
+            letterSpacing: '0.14em',
+          }}
         >
           Beta Feedback
         </span>
-        <span style={{ color: 'rgba(201,168,76,.6)', fontSize: '10px' }}>✦</span>
+
+        {/* Pulse dot */}
+        <span
+          className="rounded-full flex-shrink-0"
+          style={{
+            width: '6px',
+            height: '6px',
+            background: 'var(--gold)',
+            boxShadow: '0 0 6px rgba(201,168,76,.8)',
+            animation: 'pulse-dot 2s ease-in-out infinite',
+          }}
+        />
       </button>
 
       {/* ── Backdrop ─────────────────────────────────────────────────── */}
