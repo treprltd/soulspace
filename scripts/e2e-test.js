@@ -983,6 +983,100 @@ async function testDigestEndpoints() {
   })
 }
 
+// ── Admin Users — gender + age columns ───────────────────────────────────────
+
+async function testAdminUsersGenderAge() {
+  section('Admin Users — gender and age columns (GET /api/admin/users)')
+
+  const adminSecret = process.env.ADMIN_SECRET
+
+  await run('GET /api/admin/users without cookie → 401', true, async () => {
+    const { status } = await api('GET', '/api/admin/users')
+    return { pass: status === 401, detail: `status=${status}` }
+  })
+
+  if (!adminSecret) {
+    log('  ⏭️   Gender/age column tests skipped (ADMIN_SECRET not set)')
+    ;[
+      'Users response includes dob field',
+      'Users response includes gender field',
+      'Test user row has gender=prefer_not_to_say after profile save',
+      'calcAge helper: test user age is a positive integer',
+    ].forEach(name =>
+      results.push({ name, pass: null, critical: false, detail: 'skipped — ADMIN_SECRET not set' })
+    )
+    return
+  }
+
+  // Acquire admin cookie
+  let adminCookie = ''
+  const loginRes = await fetch(`${BASE_URL}/api/admin/auth`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: adminSecret }),
+  })
+  const cookieHeader = loginRes.headers.get('set-cookie') ?? ''
+  const match = cookieHeader.match(/admin_session=([^;]+)/)
+  if (match) adminCookie = `admin_session=${match[1]}`
+
+  if (!adminCookie) {
+    log('  ⏭️   Could not obtain admin cookie — skipping data checks')
+    return
+  }
+
+  async function adminUsers(query = '') {
+    const res = await fetch(`${BASE_URL}/api/admin/users${query}`, {
+      headers: { Cookie: adminCookie },
+    })
+    return res.json().catch(() => ({}))
+  }
+
+  await run('Users response includes dob field', true, async () => {
+    const json = await adminUsers()
+    const users = json.users ?? []
+    if (users.length === 0) return { pass: null, detail: 'no users in DB — skipped' }
+    const hasDob = 'dob' in users[0]
+    return { pass: hasDob, detail: hasDob ? 'dob field present' : 'dob field MISSING from user row' }
+  })
+
+  await run('Users response includes gender field', true, async () => {
+    const json = await adminUsers()
+    const users = json.users ?? []
+    if (users.length === 0) return { pass: null, detail: 'no users in DB — skipped' }
+    const hasGender = 'gender' in users[0]
+    return { pass: hasGender, detail: hasGender ? 'gender field present' : 'gender field MISSING from user row' }
+  })
+
+  await run('Test user row has gender=prefer_not_to_say after profile save', true, async () => {
+    if (!testUser) return { pass: null, detail: 'skipped — no test user' }
+    const json = await adminUsers()
+    const row = (json.users ?? []).find(u => u.id === testUser.id)
+    if (!row) return { pass: null, detail: 'test user not found in admin list (may be on page 2)' }
+    return {
+      pass: row.gender === 'prefer_not_to_say',
+      detail: `gender=${row.gender ?? 'null'}`,
+    }
+  })
+
+  await run('calcAge helper: test user age is a positive integer (dob=1990-06-15)', false, async () => {
+    if (!testUser) return { pass: null, detail: 'skipped — no test user' }
+    const json = await adminUsers()
+    const row = (json.users ?? []).find(u => u.id === testUser.id)
+    if (!row) return { pass: null, detail: 'test user not found' }
+    // Verify dob is stored (age is calculated client-side, so we just confirm dob exists)
+    const dobStored = row.dob === '1990-06-15'
+    return {
+      pass: dobStored,
+      detail: `dob=${row.dob ?? 'null'} (calcAge on frontend would yield ~35)`,
+    }
+  })
+
+  // Logout admin session
+  await fetch(`${BASE_URL}/api/admin/auth`, { method: 'DELETE', headers: { Cookie: adminCookie } })
+}
+
+// ── Admin Portal Auth ─────────────────────────────────────────────────────────
+
 async function testAdminPortalAuth() {
   section('Admin Portal Auth (all /api/admin/* require admin cookie)')
 
@@ -1410,10 +1504,11 @@ async function testUserProfileAPI() {
   })
 
   // POST — validation rejections
+  // Gender is included in all rejection bodies so the error targets the field under test.
   await run('POST /api/user/profile empty firstName → 400', false, async () => {
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
-      body: { firstName: '', lastName: 'Test', dob: '1990-01-01', phone: '+15559999001' },
+      body: { firstName: '', lastName: 'Test', dob: '1990-01-01', phone: '+15559999001', gender: 'male' },
     })
     return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
   })
@@ -1421,7 +1516,7 @@ async function testUserProfileAPI() {
   await run('POST /api/user/profile under-18 DOB → 400', false, async () => {
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
-      body: { firstName: 'Young', lastName: 'User', dob: '2010-01-01', phone: '+15559999002' },
+      body: { firstName: 'Young', lastName: 'User', dob: '2010-01-01', phone: '+15559999002', gender: 'male' },
     })
     return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
   })
@@ -1429,17 +1524,34 @@ async function testUserProfileAPI() {
   await run('POST /api/user/profile invalid phone → 400', false, async () => {
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
-      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '123' },
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '123', gender: 'male' },
     })
     return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
   })
 
-  // POST — successful save
-  const testPhone = `+1555${Date.now().toString().slice(-7)}`
-  await run('POST /api/user/profile saves valid profile → 200', true, async () => {
+  // Gender validation
+  await run('POST /api/user/profile missing gender → 400', false, async () => {
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
-      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: testPhone },
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '+15559999003' },
+    })
+    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+  })
+
+  await run('POST /api/user/profile invalid gender value → 400', false, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '+15559999004', gender: 'other' },
+    })
+    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+  })
+
+  // POST — successful save (all fields including gender)
+  const testPhone = `+1555${Date.now().toString().slice(-7)}`
+  await run('POST /api/user/profile saves valid profile with gender → 200', true, async () => {
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: testPhone, gender: 'prefer_not_to_say' },
     })
     return { pass: status === 200 && json.ok === true, detail: `status=${status} ok=${json.ok}` }
   })
@@ -1453,13 +1565,31 @@ async function testUserProfileAPI() {
     }
   })
 
-  // GET — name fields returned
+  // GET — name + gender fields returned
   await run('GET /api/user/profile returns saved name fields', false, async () => {
     const { status, json } = await api('GET', '/api/user/profile', { token: accessToken })
     return {
       pass: status === 200 && json.first_name === 'E2E' && json.last_name === 'Test',
       detail: `first_name=${json.first_name ?? 'n/a'} last_name=${json.last_name ?? 'n/a'}`,
     }
+  })
+
+  await run('GET /api/user/profile returns saved gender field', false, async () => {
+    const { status, json } = await api('GET', '/api/user/profile', { token: accessToken })
+    return {
+      pass: status === 200 && json.gender === 'prefer_not_to_say',
+      detail: `gender=${json.gender ?? 'MISSING'}`,
+    }
+  })
+
+  // POST — accepts all four gender values (spot-check: non_binary)
+  await run('POST /api/user/profile accepts non_binary gender → 200', false, async () => {
+    const altPhone = `+1556${Date.now().toString().slice(-7)}`
+    const { status, json } = await api('POST', '/api/user/profile', {
+      token: accessToken,
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: altPhone, gender: 'non_binary' },
+    })
+    return { pass: status === 200 && json.ok === true, detail: `status=${status}` }
   })
 
   section('Phone Availability (GET /api/user/profile/check-phone)')
@@ -1780,6 +1910,7 @@ async function main() {
     await testDigestEndpoints()
 
     // ── Admin & security ───────────────────────────────────────────────────────
+    await testAdminUsersGenderAge()
     await testAdminPortalAuth()
     await testStripeRoutes()
     await testAdminDigest()

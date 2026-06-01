@@ -45,7 +45,7 @@ const REQUIRED = [
   // and SUPABASE_SERVICE_ROLE_KEY are checked via _supabaseAliases above.
   'ANTHROPIC_API_KEY',
   'ENCRYPTION_KEY',
-  'BREVO_API_KEY',
+  'RESEND_API_KEY',
   'ADMIN_SECRET',
   'NEXT_PUBLIC_APP_URL',
   'NEXT_PUBLIC_ENV',
