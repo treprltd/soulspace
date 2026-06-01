@@ -1,19 +1,18 @@
 name: Daily Digest
 
 # ── When ──────────────────────────────────────────────────────────────────────
-# Runs every day at 08:00 UTC (adjust TZ offset for your timezone):
-#   08:00 UTC = 01:30 IST  (India)
+# Runs every day at 08:00 UTC:
+#   08:00 UTC = 13:30 IST  (India)
 #               04:00 EST  (US Eastern)
 #               03:00 CST  (US Central)
 #
-# Also manually triggerable from Actions → Daily Digest → Run workflow.
+# Also manually triggerable: Actions → Daily Digest → Run workflow.
 #
 # ── Required GitHub Secrets ───────────────────────────────────────────────────
-#   CRON_SECRET   — must match the CRON_SECRET env var on Amplify production
+#   CRON_SECRET   — must match CRON_SECRET in Amplify production env vars
 #
-# ── Required GitHub Variables ─────────────────────────────────────────────────
+# ── Required GitHub Variables (Settings → Variables → Actions) ───────────────
 #   E2E_BASE_URL  — e.g. https://soulspacehealth.org
-#                   (same variable used by the E2E workflow)
 
 on:
   schedule:
@@ -27,7 +26,7 @@ on:
         type: choice
         options: [all, admin_digest, user_digest]
       base_url:
-        description: 'Override target URL'
+        description: 'Override target URL (leave blank to use E2E_BASE_URL)'
         required: false
         default: ''
 
@@ -38,54 +37,91 @@ jobs:
   digest:
     name: Send daily digest
     runs-on: ubuntu-latest
-    # Skip if CRON_SECRET is not configured (prevents noisy failures on forks)
-    if: secrets.CRON_SECRET != ''
+    # NOTE: cannot reference secrets in job-level `if` — guard is inside the step
 
     steps:
       - name: Trigger digest endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Gracefully skip if CRON_SECRET is not configured
+          if [ -z "$CRON_SECRET" ]; then
+            echo "⏭️  CRON_SECRET not set — digest skipped."
+            echo "    Add CRON_SECRET to GitHub Secrets (Settings → Secrets → Actions)"
+            echo "    Value must match CRON_SECRET in Amplify production env vars."
+            exit 0
+          fi
+
           BASE="${{ inputs.base_url || vars.E2E_BASE_URL || 'https://soulspacehealth.org' }}"
           MODE="${{ inputs.mode || 'all' }}"
 
           echo "🕐  Triggering digest: $BASE/api/notifications/digest?mode=$MODE"
+          echo "    Mode:   $MODE"
+          echo "    Target: $BASE"
+          echo ""
 
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+          HTTP_STATUS=$(curl -s -o /tmp/digest_response.json -w "%{http_code}" \
             -X POST \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -H "x-cron-secret: $CRON_SECRET" \
             "$BASE/api/notifications/digest?mode=$MODE")
 
-          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
-          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+          BODY=$(cat /tmp/digest_response.json)
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response:    $BODY"
+          echo ""
 
-          echo "Status: $HTTP_STATUS"
-          echo "Response: $BODY"
+          if [ "$HTTP_STATUS" = "401" ]; then
+            echo "❌  401 Unauthorized — CRON_SECRET in GitHub Secrets does not match"
+            echo "    the CRON_SECRET env var on Amplify production."
+            exit 1
+          fi
 
           if [ "$HTTP_STATUS" != "200" ]; then
             echo "❌  Digest failed with HTTP $HTTP_STATUS"
             exit 1
           fi
 
-          # Parse results from JSON response
-          ADMIN_SENT=$(echo "$BODY" | python3 -c "
-          import sys, json
-          d = json.load(sys.stdin)
-          r = d.get('results', {})
+          # Parse and display results
+          python3 - <<'PYEOF'
+          import json, sys
+          with open('/tmp/digest_response.json') as f:
+              d = json.load(f)
+          r  = d.get('results', {})
           ad = r.get('adminDigest', {})
           ud = r.get('userDigest', {})
-          print(f'admin_digest: sent={ad.get(\"sent\", False)} skipped={ad.get(\"skipped\", False)} reason={ad.get(\"reason\", \"\")}')
-          print(f'user_digest:  sent={ud.get(\"sent\", 0)} failed={ud.get(\"failed\", 0)} eligible={ud.get(\"eligible\", 0)} skipped_cooldown={ud.get(\"skippedCooldown\", 0)}')
-          " 2>/dev/null || echo "Could not parse JSON response")
+
+          print("📊  Results:")
+          if ad:
+              if ad.get('sent'):
+                  print(f"    ✅  Admin digest    → sent to {ad.get('to', 'ADMIN_EMAIL')}")
+              elif ad.get('skipped'):
+                  print(f"    ⏭️   Admin digest    → skipped ({ad.get('reason', '')})")
+              else:
+                  print(f"    ❌  Admin digest    → failed ({ad.get('error', '')})")
+          if ud:
+              sent    = ud.get('sent', 0)
+              failed  = ud.get('failed', 0)
+              elig    = ud.get('eligible', 0)
+              cooldown = ud.get('skippedCooldown', 0)
+              print(f"    📧  Re-engagement  → sent={sent}  eligible={elig}  cooldown_skipped={cooldown}  failed={failed}")
+          PYEOF
 
           echo ""
-          echo "📊  Results:"
-          echo "    $ADMIN_SENT"
-          echo ""
-          echo "✅  Digest completed successfully."
+          echo "✅  Digest completed."
 
       - name: Post to job summary
         if: always()
         run: |
-          echo "### Daily Digest — $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Mode: \`${{ inputs.mode || 'all' }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "Target: \`${{ inputs.base_url || vars.E2E_BASE_URL || 'https://soulspacehealth.org' }}\`" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Daily Digest — $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo "- **Mode:** \`${{ inputs.mode || 'all' }}\`"
+            echo "- **Target:** \`${{ inputs.base_url || vars.E2E_BASE_URL || 'https://soulspacehealth.org' }}\`"
+            if [ -f /tmp/digest_response.json ]; then
+              echo ""
+              echo "\`\`\`json"
+              cat /tmp/digest_response.json
+              echo ""
+              echo "\`\`\`"
+            fi
+          } >> $GITHUB_STEP_SUMMARY

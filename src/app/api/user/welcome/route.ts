@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // Non-fatal — welcome email failure should never break the auth flow.
     // Log with enough context to diagnose production delivery failures:
-    //   "RESEND_API_KEY is not configured" → add env var in Amplify / .env.local
-    //   "Resend send failed: 403"           → domain not verified in Resend dashboard
-    //   "Resend send failed: 422"           → invalid from address / bad payload
+    //   "BREVO_API_KEY is not configured" → add env var in Amplify / .env.local
+    //   "Brevo send failed: 401"          → invalid or expired BREVO_API_KEY
+    //   "Brevo send failed: 400"          → FROM_EMAIL not verified in Brevo senders
     const detail = err instanceof Error ? err.message : String(err)
     console.error('[welcome-email] send failed (non-fatal):', detail)
     return NextResponse.json({ skipped: true, reason: 'error', detail })

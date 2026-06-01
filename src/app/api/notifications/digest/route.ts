@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
                 .eq('id', u.id)
 
               sent++
-              // Small delay between sends to stay within Resend rate limits
+              // Small delay between sends to stay within Brevo rate limits
               await new Promise(r => setTimeout(r, 200))
             } catch {
               failed++
