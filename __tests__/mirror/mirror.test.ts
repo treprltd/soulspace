@@ -81,11 +81,14 @@ function checkCriteria(
   if (adviceHits.length > 0) failures.push(`advice found: ${adviceHits.join(', ')}`)
 
   // Criterion 4: question ends with ?
-  if (!output.question.includes('?')) failures.push('question does not end with ?')
+  // Guard against question being undefined/null — criterion 1 already logged the failure.
+  if (output.question && !output.question.includes('?')) failures.push('question does not end with ?')
 
-  // Criterion 5: question is a single sentence (no double periods)
-  const questionSentences = output.question.split('?').filter(s => s.trim().length > 0)
-  if (questionSentences.length > 1) failures.push('question appears to contain multiple sentences')
+  // Criterion 5: question is a single sentence
+  if (output.question) {
+    const questionSentences = output.question.split('?').filter(s => s.trim().length > 0)
+    if (questionSentences.length > 1) failures.push('question appears to contain multiple sentences')
+  }
 
   return { passed: failures.length === 0, failures }
 }
