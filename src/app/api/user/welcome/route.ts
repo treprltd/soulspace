@@ -47,9 +47,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ sent: true })
   } catch (err) {
-    // Non-fatal — welcome email failure should never break the auth flow
+    // Non-fatal — welcome email failure should never break the auth flow.
+    // Log with enough context to diagnose production delivery failures:
+    //   "RESEND_API_KEY is not configured" → add env var in Amplify / .env.local
+    //   "Resend send failed: 403"           → domain not verified in Resend dashboard
+    //   "Resend send failed: 422"           → invalid from address / bad payload
     const detail = err instanceof Error ? err.message : String(err)
-    console.error('Welcome email error (non-fatal):', detail)
+    console.error('[welcome-email] send failed (non-fatal):', detail)
     return NextResponse.json({ skipped: true, reason: 'error', detail })
   }
 }

@@ -45,10 +45,18 @@ const REQUIRED = [
   // and SUPABASE_SERVICE_ROLE_KEY are checked via _supabaseAliases above.
   'ANTHROPIC_API_KEY',
   'ENCRYPTION_KEY',
-  'RESEND_API_KEY',
+  'RESEND_API_KEY',   // Resend transactional email — replaces BREVO_API_KEY
+  'FROM_EMAIL',       // Sender address — must be from a Resend-verified domain
   'ADMIN_SECRET',
   'NEXT_PUBLIC_APP_URL',
   'NEXT_PUBLIC_ENV',
+]
+
+// ---------------------------------------------------------------------------
+// 2b. IMPORTANT — not strictly required but silently broken without them
+// ---------------------------------------------------------------------------
+const IMPORTANT = [
+  { key: 'ADMIN_EMAIL',  msg: 'Admin daily digest and safety alert emails will be silently skipped.' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -68,6 +76,14 @@ const GUARDS = {
   ANTHROPIC_API_KEY: {
     test: (v) => v.startsWith('sk-ant-'),
     msg: 'Must start with sk-ant-',
+  },
+  RESEND_API_KEY: {
+    test: (v) => v.startsWith('re_'),
+    msg: 'Must start with re_ (get from resend.com → API Keys)',
+  },
+  FROM_EMAIL: {
+    test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    msg: 'Must be a valid email address from a Resend-verified domain',
   },
   ENCRYPTION_KEY: {
     test: (v) => v.length === 64 && /^[0-9a-f]+$/i.test(v),
@@ -135,6 +151,16 @@ for (const key of REQUIRED) {
     } else {
       console.log(`  ✓  ${key}`)
     }
+  }
+}
+
+// Important-but-not-blocking vars
+for (const { key, msg } of IMPORTANT) {
+  if (!env[key]) {
+    console.warn(`  ⚠  MISSING (important): ${key} — ${msg}`)
+    warnings++
+  } else {
+    console.log(`  ✓  ${key}`)
   }
 }
 

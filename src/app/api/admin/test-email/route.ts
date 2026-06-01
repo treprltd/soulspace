@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
       await sendEmail({ to: email.to, subject: email.subject, htmlContent: email.htmlContent, textContent: email.textContent })
       results.push({ type: email.type, subject: email.subject, ok: true })
       console.log(`[test-email] ✓ ${email.type} → ${to}`)
-      // Small delay so Brevo doesn't rate-limit bursts
+      // Small delay between sends to avoid Resend rate-limit bursts
       if (queue.length > 1) await new Promise(r => setTimeout(r, 600))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)

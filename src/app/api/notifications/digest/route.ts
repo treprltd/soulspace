@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
                 .eq('id', u.id)
 
               sent++
-              // Small delay to stay within Brevo rate limits (300 emails/min on free plan)
+              // Small delay between sends to stay within Resend rate limits
               await new Promise(r => setTimeout(r, 200))
             } catch {
               failed++
