@@ -137,8 +137,9 @@ export async function POST(req: NextRequest) {
         const parsed = rawBody as { sessionId?: string; branch?: string }
         const supabase = await createClient()
         const user = await getAuthUser(req, supabase)
+
+        // DB logging — only for authenticated users (anonymous sessions aren't persisted)
         if (user) {
-          // Use service client — cookie client has no auth context for implicit-flow users
           const safetyDb = createServiceClient()
           await safetyDb.from('safety_events').insert({
             session_id: parsed.sessionId ?? null,
@@ -151,25 +152,26 @@ export async function POST(req: NextRequest) {
             .from('sessions')
             .update({ safety_flagged: true })
             .eq('id', parsed.sessionId ?? '')
+        }
 
-          // Alert admin via email (best-effort, non-blocking)
-          const adminEmail = process.env.ADMIN_EMAIL
-          if (adminEmail) {
-            try {
-              const service = createServiceClient()
-              const { count: unreviewedCount } = await service
-                .from('safety_events')
-                .select('*', { count: 'exact', head: true })
-                .eq('reviewed', false)
-              const template = adminSafetyAlertEmail({
-                sessionId: parsed.sessionId ?? 'unknown',
-                flagType: err.flagType ?? 'unspecified',
-                branch: parsed.branch ?? null,
-                flagsUnreviewed: unreviewedCount ?? 0,
-              })
-              await sendEmail({ to: adminEmail, ...template })
-            } catch { /* non-fatal */ }
-          }
+        // Admin safety alert — fire for ALL users (auth + anonymous).
+        // An admin must know whenever a crisis flag fires, regardless of session state.
+        const adminEmail = process.env.ADMIN_EMAIL
+        if (adminEmail) {
+          try {
+            const service = createServiceClient()
+            const { count: unreviewedCount } = await service
+              .from('safety_events')
+              .select('*', { count: 'exact', head: true })
+              .eq('reviewed', false)
+            const template = adminSafetyAlertEmail({
+              sessionId: parsed.sessionId ?? 'anonymous',
+              flagType:  err.flagType ?? 'unspecified',
+              branch:    parsed.branch ?? null,
+              flagsUnreviewed: unreviewedCount ?? 0,
+            })
+            await sendEmail({ to: adminEmail, ...template })
+          } catch { /* non-fatal — crisis gate fires regardless */ }
         }
       } catch { /* intentional — crisis gate fires regardless of DB update */ }
       return NextResponse.json({ crisis: true }, { status: 200 })

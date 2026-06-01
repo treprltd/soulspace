@@ -1,0 +1,91 @@
+name: Daily Digest
+
+# ── When ──────────────────────────────────────────────────────────────────────
+# Runs every day at 08:00 UTC (adjust TZ offset for your timezone):
+#   08:00 UTC = 01:30 IST  (India)
+#               04:00 EST  (US Eastern)
+#               03:00 CST  (US Central)
+#
+# Also manually triggerable from Actions → Daily Digest → Run workflow.
+#
+# ── Required GitHub Secrets ───────────────────────────────────────────────────
+#   CRON_SECRET   — must match the CRON_SECRET env var on Amplify production
+#
+# ── Required GitHub Variables ─────────────────────────────────────────────────
+#   E2E_BASE_URL  — e.g. https://soulspacehealth.org
+#                   (same variable used by the E2E workflow)
+
+on:
+  schedule:
+    - cron: '0 8 * * *'      # 08:00 UTC every day
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Digest mode'
+        required: false
+        default: 'all'
+        type: choice
+        options: [all, admin_digest, user_digest]
+      base_url:
+        description: 'Override target URL'
+        required: false
+        default: ''
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  digest:
+    name: Send daily digest
+    runs-on: ubuntu-latest
+    # Skip if CRON_SECRET is not configured (prevents noisy failures on forks)
+    if: secrets.CRON_SECRET != ''
+
+    steps:
+      - name: Trigger digest endpoint
+        run: |
+          BASE="${{ inputs.base_url || vars.E2E_BASE_URL || 'https://soulspacehealth.org' }}"
+          MODE="${{ inputs.mode || 'all' }}"
+
+          echo "🕐  Triggering digest: $BASE/api/notifications/digest?mode=$MODE"
+
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -X POST \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "$BASE/api/notifications/digest?mode=$MODE")
+
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS:")
+
+          echo "Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌  Digest failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          # Parse results from JSON response
+          ADMIN_SENT=$(echo "$BODY" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          r = d.get('results', {})
+          ad = r.get('adminDigest', {})
+          ud = r.get('userDigest', {})
+          print(f'admin_digest: sent={ad.get(\"sent\", False)} skipped={ad.get(\"skipped\", False)} reason={ad.get(\"reason\", \"\")}')
+          print(f'user_digest:  sent={ud.get(\"sent\", 0)} failed={ud.get(\"failed\", 0)} eligible={ud.get(\"eligible\", 0)} skipped_cooldown={ud.get(\"skippedCooldown\", 0)}')
+          " 2>/dev/null || echo "Could not parse JSON response")
+
+          echo ""
+          echo "📊  Results:"
+          echo "    $ADMIN_SENT"
+          echo ""
+          echo "✅  Digest completed successfully."
+
+      - name: Post to job summary
+        if: always()
+        run: |
+          echo "### Daily Digest — $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Mode: \`${{ inputs.mode || 'all' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Target: \`${{ inputs.base_url || vars.E2E_BASE_URL || 'https://soulspacehealth.org' }}\`" >> $GITHUB_STEP_SUMMARY
