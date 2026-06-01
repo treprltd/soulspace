@@ -45,8 +45,8 @@ const REQUIRED = [
   // and SUPABASE_SERVICE_ROLE_KEY are checked via _supabaseAliases above.
   'ANTHROPIC_API_KEY',
   'ENCRYPTION_KEY',
-  'RESEND_API_KEY',   // Resend transactional email — replaces BREVO_API_KEY
-  'FROM_EMAIL',       // Sender address — must be from a Resend-verified domain
+  'BREVO_API_KEY',    // Brevo (Sendinblue) transactional email
+  'FROM_EMAIL',       // Sender address — must match a verified Brevo sender
   'ADMIN_SECRET',
   'NEXT_PUBLIC_APP_URL',
   'NEXT_PUBLIC_ENV',
@@ -77,9 +77,9 @@ const GUARDS = {
     test: (v) => v.startsWith('sk-ant-'),
     msg: 'Must start with sk-ant-',
   },
-  RESEND_API_KEY: {
-    test: (v) => v.startsWith('re_'),
-    msg: 'Must start with re_ (get from resend.com → API Keys)',
+  BREVO_API_KEY: {
+    test: (v) => v.length >= 32,
+    msg: 'Looks too short — paste the full key from Brevo → SMTP & API → API Keys',
   },
   FROM_EMAIL: {
     test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),

@@ -1,15 +1,15 @@
 // Soul Space — transactional email utility
 // Auth magic links go through Supabase's custom SMTP (configured in Supabase dashboard).
-// All other emails (welcome, subscription, re-engagement) are sent via Resend.
+// All other emails (welcome, subscription, re-engagement) are sent via Brevo (Sendinblue).
 //
 // Design principle: light background (#F5F4F0 body, #FFFFFF card) so the email
 // renders correctly on all clients — iOS Gmail, Apple Mail, Outlook, dark-mode.
 // Dark backgrounds on emails cause blank/black blocks on iOS before scroll.
 
-const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@soulspacehealth.org'
-const FROM_NAME  = 'Soul Space'
-const APP_URL    = process.env.NEXT_PUBLIC_APP_URL ?? 'https://soulspacehealth.org'
-const RESEND_API = 'https://api.resend.com/emails'
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+const FROM_EMAIL    = process.env.FROM_EMAIL ?? 'noreply@soulspacehealth.org'
+const FROM_NAME     = 'Soul Space'
+const APP_URL       = process.env.NEXT_PUBLIC_APP_URL ?? 'https://soulspacehealth.org'
 
 interface SendEmailOptions {
   to:           string
@@ -20,27 +20,28 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(opts: SendEmailOptions): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) throw new Error('RESEND_API_KEY is not configured')
+  const apiKey = process.env.BREVO_API_KEY
+  if (!apiKey) throw new Error('BREVO_API_KEY is not configured')
 
-  const res = await fetch(RESEND_API, {
+  const res = await fetch(BREVO_API_URL, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type':  'application/json',
+      'accept':       'application/json',
+      'api-key':      apiKey,
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
-      from:    `${FROM_NAME} <${FROM_EMAIL}>`,
-      to:      [opts.toName ? `${opts.toName} <${opts.to}>` : opts.to],
-      subject: opts.subject,
-      html:    opts.htmlContent,
-      text:    opts.textContent,
+      sender:      { name: FROM_NAME, email: FROM_EMAIL },
+      to:          [{ email: opts.to, name: opts.toName ?? opts.to }],
+      subject:     opts.subject,
+      htmlContent: opts.htmlContent,
+      textContent: opts.textContent,
     }),
   })
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Resend send failed: ${res.status} ${err}`)
+    throw new Error(`Brevo send failed: ${res.status} ${err}`)
   }
 }
 
