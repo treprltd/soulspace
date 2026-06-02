@@ -93,17 +93,27 @@ jobs:
           print("📊  Results:")
           if ad:
               if ad.get('sent'):
-                  print(f"    ✅  Admin digest    → sent to {ad.get('to', 'ADMIN_EMAIL')}")
+                  print(f"    ✅  Admin digest      → sent to {ad.get('to', 'ADMIN_EMAIL')}")
               elif ad.get('skipped'):
-                  print(f"    ⏭️   Admin digest    → skipped ({ad.get('reason', '')})")
+                  print(f"    ⏭️   Admin digest      → skipped ({ad.get('reason', '')})")
               else:
-                  print(f"    ❌  Admin digest    → failed ({ad.get('error', '')})")
+                  print(f"    ❌  Admin digest      → failed ({ad.get('error', '')})")
           if ud:
               sent    = ud.get('sent', 0)
               failed  = ud.get('failed', 0)
               elig    = ud.get('eligible', 0)
               cooldown = ud.get('skippedCooldown', 0)
-              print(f"    📧  Re-engagement  → sent={sent}  eligible={elig}  cooldown_skipped={cooldown}  failed={failed}")
+              print(f"    📧  Re-engagement    → sent={sent}  eligible={elig}  cooldown_skipped={cooldown}  failed={failed}")
+          wb = r.get('welcomeBackfill', {})
+          if wb:
+              sent   = wb.get('sent', 0)
+              failed = wb.get('failed', 0)
+              found  = wb.get('found', 0)
+              reason = wb.get('reason', '')
+              if sent > 0:
+                  print(f"    📩  Welcome backfill → sent={sent}  found={found}  failed={failed}")
+              else:
+                  print(f"    ⏭️   Welcome backfill → {reason or f'sent=0 failed={failed}'}")
           PYEOF
 
           echo ""

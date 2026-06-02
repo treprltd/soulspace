@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { sendEmail, reEngagementEmail, adminDailyDigestEmail } from '@/lib/email'
+import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail } from '@/lib/email'
 
-// ── Re-engagement digest + admin daily digest ──────────────────────────────────
+// ── Re-engagement digest + admin daily digest + welcome backfill ───────────────
 //
 // Called by a scheduled job (cron) or manually via POST.
 // Protected by CRON_SECRET header (same pattern as other scheduled tasks).
 //
 // Modes (query param ?mode=):
-//   user_digest  — send re-engagement emails to users inactive 7–30 days
-//   admin_digest — send admin daily digest to ADMIN_EMAIL
-//   all          — both (default)
+//   user_digest      — send re-engagement emails to users inactive 7–30 days
+//   admin_digest     — send admin daily digest to ADMIN_EMAIL
+//   welcome_backfill — send welcome email to users who never received one
+//   all              — all three (default)
 
 export async function POST(req: NextRequest) {
   // Simple shared-secret auth so only the cron can call this
@@ -152,6 +153,56 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ── Welcome email backfill ────────────────────────────────────────────────
+  // Catches users whose welcome email was never delivered — e.g. registered
+  // before Brevo was configured, or whose auth/callback failed silently.
+  // Criteria:
+  //   - welcome_email_sent_at IS NULL  (never received the email)
+  //   - created_at < 1 hour ago        (skip users currently in sign-in flow)
+  // Stamps welcome_email_sent_at after each send to ensure idempotency.
+  if (mode === 'welcome_backfill' || mode === 'all') {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+
+      const { data: pendingUsers } = await db
+        .from('users')
+        .select('id, email')
+        .is('welcome_email_sent_at', null)
+        .lt('created_at', oneHourAgo)
+        .not('email', 'is', null)
+        .limit(50)                         // cap per run — cron runs daily
+
+      if (!pendingUsers || pendingUsers.length === 0) {
+        results.welcomeBackfill = { sent: 0, reason: 'all users already welcomed' }
+      } else {
+        let sent = 0
+        let failed = 0
+        for (const u of pendingUsers) {
+          if (!u.email) continue
+          try {
+            const template = welcomeEmail()
+            await sendEmail({ to: u.email, ...template })
+
+            // Stamp so we never send twice
+            await db
+              .from('users')
+              .update({ welcome_email_sent_at: new Date().toISOString() })
+              .eq('id', u.id)
+
+            sent++
+            // Rate-limit: small delay between sends
+            await new Promise(r => setTimeout(r, 200))
+          } catch {
+            failed++
+          }
+        }
+        results.welcomeBackfill = { sent, failed, found: pendingUsers.length }
+      }
+    } catch (err) {
+      results.welcomeBackfill = { sent: 0, error: String(err) }
+    }
+  }
+
   return NextResponse.json({ ok: true, mode, results })
 }
 
@@ -165,6 +216,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     info: 'POST to this endpoint with x-cron-secret header to trigger digests.',
-    modes: ['user_digest', 'admin_digest', 'all'],
+    modes: ['user_digest', 'admin_digest', 'welcome_backfill', 'all'],
   })
 }
