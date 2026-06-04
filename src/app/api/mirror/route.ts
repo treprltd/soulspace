@@ -109,13 +109,17 @@ export async function POST(req: NextRequest) {
         encryption_key_ref: keyRef,
       })
 
-      // Update session with season, char count and intensity
+      // Update session with season, char count, intensity, and emotion tags.
+      // emotion_tags stored unencrypted — predefined vocabulary (app-level
+      // metadata), not personal narrative. Enables Growth Map pattern queries
+      // without per-request decryption of heavier session_content rows.
       await db
         .from('sessions')
         .update({
           season_assigned: mirrorOutput.season,
-          char_count: input.contextText.length,
-          intensity: input.intensity,
+          char_count:      input.contextText.length,
+          intensity:       input.intensity,
+          emotion_tags:    input.emotionTags,
         })
         .eq('id', input.sessionId)
         .eq('user_id', user.id)

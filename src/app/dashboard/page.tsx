@@ -28,6 +28,7 @@ interface Session {
   season_assigned: 'W' | 'Sp' | 'Su' | 'Au' | null
   resonance_tap: 'accurate' | 'not_quite' | null
   intensity: number | null
+  emotion_tags?: string[] | null
   safety_flagged?: boolean
 }
 
@@ -185,6 +186,57 @@ export default function Dashboard() {
   const accurateCount = sessions.filter(s => s.resonance_tap === 'accurate').length
   const tappedCount = sessions.filter(s => s.resonance_tap !== null).length
   const resonancePct = tappedCount > 0 ? Math.round((accurateCount / tappedCount) * 100) : null
+
+  // ── Growth Map: pattern computation ──────────────────────────────────────
+  // Only compute when there are 3+ completed sessions
+  const growthMapSessions = completedSessions.filter(s => !s.safety_flagged)
+
+  const patternData = (() => {
+    if (growthMapSessions.length < 3) return null
+
+    // Top situations
+    const sitCount: Record<string, number> = {}
+    for (const s of growthMapSessions) {
+      const label = s.situation
+        ? (SITUATION_LABELS[s.situation] ?? s.situation)
+        : null
+      if (label) sitCount[label] = (sitCount[label] ?? 0) + 1
+    }
+    const topSituations = Object.entries(sitCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+
+    // Top emotions across all sessions
+    const emotionCount: Record<string, number> = {}
+    for (const s of growthMapSessions) {
+      for (const tag of s.emotion_tags ?? []) {
+        emotionCount[tag] = (emotionCount[tag] ?? 0) + 1
+      }
+    }
+    const topEmotions = Object.entries(emotionCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([tag]) => tag)
+
+    // Intensity: first session vs recent average (last 3)
+    const withIntensity = growthMapSessions.filter(s => s.intensity !== null)
+    const firstIntensity = withIntensity.length > 0
+      ? withIntensity[withIntensity.length - 1].intensity!
+      : null
+    const recentThree = withIntensity.slice(0, 3)
+    const recentAvg = recentThree.length > 0
+      ? Math.round(recentThree.reduce((a, s) => a + s.intensity!, 0) / recentThree.length)
+      : null
+
+    // Season journey (up to 6 most recent with a season)
+    const seasonJourney = growthMapSessions
+      .filter(s => s.season_assigned)
+      .slice(0, 6)
+      .map(s => s.season_assigned!)
+      .reverse() // oldest first
+
+    return { topSituations, topEmotions, firstIntensity, recentAvg, seasonJourney }
+  })()
 
   const periodEnd = subStatus?.subscription?.current_period_end
     ? new Date(subStatus.subscription.current_period_end).toLocaleDateString('en-US', {
@@ -352,6 +404,148 @@ export default function Dashboard() {
                 </Link>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Growth Map: What keeps coming up ─────────────────── */}
+        {patternData && (
+          <div
+            className="rounded-xl p-4 mb-4 animate-fade-in"
+            style={{ background: 'rgba(15,30,46,.5)', border: '1px solid rgba(201,168,76,.1)' }}
+          >
+            {/* Header */}
+            <div
+              className="flex items-center justify-between mb-3 pb-2"
+              style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+            >
+              <div className="text-[9px] tracking-[.14em] uppercase" style={{ color: 'rgba(201,168,76,.7)' }}>
+                What keeps coming up
+              </div>
+              <div className="text-[8px]" style={{ color: 'rgba(139,167,184,.3)' }}>
+                {growthMapSessions.length} sessions
+              </div>
+            </div>
+
+            {/* Top situations */}
+            {patternData.topSituations.length > 0 && (
+              <div className="mb-3">
+                <div className="text-[8px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(139,167,184,.4)' }}>
+                  You keep bringing
+                </div>
+                {patternData.topSituations.map(([label, count]) => {
+                  const pct = Math.round((count / growthMapSessions.length) * 100)
+                  return (
+                    <div key={label} className="flex items-center gap-2 mb-1.5">
+                      <div className="text-[11px] text-sand flex-shrink-0 w-32 truncate">{label}</div>
+                      <div className="flex-1 h-px rounded-full overflow-hidden" style={{ background: 'rgba(245,237,216,.06)' }}>
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, background: 'rgba(201,168,76,.4)' }}
+                        />
+                      </div>
+                      <div className="text-[10px] flex-shrink-0" style={{ color: 'rgba(139,167,184,.45)' }}>
+                        {count}×
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Top emotions */}
+            {patternData.topEmotions.length > 0 && (
+              <div className="mb-3">
+                <div className="text-[8px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(139,167,184,.4)' }}>
+                  How you tend to arrive
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {patternData.topEmotions.map(tag => (
+                    <span
+                      key={tag}
+                      className="text-[10px] px-2.5 py-1 rounded-full"
+                      style={{
+                        background: 'rgba(201,168,76,.06)',
+                        border: '1px solid rgba(201,168,76,.18)',
+                        color: 'rgba(232,201,122,.75)',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Intensity shift + season journey */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Intensity */}
+              {patternData.firstIntensity !== null && patternData.recentAvg !== null && (
+                <div>
+                  <div className="text-[8px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                    Intensity
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-serif text-lg font-light" style={{ color: 'var(--sand2)' }}>
+                      {patternData.firstIntensity}
+                    </span>
+                    <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.35)' }}>→</span>
+                    <span
+                      className="font-serif text-lg font-light"
+                      style={{
+                        color: patternData.recentAvg < patternData.firstIntensity
+                          ? 'var(--teal2)'
+                          : patternData.recentAvg > patternData.firstIntensity
+                          ? 'rgba(212,64,64,.75)'
+                          : 'var(--sand2)',
+                      }}
+                    >
+                      {patternData.recentAvg}
+                    </span>
+                    <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.35)' }}>/10</span>
+                  </div>
+                  <div className="text-[9px] mt-0.5" style={{ color: 'rgba(139,167,184,.35)' }}>
+                    {patternData.recentAvg < patternData.firstIntensity
+                      ? 'easing'
+                      : patternData.recentAvg > patternData.firstIntensity
+                      ? 'higher lately'
+                      : 'holding steady'}
+                  </div>
+                </div>
+              )}
+
+              {/* Season journey */}
+              {patternData.seasonJourney.length > 1 && (
+                <div>
+                  <div className="text-[8px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                    Your seasons
+                  </div>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {patternData.seasonJourney.map((s, i) => (
+                      <span key={i} className="flex items-center gap-1">
+                        <span
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-medium"
+                          style={{
+                            background: `${SEASON_COLORS[s] ?? 'var(--mist)'}18`,
+                            color: SEASON_COLORS[s] ?? 'var(--mist)',
+                            border: `1px solid ${SEASON_COLORS[s] ?? 'var(--mist)'}35`,
+                          }}
+                        >
+                          {s}
+                        </span>
+                        {i < patternData!.seasonJourney.length - 1 && (
+                          <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '8px' }}>→</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-[9px] mt-1" style={{ color: 'rgba(139,167,184,.35)' }}>
+                    {patternData.seasonJourney[patternData.seasonJourney.length - 1] === patternData.seasonJourney[0]
+                      ? 'same season throughout'
+                      : 'your season is shifting'}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

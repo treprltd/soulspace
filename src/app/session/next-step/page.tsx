@@ -46,6 +46,7 @@ export default function NextStep() {
   // to avoid server-side cookie sync timing issues
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
+  const [patternInsight, setPatternInsight] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -60,17 +61,53 @@ export default function NextStep() {
       setIsAuthenticated(!!session?.user)
     })
 
-    // Fetch plan/usage data separately (only needed for upgrade nudge)
-    // Pass Bearer token for implicit-flow JWT auth
-    supabase.auth.getSession().then(({ data: { session: authSession } }) => {
+    // Fetch plan/usage + session history (for pattern micro-insight)
+    supabase.auth.getSession().then(async ({ data: { session: authSession } }) => {
       const headers: Record<string, string> = {}
       if (authSession?.access_token) {
         headers['Authorization'] = `Bearer ${authSession.access_token}`
       }
-      fetch('/api/subscription', { headers })
-        .then(r => r.json())
-        .then(d => setSubStatus(d as SubStatus))
-        .catch(() => {})
+
+      const [subData, histData] = await Promise.all([
+        fetch('/api/subscription', { headers }).then(r => r.json()).catch(() => null),
+        fetch('/api/sessions/history?limit=50', { headers }).then(r => r.json()).catch(() => null),
+      ])
+
+      if (subData) setSubStatus(subData as SubStatus)
+
+      // Compute pattern insight from completed past sessions (not the current one)
+      const currentSessionId = sessionStorage.getItem('ss_session_id')
+      const pastSessions: Array<{ situation?: string | null; emotion_tags?: string[] | null; completed_at: string | null }> =
+        ((histData as { sessions?: Array<{ id: string; situation?: string | null; emotion_tags?: string[] | null; completed_at: string | null }> })?.sessions ?? [])
+          .filter((s: { id: string; completed_at: string | null }) => s.completed_at && s.id !== currentSessionId)
+
+      if (pastSessions.length >= 2) {
+        // Top situation across past completed sessions
+        const sitCount: Record<string, number> = {}
+        for (const s of pastSessions) {
+          if (s.situation) sitCount[s.situation] = (sitCount[s.situation] ?? 0) + 1
+        }
+        const topSit = Object.entries(sitCount).sort((a, b) => b[1] - a[1])[0]
+
+        const SITUATION_LABELS: Record<string, string> = {
+          'work-career': 'work or career', 'relationship': 'relationships',
+          'family': 'family', 'money': 'money', 'big-decision': 'a big decision',
+          'my-health': 'your health', 'who-i-am': 'who you are',
+          'loss-grief': 'loss or grief', 'anxiety': 'anxiety',
+          'life-change': 'a life change', 'friendship': 'friendship',
+          'not-sure': 'something undefined',
+        }
+
+        if (topSit && topSit[1] >= 2) {
+          setPatternInsight(
+            `You've now completed ${pastSessions.length + 1} sessions. You keep returning with something about ${SITUATION_LABELS[topSit[0]] ?? topSit[0]}.`
+          )
+        } else {
+          setPatternInsight(
+            `You've now completed ${pastSessions.length + 1} sessions. The pattern is building.`
+          )
+        }
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -169,6 +206,21 @@ export default function NextStep() {
             />
           </div>
         </div>
+
+        {/* Growth Map micro-moment — appears after 2+ past completed sessions */}
+        {patternInsight && (
+          <div
+            className="rounded-xl px-4 py-3 mb-4 animate-fade-in"
+            style={{
+              background: 'rgba(201,168,76,.04)',
+              border: '1px solid rgba(201,168,76,.12)',
+            }}
+          >
+            <p className="font-serif italic text-[13px] leading-relaxed" style={{ color: 'rgba(232,201,122,.65)' }}>
+              {patternInsight}
+            </p>
+          </div>
+        )}
 
         <button
           onClick={handleDone}

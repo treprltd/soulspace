@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     // results for implicit-flow users because auth.uid() would be null → RLS
     const { data: sessions, error } = await createServiceClient()
       .from('sessions')
-      .select('id, branch, situation, created_at, completed_at, season_assigned, resonance_tap, intensity')
+      .select('id, branch, situation, created_at, completed_at, season_assigned, resonance_tap, intensity, emotion_tags')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(limit)
