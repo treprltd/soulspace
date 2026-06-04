@@ -129,11 +129,11 @@ export default function NextStep() {
         <p className="text-xs text-mist mb-4">No prescription. This is entirely yours.</p>
 
         <div className="mb-5">
-          {NEXT_STEPS.slice(0, 4).map((step, i) => (
+          {NEXT_STEPS.slice(0, 6).map((step, i) => (
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`w-full text-left flex items-start gap-2 rounded-xl px-3.5 py-3 mb-2 text-[11px] leading-relaxed cursor-pointer transition-all ${
+              className={`w-full text-left flex items-start gap-2.5 rounded-xl px-4 py-3.5 mb-2 text-sm leading-relaxed cursor-pointer transition-all ${
                 selected === i ? 'text-gold2' : 'text-sand'
               }`}
               style={{
@@ -142,31 +142,31 @@ export default function NextStep() {
               }}
             >
               <span
-                className="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0"
+                className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
                 style={{ background: selected === i ? 'var(--gold)' : 'rgba(201,168,76,.25)' }}
               />
               {step}
             </button>
           ))}
 
-          {/* Custom field */}
+          {/* Custom field — write your own */}
           <div
-            className="rounded-xl px-3.5 py-3 mb-2"
-            style={{ border: '1px dashed rgba(201,168,76,.15)' }}
+            className="rounded-xl px-4 py-3.5 mb-2 transition-colors"
+            style={{
+              border: custom ? '1px solid rgba(201,168,76,.3)' : '1px dashed rgba(201,168,76,.18)',
+              background: custom ? 'rgba(201,168,76,.03)' : 'transparent',
+            }}
           >
-            <div className="flex items-start gap-2">
-              <span
-                className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-                style={{ background: 'rgba(245,237,216,.07)' }}
-              />
-              <input
-                type="text"
-                value={custom}
-                onChange={e => setCustom(e.target.value)}
-                placeholder="Write your own — what would actually feel right?"
-                className="w-full bg-transparent text-[11px] text-mist placeholder:text-mist/40 focus:outline-none"
-              />
+            <div className="text-[9px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+              Or write your own
             </div>
+            <input
+              type="text"
+              value={custom}
+              onChange={e => setCustom(e.target.value)}
+              placeholder="What would actually feel right for you today?"
+              className="w-full bg-transparent text-sm text-sand2 placeholder:text-mist/40 focus:outline-none"
+            />
           </div>
         </div>
 

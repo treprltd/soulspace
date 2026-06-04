@@ -55,6 +55,12 @@ export default function SeasonCard() {
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: season.color }}>Your season</span>} />
       <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
+
+        {/* Season orientation — what "seasons" means */}
+        <p className="text-xs text-center mb-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
+          A season is not a diagnosis — it&apos;s a way of describing what this emotional moment might feel like.
+        </p>
+
         {/* Season card */}
         <div
           className="rounded-2xl p-6 mb-4 relative overflow-hidden"
@@ -67,13 +73,13 @@ export default function SeasonCard() {
 
           <div className="flex justify-center mb-3">{SEASON_ICONS[mirror.season]}</div>
 
-          <div className="text-[7px] tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
+          <div className="text-[9px] tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
             Your current season
           </div>
           <h2 className="font-serif font-light text-center text-3xl mb-2 leading-tight" style={{ color: season.textColor }}>
             This may feel like <em>{season.name}.</em>
           </h2>
-          <p className="text-[11px] text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ color: season.secondaryColor }}>
+          <p className="text-[13px] text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ color: season.secondaryColor }}>
             {season.description}
           </p>
 
@@ -85,16 +91,16 @@ export default function SeasonCard() {
             ].map(({ label, text }) => (
               <div
                 key={label}
-                className="rounded-lg px-3 py-2.5 sm:px-3"
+                className="rounded-lg px-3 py-3 sm:px-3"
                 style={{
                   background: `${season.color}08`,
                   border: `1px solid ${season.color}22`,
                 }}
               >
-                <div className="season-tile-label text-[7px] tracking-[.1em] uppercase mb-1.5" style={{ color: season.color }}>
+                <div className="season-tile-label text-[9px] tracking-[.1em] uppercase mb-2" style={{ color: season.color }}>
                   {label}
                 </div>
-                <p className="season-tile-body text-[10px] text-sand leading-relaxed">{text}</p>
+                <p className="season-tile-body text-[12px] text-sand leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

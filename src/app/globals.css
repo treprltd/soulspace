@@ -56,10 +56,10 @@ html, body {
 
   .affirm-copy {
     font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-    font-size: 13px;
-    color: rgba(139,167,184,.68);
+    font-size: 14px;
+    color: rgba(139,167,184,.72);
     font-style: italic;
-    line-height: 1.9;
+    line-height: 1.95;
   }
 
   .btn-primary {
@@ -75,8 +75,15 @@ html, body {
 
   .mirror-card {
     background: var(--ink2);
-    @apply rounded-xl p-4 mb-2.5;
+    @apply rounded-xl p-5 mb-3;
     border: 1px solid rgba(201,168,76,0.1);
+  }
+
+  /* Mirror section labels — readable on desktop without relying on mobile overrides */
+  .mirror-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .resonance-phrase {
