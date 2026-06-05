@@ -69,11 +69,12 @@ export default function MirrorOutputPage() {
         )}
 
         {/* ── Mirror cards — stacked single column ─────────────────────────── */}
+        {/* Body paragraphs: serif upright (not italic) at 16px — easier to read */}
         <div className="mirror-card mb-3">
           <div className="mirror-label text-gold uppercase mb-2.5">
             What you&apos;re carrying
           </div>
-          <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '15px' }}>
+          <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
             {mirror.carrying}
           </p>
         </div>
@@ -82,22 +83,31 @@ export default function MirrorOutputPage() {
           <div className="mirror-label text-gold uppercase mb-2.5">
             What appears underneath
           </div>
-          <p className="font-serif italic text-sand leading-relaxed" style={{ fontSize: '15px' }}>
+          <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
             {mirror.underneath}
           </p>
         </div>
 
         <div
-          className="rounded-xl p-4 mb-6"
+          className="rounded-xl p-4 mb-5"
           style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}
         >
           <div className="mirror-label uppercase mb-2.5" style={{ color: 'var(--teal2)' }}>
             One question back to you
           </div>
+          {/* Question stays italic — the contemplative moment */}
           <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '15px' }}>
             {mirror.question}
           </p>
         </div>
+
+        {/* ── AI transparency — just before "did this feel accurate?" ─────── */}
+        <p
+          className="text-center text-xs mb-5 leading-relaxed"
+          style={{ color: 'rgba(139,167,184,.42)', fontStyle: 'italic' }}
+        >
+          This reflection was shaped by AI from what you shared — not a diagnosis, not advice.
+        </p>
 
         {/* ── Resonance tap — comes AFTER reading, not beside it ───────────── */}
         <ResonanceTapComponent onTap={handleTap} selected={resonanceTap} />
@@ -110,7 +120,7 @@ export default function MirrorOutputPage() {
           See your season →
         </button>
 
-        {/* Non-clinical notice — minimal, below the fold */}
+        {/* Safety notice — minimal, below the fold */}
         <div
           className="flex gap-2 items-start rounded-lg p-3 mt-5"
           style={{ background: 'rgba(42,140,122,.04)', border: '1px solid rgba(42,140,122,.1)' }}
@@ -119,8 +129,8 @@ export default function MirrorOutputPage() {
             <path d="M6 1l3.5 1.75v3.5C9.5 8.75 7.9 10.5 6 11c-1.9-.5-3.5-2.25-3.5-4.75v-3.5L6 1z" />
           </svg>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
-            Descriptive only — not diagnostic. If you&apos;re in distress,{' '}
-            <span style={{ color: 'var(--teal2)' }}>please reach out for human support.</span>
+            Soul Space is not a crisis service. If you&apos;re in distress,{' '}
+            <span style={{ color: 'var(--teal2)' }}>please call or text 988.</span>
           </p>
         </div>
 

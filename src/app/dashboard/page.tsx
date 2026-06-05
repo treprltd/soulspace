@@ -407,6 +407,39 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── Growth Map: teaser for 1–2 sessions ──────────────── */}
+        {!loading && growthMapSessions.length >= 1 && growthMapSessions.length < 3 && (
+          <div
+            className="rounded-xl p-4 mb-4 animate-fade-in"
+            style={{ background: 'rgba(15,30,46,.5)', border: '1px solid rgba(201,168,76,.08)' }}
+          >
+            <div className="flex items-start gap-3">
+              {/* Progress dots */}
+              <div className="flex flex-col items-center gap-1 pt-0.5 flex-shrink-0">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      background: i < growthMapSessions.length
+                        ? 'rgba(201,168,76,.6)'
+                        : 'rgba(245,237,216,.08)',
+                    }}
+                  />
+                ))}
+              </div>
+              <div>
+                <div className="text-[9px] tracking-[.12em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.55)' }}>
+                  Your patterns
+                </div>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(245,237,216,.5)' }}>
+                  After {3 - growthMapSessions.length} more session{3 - growthMapSessions.length === 1 ? '' : 's'}, your patterns will start appearing here — what you keep bringing, how you tend to feel, how your season is shifting.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Growth Map: What keeps coming up ─────────────────── */}
         {patternData && (
           <div

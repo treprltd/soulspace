@@ -44,7 +44,7 @@ export default function SituationEntry() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar />
+      <NavBar right={<span style={{ color: 'rgba(139,167,184,.45)', fontSize: '11px' }}>Your session</span>} />
       <div className="flex items-center justify-center px-4 sm:px-5 py-8 sm:py-10">
         <div className="w-full max-w-lg animate-fade-in">
 
