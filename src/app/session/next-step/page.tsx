@@ -7,6 +7,14 @@ import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 
+// One reframe per resonance branch — a cognitive shift, not an action
+const BRANCH_REFRAMES: Record<string, string> = {
+  A: "The decision keeps returning not because you haven't thought about it enough — but because both options hold something real. That tension is information, not a failure to decide.",
+  B: "Not being able to name what you're feeling doesn't mean something is wrong. Sometimes the feeling arrives before the words do.",
+  C: "Patterns repeat not because you are stuck, but because something in you is still waiting to be noticed. Noticing it is already a change.",
+  D: "Carrying something alone for a long time doesn't mean you were wrong to. It means you've been strong for a long time. You don't have to keep carrying it the same way.",
+}
+
 const NEXT_STEPS = [
   'Write down the two things that are in tension, side by side, without trying to resolve them yet.',
   'Give yourself permission to not decide anything today — just for the next 24 hours.',
@@ -41,6 +49,7 @@ export default function NextStep() {
   const [selected, setSelected] = useState<number | null>(null)
   const [custom, setCustom] = useState('')
   const [done, setDone] = useState(false)
+  const [reframe, setReframe] = useState<string | null>(null)
 
   // Auth state — checked directly via browser client (not subscription API)
   // to avoid server-side cookie sync timing issues
@@ -55,6 +64,12 @@ export default function NextStep() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setIsAuthenticated(!!user)
     })
+
+    // Read branch from sessionStorage and pick the matching reframe
+    const branch = sessionStorage.getItem('ss_branch')
+    if (branch && BRANCH_REFRAMES[branch]) {
+      setReframe(BRANCH_REFRAMES[branch])
+    }
 
     // Keep in sync if auth changes mid-page
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -165,6 +180,24 @@ export default function NextStep() {
         </h2>
         <p className="text-xs text-mist mb-4">No prescription. This is entirely yours.</p>
 
+        {/* ── Reframe card — a way to hold this differently ─────── */}
+        {reframe && (
+          <div
+            className="rounded-xl p-4 mb-5 animate-fade-in"
+            style={{
+              background: 'rgba(42,140,122,.05)',
+              border: '1px solid rgba(42,140,122,.15)',
+            }}
+          >
+            <div className="text-[8px] tracking-[.12em] uppercase mb-2" style={{ color: 'rgba(42,140,122,.7)' }}>
+              A way to hold this
+            </div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '13px', lineHeight: '1.8' }}>
+              {reframe}
+            </p>
+          </div>
+        )}
+
         <div className="mb-5">
           {NEXT_STEPS.slice(0, 6).map((step, i) => (
             <button
@@ -229,6 +262,15 @@ export default function NextStep() {
         >
           {done ? 'Saving…' : "I'm done for now →"}
         </button>
+
+        {/* ── Continuity line — the thread that connects sessions ── */}
+        <p
+          className="text-center font-serif italic mt-5 mb-1 leading-relaxed"
+          style={{ fontSize: '12px', color: 'rgba(139,167,184,.38)' }}
+        >
+          Come back in a few days.<br />
+          Your season may already be shifting.
+        </p>
 
         {/* Upgrade nudge — only for authenticated free users near their limit */}
         {showUpgradeNudge && (

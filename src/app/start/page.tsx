@@ -36,9 +36,44 @@ export default function Welcome() {
             <em className="text-gold2">what you&rsquo;re carrying.</em>
           </h1>
 
-          <p className="text-xs text-mist mb-12 leading-relaxed">
+          <p className="text-xs text-mist mb-8 leading-relaxed">
             5–10 minutes &nbsp;·&nbsp; Private &nbsp;·&nbsp; No right answers
           </p>
+
+          {/* ── How it works — 3-step visual flow ──────────────── */}
+          <div className="flex items-center justify-center gap-0 mb-10 w-full">
+            {[
+              { step: '01', label: 'Share what\'s present', icon: '◇' },
+              { step: '02', label: 'Mirror reflects it back', icon: '◎' },
+              { step: '03', label: 'One thing to carry forward', icon: '→' },
+            ].map((item, i) => (
+              <div key={item.step} className="flex items-center">
+                <div className="flex flex-col items-center" style={{ minWidth: 82 }}>
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center mb-2"
+                    style={{
+                      background: 'rgba(201,168,76,.06)',
+                      border: '1px solid rgba(201,168,76,.18)',
+                    }}
+                  >
+                    <span style={{ color: 'var(--gold2)', fontSize: '14px' }}>{item.icon}</span>
+                  </div>
+                  <div className="text-[8px] tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
+                    {item.step}
+                  </div>
+                  <p className="text-[10px] leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
+                    {item.label}
+                  </p>
+                </div>
+                {i < 2 && (
+                  <div
+                    className="flex-shrink-0 mx-1 mb-6"
+                    style={{ width: 16, height: 1, background: 'rgba(201,168,76,.18)' }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
 
           <button
             onClick={() => router.push('/session/breathe')}

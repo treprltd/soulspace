@@ -68,9 +68,12 @@ export default function MirrorOutputPage() {
           </div>
         )}
 
-        {/* ── Mirror cards — stacked single column ─────────────────────────── */}
+        {/* ── Mirror cards — staged reveal: each layer fades in after the previous ── */}
         {/* Body paragraphs: serif upright (not italic) at 16px — easier to read */}
-        <div className="mirror-card mb-3">
+        <div
+          className="mirror-card mb-3"
+          style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}
+        >
           <div className="mirror-label text-gold uppercase mb-2.5">
             What you&apos;re carrying
           </div>
@@ -79,7 +82,10 @@ export default function MirrorOutputPage() {
           </p>
         </div>
 
-        <div className="mirror-card mb-3">
+        <div
+          className="mirror-card mb-3"
+          style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}
+        >
           <div className="mirror-label text-gold uppercase mb-2.5">
             What appears underneath
           </div>
@@ -90,7 +96,12 @@ export default function MirrorOutputPage() {
 
         <div
           className="rounded-xl p-4 mb-5"
-          style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}
+          style={{
+            background: 'rgba(42,140,122,.08)',
+            border: '1px solid rgba(42,140,122,.2)',
+            opacity: 0,
+            animation: 'mirrorFadeIn 0.6s ease 2.6s forwards',
+          }}
         >
           <div className="mirror-label uppercase mb-2.5" style={{ color: 'var(--teal2)' }}>
             One question back to you

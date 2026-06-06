@@ -255,6 +255,12 @@ select,
 }
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 
+/* Mirror staged-reveal: each layer fades up from 8px below */
+@keyframes mirrorFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Feedback tab pulse dot */
 @keyframes pulse-dot {
   0%, 100% { opacity: 1;   transform: scale(1);    box-shadow: 0 0 6px rgba(201,168,76,.8); }
