@@ -157,7 +157,7 @@ export default function SignIn() {
         ) : (
           <>
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Sign in to Soul Space</h2>
-            <p className="text-xs text-mist mb-6 leading-relaxed">
+            <p className="text-sm text-mist mb-6 leading-relaxed">
               No password. We&rsquo;ll send a sign-in link to your email.
             </p>
             {/* noValidate disables the browser's native red validation bubble (the "{}") */}
@@ -180,7 +180,7 @@ export default function SignIn() {
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
-            <p className="text-xs mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
+            <p className="text-sm mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
               Your email is used only to send this link.<br />
               No marketing. No password. CPRA compliant.
             </p>

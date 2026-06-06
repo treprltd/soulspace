@@ -77,7 +77,7 @@ export default function Welcome() {
 
           <button
             onClick={() => router.push('/session/breathe')}
-            className="btn-primary w-full py-4 text-[13px] mb-6"
+            className="btn-primary w-full py-4 text-sm mb-6"
           >
             Begin →
           </button>
@@ -102,7 +102,7 @@ export default function Welcome() {
           )}
 
           <p
-            className="text-[9px] mt-10 leading-relaxed"
+            className="text-xs mt-10 leading-relaxed"
             style={{ color: 'rgba(139,167,184,.28)' }}
           >
             Not therapy &nbsp;·&nbsp; Not a diagnosis &nbsp;·&nbsp; Not a crisis service

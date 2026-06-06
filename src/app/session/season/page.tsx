@@ -99,7 +99,7 @@ export default function SeasonCard() {
             </div>
           </div>
 
-          <div className="text-[9px] tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
+          <div className="text-xs tracking-[.14em] uppercase text-center mb-1.5" style={{ color: season.color }}>
             Your current season
           </div>
           <h2 className="font-serif font-light text-center text-3xl mb-2 leading-tight" style={{ color: season.textColor }}>
@@ -123,10 +123,10 @@ export default function SeasonCard() {
                   border: `1px solid ${season.color}22`,
                 }}
               >
-                <div className="season-tile-label text-[9px] tracking-[.1em] uppercase mb-2" style={{ color: season.color }}>
+                <div className="season-tile-label text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: season.color }}>
                   {label}
                 </div>
-                <p className="season-tile-body text-[12px] text-sand leading-relaxed">{text}</p>
+                <p className="season-tile-body text-sm text-sand leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

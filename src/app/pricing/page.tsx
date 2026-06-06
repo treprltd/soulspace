@@ -82,7 +82,7 @@ export default function Pricing() {
             Continue when you&apos;re<br />
             <em className="text-gold2">ready to go deeper.</em>
           </h1>
-          <p className="text-xs text-mist leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-mist leading-relaxed max-w-sm mx-auto">
             Start free. One session a month, no account required.<br />
             Upgrade when it earns it.
           </p>
@@ -109,14 +109,14 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[8px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
+              <div className="text-[10px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
               <div className="font-serif font-light text-sand2 text-3xl">$0</div>
-              <div className="text-[9px] text-mist mt-0.5">forever</div>
+              <div className="text-xs text-mist mt-0.5">forever</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {FREE_FEATURES.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -161,14 +161,14 @@ export default function Pricing() {
             )}
 
             <div className="mb-4">
-              <div className="text-[8px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
+              <div className="text-[10px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
               <div className="font-serif font-light text-sand2 text-3xl">$9.99</div>
-              <div className="text-[9px] text-mist mt-0.5">per month</div>
+              <div className="text-xs text-mist mt-0.5">per month</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.essentials.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -204,14 +204,14 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[8px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
+              <div className="text-[10px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
               <div className="font-serif font-light text-sand2 text-3xl">$19.99</div>
-              <div className="text-[9px] text-mist mt-0.5">per month</div>
+              <div className="text-xs text-mist mt-0.5">per month</div>
             </div>
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.insights.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-[11px] text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -239,14 +239,14 @@ export default function Pricing() {
 
         {/* Footer notes */}
         <div className="mt-8 text-center space-y-1.5">
-          <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
             Billed monthly. Cancel any time from your account settings.
           </p>
-          <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
             Secure payment via Stripe · Soul Space does not store card details.
           </p>
           {authenticated === false && (
-            <p className="text-[9px] mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>
+            <p className="text-xs mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>
               Signing in is required to subscribe.{' '}
               <Link href="/auth/signin?next=/pricing" className="underline underline-offset-2 hover:text-mist">
                 Sign in →

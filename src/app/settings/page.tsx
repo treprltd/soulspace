@@ -214,7 +214,7 @@ export default function Settings() {
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
             <div
-              className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              className="text-[10px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
               style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
             >
               Profile
@@ -235,7 +235,7 @@ export default function Settings() {
             <div className="flex justify-between items-center pt-3">
               <div>
                 <div className="text-sm text-sand">Sign out</div>
-                <div className="text-[9px] text-mist mt-0.5">Sign out of this device</div>
+                <div className="text-xs text-mist mt-0.5">Sign out of this device</div>
               </div>
               <button
                 onClick={handleSignOut}
@@ -253,7 +253,7 @@ export default function Settings() {
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
             <div
-              className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              className="text-[10px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
               style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
             >
               Profile
@@ -278,7 +278,7 @@ export default function Settings() {
               {!profileEditing ? (
                 <button
                   onClick={startEditing}
-                  className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
+                  className="text-xs px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
                   style={{ color: 'var(--gold2)', border: '1px solid rgba(201,168,76,.2)', background: 'rgba(201,168,76,.06)' }}
                 >
                   Edit
@@ -287,7 +287,7 @@ export default function Settings() {
                 <div className="flex gap-2">
                   <button
                     onClick={cancelEditing}
-                    className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
+                    className="text-xs px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
                     style={{ color: 'var(--mist)', border: '1px solid rgba(139,167,184,.15)', background: 'transparent' }}
                   >
                     Cancel
@@ -295,7 +295,7 @@ export default function Settings() {
                   <button
                     onClick={saveProfile}
                     disabled={profileSaving}
-                    className="text-[9px] px-2.5 py-1 rounded-md transition-opacity hover:opacity-80 disabled:opacity-50"
+                    className="text-xs px-2.5 py-1 rounded-md transition-opacity hover:opacity-80 disabled:opacity-50"
                     style={{ color: '#060E18', background: 'var(--gold)', border: 'none', fontWeight: 600 }}
                   >
                     {profileSaving ? 'Saving…' : 'Save'}
@@ -307,7 +307,7 @@ export default function Settings() {
             {/* Success toast */}
             {profileSaved && (
               <div
-                className="rounded-lg px-3 py-2 text-[10px] mb-3"
+                className="rounded-lg px-3 py-2 text-xs mb-3"
                 style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)', color: 'var(--teal2)' }}
               >
                 ✓ Profile updated successfully.
@@ -317,7 +317,7 @@ export default function Settings() {
             {/* Error */}
             {profileError && (
               <div
-                className="rounded-lg px-3 py-2 text-[10px] mb-3"
+                className="rounded-lg px-3 py-2 text-xs mb-3"
                 style={{ background: 'rgba(212,64,64,.06)', border: '1px solid rgba(212,64,64,.2)', color: 'rgba(212,64,64,.8)' }}
               >
                 {profileError}
@@ -469,7 +469,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[10px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Subscription
@@ -480,12 +480,12 @@ export default function Settings() {
               <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
                 <div>
                   <div className="text-sm text-sand">Current plan</div>
-                  <div className="text-[9px] text-mist mt-0.5">
+                  <div className="text-xs text-mist mt-0.5">
                     {isPaid ? 'Unlimited sessions' : `${FREE_SESSIONS_PER_MONTH} sessions per month`}
                   </div>
                 </div>
                 <div
-                  className="px-2.5 py-1 rounded-full text-[9px] font-medium"
+                  className="px-2.5 py-1 rounded-full text-xs font-medium"
                   style={{
                     background: isPaid ? 'rgba(201,168,76,.1)' : 'rgba(139,167,184,.08)',
                     color: isPaid ? 'var(--gold2)' : 'var(--mist)',
@@ -546,7 +546,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
+            className="text-[10px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Phase 1 — what is stored
@@ -559,7 +559,7 @@ export default function Settings() {
             <div key={label} className="flex justify-between items-center py-2.5 border-b border-white/[.04] last:border-0">
               <div>
                 <div className="text-sm text-sand">{label}</div>
-                <div className="text-[9px] text-mist mt-0.5">{sub}</div>
+                <div className="text-xs text-mist mt-0.5">{sub}</div>
               </div>
               <div
                 className="w-7 h-4 rounded-full relative flex-shrink-0"
@@ -577,7 +577,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[7px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[10px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Delete your data
@@ -597,7 +597,7 @@ export default function Settings() {
                   ? 'Tap again to confirm — this is permanent'
                   : 'Delete all my sessions and data →'}
               </button>
-              <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
                 Permanent. Encrypted. No recycle bin. CPRA compliant.<br />
                 Full privacy dashboard ships in Phase 2.
               </p>
@@ -605,7 +605,7 @@ export default function Settings() {
           )}
         </div>
 
-        <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
           Phase 2 will add: toggle controls per data type, export, assessment reset, notification preferences.
         </p>
       </div>

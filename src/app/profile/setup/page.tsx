@@ -109,7 +109,7 @@ export default function ProfileSetup() {
           <h1 className="font-serif font-light text-sand2 text-2xl mb-1.5">
             One quick step.
           </h1>
-          <p className="text-xs text-mist leading-relaxed">
+          <p className="text-sm text-mist leading-relaxed">
             We need a few details for your account.<br />
             Used only for communications — never shared.
           </p>
@@ -120,7 +120,7 @@ export default function ProfileSetup() {
           className="rounded-xl px-4 py-3 mb-5 flex items-center gap-3"
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.06)' }}
         >
-          <span className="text-[9px] tracking-[.08em] uppercase text-mist flex-shrink-0">Account</span>
+          <span className="text-xs tracking-[.08em] uppercase text-mist flex-shrink-0">Account</span>
           <span className="text-xs text-sand truncate">{userEmail}</span>
         </div>
 
@@ -150,7 +150,7 @@ export default function ProfileSetup() {
           </button>
         </form>
 
-        <p className="text-[9px] text-center mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="text-xs text-center mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
           Your data is encrypted and never sold. CPRA compliant.
         </p>
       </div>

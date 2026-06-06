@@ -22,7 +22,7 @@ export default function CrisisPage() {
           </svg>
         </div>
 
-        <p className="text-[8px] tracking-[.14em] uppercase mb-3" style={{ color: 'rgba(212,64,64,.7)' }}>
+        <p className="text-xs tracking-[.14em] uppercase mb-3" style={{ color: 'rgba(212,64,64,.7)' }}>
           Outside Soul Space&apos;s scope
         </p>
 
@@ -41,14 +41,14 @@ export default function CrisisPage() {
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
             <div className="text-sm font-semibold text-sand2 mb-0.5">988 Suicide &amp; Crisis Lifeline</div>
-            <div className="text-[11px] text-mist">Call or text 988 · Available 24/7</div>
+            <div className="text-sm text-mist">Call or text 988 · Available 24/7</div>
           </a>
           <div
             className="px-4 py-3.5 rounded-xl text-left"
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
             <div className="text-sm font-semibold text-sand2 mb-0.5">Crisis Text Line</div>
-            <div className="text-[11px] text-mist">Text HOME to 741741</div>
+            <div className="text-sm text-mist">Text HOME to 741741</div>
           </div>
         </div>
 
@@ -56,7 +56,7 @@ export default function CrisisPage() {
           Soul Space will be here when you are ready to return.
         </p>
 
-        <Link href="/" className="btn-outline text-xs">
+        <Link href="/" className="btn-outline text-sm">
           Return to Soul Space
         </Link>
       </div>

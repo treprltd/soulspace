@@ -221,7 +221,7 @@ export default function Register() {
             <h2 className="font-serif font-light text-sand2 text-xl mb-1 text-center">
               Create your account.
             </h2>
-            <p className="text-xs text-mist mb-5 leading-relaxed text-center">
+            <p className="text-sm text-mist mb-5 leading-relaxed text-center">
               Your details are used only to save your sessions<br />and for future communication. Never shared.
             </p>
 
@@ -248,7 +248,7 @@ export default function Register() {
                   className={inputClass}
                   style={focusedField === 'email' ? inputFocusStyle : inputStyle}
                 />
-                <p className="text-[9px] pl-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                <p className="text-xs pl-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>
                   We&rsquo;ll email you a sign-in link — no password needed.
                 </p>
               </Field>
@@ -263,7 +263,7 @@ export default function Register() {
             </form>
 
             <div className="mt-4 text-center">
-              <p className="text-[10px] leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
                 Already have an account?{' '}
                 <button
                   onClick={() => router.push('/auth/signin')}
