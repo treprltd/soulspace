@@ -20,7 +20,9 @@ export default function MirrorOutputPage() {
   }, [router])
 
   const handleTap = async (result: ResonanceTap) => {
-    if (tapped) return
+    // Allow re-selection: user can switch between "accurate" and "not_quite"
+    // before moving on. Each tap overwrites the stored value (API is idempotent).
+    if (result === resonanceTap) return  // no-op if tapping the already-selected option
     setResonanceTap(result)
     setTapped(true)
     sessionStorage.setItem('ss_resonance', result)

@@ -13,7 +13,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
       className="rounded-xl p-3.5 mb-3"
       style={{ background: 'rgba(15,30,46,.8)', border: '1px solid rgba(201,168,76,.14)' }}
     >
-      <div className="text-[8px] tracking-[.12em] uppercase text-gold mb-3 flex items-center gap-1.5">
+      <div className="text-xs tracking-[.12em] uppercase text-gold mb-3 flex items-center gap-1.5">
         Did this feel accurate?
       </div>
 
@@ -21,7 +21,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
         {/* Accurate */}
         <button
           onClick={() => onTap('accurate')}
-          className="flex-1 py-3 rounded-lg text-[12px] font-medium transition-all cursor-pointer"
+          className="flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer"
           style={{
             border: selected === 'accurate'
               ? '1px solid rgba(42,140,122,.8)'
@@ -38,7 +38,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
         {/* Not quite */}
         <button
           onClick={() => onTap('not_quite')}
-          className="flex-1 py-3 rounded-lg text-[12px] font-medium transition-all cursor-pointer"
+          className="flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer"
           style={{
             border: selected === 'not_quite'
               ? '1px solid rgba(245,237,216,.55)'
@@ -55,7 +55,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
 
       {/* Confirmation message after tap */}
       {selected && (
-        <p className="text-[9px] mt-2.5 text-center leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
+        <p className="text-xs mt-2.5 text-center leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
           {selected === 'accurate'
             ? 'Noted. This helps Soul Space improve.'
             : 'Noted. That helps too — every response teaches the Mirror.'}
