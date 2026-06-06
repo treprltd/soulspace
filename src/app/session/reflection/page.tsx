@@ -107,14 +107,14 @@ export default function MirrorOutputPage() {
             One question back to you
           </div>
           {/* Question stays italic — the contemplative moment */}
-          <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '15px' }}>
+          <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '16px' }}>
             {mirror.question}
           </p>
         </div>
 
         {/* ── AI transparency — just before "did this feel accurate?" ─────── */}
         <p
-          className="text-center text-xs mb-5 leading-relaxed"
+          className="text-center text-sm mb-5 leading-relaxed"
           style={{ color: 'rgba(139,167,184,.42)', fontStyle: 'italic' }}
         >
           This reflection was shaped by AI from what you shared — not a diagnosis, not advice.
@@ -139,7 +139,7 @@ export default function MirrorOutputPage() {
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#3DAF96" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 flex-shrink-0">
             <path d="M6 1l3.5 1.75v3.5C9.5 8.75 7.9 10.5 6 11c-1.9-.5-3.5-2.25-3.5-4.75v-3.5L6 1z" />
           </svg>
-          <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
             Soul Space is not a crisis service. If you&apos;re in distress,{' '}
             <span style={{ color: 'var(--teal2)' }}>please call or text 988.</span>
           </p>

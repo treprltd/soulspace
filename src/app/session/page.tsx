@@ -60,7 +60,7 @@ export default function SituationEntry() {
             >
               What is this <em className="text-gold2">mostly about?</em>
             </h1>
-            <p className="text-[11px] text-mist">
+            <p className="text-sm text-mist">
               You may be carrying more than one thing. Choose what feels most present.
             </p>
           </div>
@@ -80,8 +80,8 @@ export default function SituationEntry() {
           </div>
 
           <p
-            className="text-center leading-relaxed"
-            style={{ fontSize: '11px', color: 'rgba(139,167,184,.38)' }}
+            className="text-center leading-relaxed text-xs"
+            style={{ color: 'rgba(139,167,184,.38)' }}
           >
             No wrong answer. Everything that follows adapts to what you choose.
           </p>

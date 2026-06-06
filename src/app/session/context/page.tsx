@@ -102,7 +102,7 @@ export default function ContextField() {
         <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
           What&apos;s <em className="text-gold2">happening?</em>
         </h2>
-        <p className="text-xs text-mist mb-5 leading-relaxed">
+        <p className="text-sm text-mist mb-5 leading-relaxed">
           In your own words. As much or as little as feels right.
         </p>
 
@@ -120,7 +120,7 @@ export default function ContextField() {
               color:       'var(--sand2)',
               fontFamily:  'var(--font-cormorant), Georgia, serif',
               fontStyle:   'italic',
-              fontSize:    '15px',
+              fontSize:    '16px',
               lineHeight:  '1.75',
               paddingBottom: '3rem', // room for the mic button
             }}
@@ -142,7 +142,7 @@ export default function ContextField() {
         {/* Char count row */}
         <div className="flex items-center justify-between mb-6" style={{ minHeight: '16px' }}>
           <span
-            className="text-[10px] leading-none"
+            className="text-xs leading-none"
             style={{ color: 'rgba(139,167,184,.3)', visibility: (!isAuthenticated || !isPaid) ? 'visible' : 'hidden' }}
           >
             {!isAuthenticated
@@ -152,7 +152,7 @@ export default function ContextField() {
               : null}
           </span>
           {text.length > 0 && (
-            <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.3)' }}>
+            <span className="text-xs" style={{ color: 'rgba(139,167,184,.3)' }}>
               {text.length} / {MAX_CHARS}
             </span>
           )}

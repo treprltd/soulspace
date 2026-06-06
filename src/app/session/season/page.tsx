@@ -71,7 +71,7 @@ export default function SeasonCard() {
       <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
 
         {/* Season orientation — what "seasons" means */}
-        <p className="text-xs text-center mb-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
+        <p className="text-sm text-center mb-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.55)' }}>
           A season is not a diagnosis — it&apos;s a way of describing what this emotional moment might feel like.
         </p>
 
@@ -105,7 +105,7 @@ export default function SeasonCard() {
           <h2 className="font-serif font-light text-center text-3xl mb-2 leading-tight" style={{ color: season.textColor }}>
             This may feel like <em>{season.name}.</em>
           </h2>
-          <p className="text-[13px] text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ color: season.secondaryColor }}>
+          <p className="text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ fontSize: '15px', color: season.secondaryColor }}>
             {season.description}
           </p>
 

@@ -42,7 +42,7 @@ export default function Emotions() {
         <h2 className="font-serif font-light text-sand2 text-2xl mb-2 leading-tight">
           What are you carrying <em className="text-gold2">right now?</em>
         </h2>
-        <p className="text-xs text-mist mb-6">
+        <p className="text-sm text-mist mb-6">
           Choose what feels most present. More than one can be true.
         </p>
 
@@ -59,7 +59,7 @@ export default function Emotions() {
         </div>
 
         {selected.length > 0 && (
-          <p className="text-[9px] mb-5" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs mb-5" style={{ color: 'rgba(139,167,184,.4)' }}>
             {selected.length} selected
           </p>
         )}

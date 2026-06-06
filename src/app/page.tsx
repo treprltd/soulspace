@@ -72,7 +72,7 @@ export default function Home() {
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
-        <p className="font-serif italic mb-8" style={{ fontSize: '13px', color: 'rgba(139,167,184,.5)' }}>
+        <p className="font-serif italic mb-8" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
 
@@ -101,7 +101,7 @@ export default function Home() {
             <Link href="/auth/signin" className="btn-outline text-sm px-8 py-3 w-full text-center">
               Sign in / Create account →
             </Link>
-            <p className="text-[10px] mt-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <p className="text-xs mt-1" style={{ color: 'rgba(139,167,184,.4)' }}>
               Free to start · No account required · 3–5 minutes
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-mist mt-4 text-center">
+        <p className="text-sm text-mist mt-4 text-center">
           You tap one. Everything that follows adapts to your selection.
         </p>
       </section>
@@ -146,22 +146,22 @@ export default function Home() {
       <section className="px-6 py-16" style={{ background: 'rgba(15,30,46,.5)' }}>
         <div className="max-w-2xl mx-auto">
           <div className="eyebrow mb-2">The Mirror — what it gives back</div>
-          <p className="text-xs text-mist mb-6 leading-relaxed">
+          <p className="text-sm text-mist mb-6 leading-relaxed">
             Three short paragraphs. Specific to what you shared. Not generic. Not diagnostic.
           </p>
           <div className="mirror-card">
-            <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-2">What you&apos;re carrying</div>
-            <p className="font-serif italic text-sand leading-relaxed text-sm">{MIRROR_EXAMPLE.carrying}</p>
+            <div className="mirror-label text-gold mb-2">What you&apos;re carrying</div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>{MIRROR_EXAMPLE.carrying}</p>
           </div>
           <div className="mirror-card">
-            <div className="text-[7px] tracking-[.12em] uppercase text-gold mb-2">What appears underneath</div>
-            <p className="font-serif italic text-sand leading-relaxed text-sm">{MIRROR_EXAMPLE.underneath}</p>
+            <div className="mirror-label text-gold mb-2">What appears underneath</div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>{MIRROR_EXAMPLE.underneath}</p>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
-            <div className="text-[7px] tracking-[.12em] uppercase mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
-            <p className="font-serif italic text-sand2 leading-snug text-sm">{MIRROR_EXAMPLE.question}</p>
+            <div className="mirror-label mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
+            <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>{MIRROR_EXAMPLE.question}</p>
           </div>
-          <p className="text-[9px] mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
             Descriptive only — not diagnostic. Clinically reviewed. Not therapy.
           </p>
         </div>
@@ -174,8 +174,8 @@ export default function Home() {
             <div className="eyebrow mb-4" style={{ color: 'var(--teal2)' }}>Soul Space is</div>
             {SCOPE_IS.map((item, i) => (
               <div key={i} className="flex items-start gap-2 mb-2.5">
-                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>✓</span>
-                <span className="text-xs text-sand leading-relaxed">{item}</span>
+                <span className="text-sm flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>✓</span>
+                <span className="text-sm text-sand leading-relaxed">{item}</span>
               </div>
             ))}
           </div>
@@ -183,8 +183,8 @@ export default function Home() {
             <div className="eyebrow mb-4" style={{ color: 'rgba(212,64,64,.7)' }}>Soul Space is not</div>
             {SCOPE_ISNOT.map((item, i) => (
               <div key={i} className="flex items-start gap-2 mb-2.5">
-                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'rgba(212,64,64,.6)' }}>✕</span>
-                <span className="text-xs text-sand leading-relaxed">{item}</span>
+                <span className="text-sm flex-shrink-0 mt-0.5" style={{ color: 'rgba(212,64,64,.6)' }}>✕</span>
+                <span className="text-sm text-sand leading-relaxed">{item}</span>
               </div>
             ))}
           </div>
@@ -224,22 +224,22 @@ export default function Home() {
         <p className="font-serif font-light text-sand2 text-sm mb-1">
           Soul <em className="not-italic text-gold font-normal">Space</em>
         </p>
-        <p className="text-[9px] mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="text-xs mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
           Affirm. Ask. Reflect. · Non-clinical · Non-diagnostic · Not a crisis service<br />
           If you are in immediate danger, call or text 988.
         </p>
         <div className="flex flex-wrap gap-4 justify-center mt-4">
           {isAuthenticated ? (
-            <Link href="/dashboard" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Dashboard</Link>
+            <Link href="/dashboard" className="text-xs text-mist/50 hover:text-mist transition-colors">Dashboard</Link>
           ) : (
-            <Link href="/auth/signin" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Sign in</Link>
+            <Link href="/auth/signin" className="text-xs text-mist/50 hover:text-mist transition-colors">Sign in</Link>
           )}
-          <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/pricing" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Pricing</Link>
-          <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/settings" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Settings</Link>
-          <span className="text-[9px]" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/crisis" className="text-[9px] text-mist/50 hover:text-mist transition-colors">Crisis resources</Link>
+          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <Link href="/pricing" className="text-xs text-mist/50 hover:text-mist transition-colors">Pricing</Link>
+          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <Link href="/settings" className="text-xs text-mist/50 hover:text-mist transition-colors">Settings</Link>
+          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <Link href="/crisis" className="text-xs text-mist/50 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
       </footer>
     </main>

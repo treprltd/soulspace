@@ -58,10 +58,10 @@ export default function Welcome() {
                   >
                     <span style={{ color: 'var(--gold2)', fontSize: '14px' }}>{item.icon}</span>
                   </div>
-                  <div className="text-[8px] tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
+                  <div className="text-[11px] tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
                     {item.step}
                   </div>
-                  <p className="text-[10px] leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
+                  <p className="text-xs leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
                     {item.label}
                   </p>
                 </div>

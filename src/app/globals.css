@@ -56,7 +56,7 @@ html, body {
 
   .affirm-copy {
     font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-    font-size: 14px;
+    font-size: 16px;
     color: rgba(139,167,184,.72);
     font-style: italic;
     line-height: 1.95;
@@ -79,9 +79,9 @@ html, body {
     border: 1px solid rgba(201,168,76,0.1);
   }
 
-  /* Mirror section labels — readable on desktop without relying on mobile overrides */
+  /* Mirror section labels */
   .mirror-label {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -102,7 +102,7 @@ html, body {
   }
 
   .emotion-tag {
-    @apply px-4 py-2 rounded-full text-[12px] text-mist cursor-pointer transition-all;
+    @apply px-4 py-2 rounded-full text-sm text-mist cursor-pointer transition-all;
     border: 1px solid rgba(201,168,76,0.18);
   }
   .emotion-tag.selected {
@@ -147,7 +147,7 @@ html, body {
   }
 
   .situation-symbol {
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1;
     color: rgba(201,168,76,0.45);
     font-style: normal;
@@ -158,7 +158,7 @@ html, body {
   }
 
   .situation-label {
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.35;
     color: var(--mist);
     font-family: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
@@ -300,74 +300,71 @@ select,
 
   /* ── Resonance phrases — core tappable items ────────────────────────────── */
   .resonance-phrase {
-    font-size: 15px !important;
-    line-height: 1.7 !important;
+    font-size: 16px !important;
+    line-height: 1.75 !important;
     padding: 18px 16px !important;
   }
 
   /* ── Emotion tags ───────────────────────────────────────────────────────── */
   .emotion-tag {
-    font-size: 13px !important;
-    padding: 9px 15px !important;
-    min-height: 38px !important;
+    font-size: 14px !important;
+    padding: 10px 16px !important;
+    min-height: 40px !important;
   }
 
   /* ── Affirmation copy (frozen — only size/color adjusted) ──────────────── */
   .affirm-copy {
-    font-size: 14px !important;
+    font-size: 16px !important;
     color: rgba(139,167,184,.78) !important;
     line-height: 2 !important;
   }
 
   /* ── Eyebrow labels ─────────────────────────────────────────────────────── */
-  .eyebrow { font-size: 10px !important; }
+  .eyebrow { font-size: 11px !important; }
 
   /* ── Progress bars — keep thin ─────────────────────────────────────────── */
   .progress-bar { height: 2px !important; }
 
   /* ── Scope rows ─────────────────────────────────────────────────────────── */
-  .scope-row span { font-size: 13px !important; }
+  .scope-row span { font-size: 14px !important; }
 
   /* ── Mirror reflection cards ────────────────────────────────────────────── */
   .mirror-card { padding: 18px 16px !important; }
   .mirror-card p {
-    font-size: 15px !important;
+    font-size: 16px !important;
     line-height: 1.85 !important;
   }
 
-  /* ── Mirror card section labels (text-[7px] in JSX) ────────────────────── */
+  /* ── Mirror card section labels ────────────────────────────────────────── */
   .mirror-label {
-    font-size: 10px !important;
+    font-size: 11px !important;
     letter-spacing: 0.12em !important;
   }
 
   /* ── Session hint ───────────────────────────────────────────────────────── */
   .session-hint {
-    font-size: 12px !important;
+    font-size: 13px !important;
     color: rgba(139,167,184,.65) !important;
   }
 
-  /* ── Situation picker ───────────────────────────────────────────────────── */
-  /* Keep 3 cols but shrink label text so longer labels wrap cleanly */
-  .situation-label { font-size: 10px !important; }
+  /* ── Situation picker — 3-col grid: slightly smaller to prevent overflow ── */
+  .situation-label { font-size: 12px !important; }
   .situation-card {
     padding: 12px 6px 11px !important;
     min-height: 72px !important;
     gap: 5px !important;
   }
-  .situation-symbol { font-size: 14px !important; }
+  .situation-symbol { font-size: 16px !important; }
 
-  /* ── Season card info tiles (grid stacked via Tailwind grid-cols-1) ─────── */
-  /* Text in season info tiles bumped up since they're now full-width */
-  .season-tile-label  { font-size: 10px !important; }
-  .season-tile-body   { font-size: 12px !important; line-height: 1.6 !important; }
+  /* ── Season card info tiles ─────────────────────────────────────────────── */
+  .season-tile-label  { font-size: 11px !important; }
+  .season-tile-body   { font-size: 14px !important; line-height: 1.7 !important; }
 
   /* ── Dashboard ──────────────────────────────────────────────────────────── */
-  /* Stats row: the 3-column grid stays but numbers/labels get clearer */
   .dash-stat-value { font-size: 22px !important; }
-  .dash-stat-label { font-size: 9px !important; }
+  .dash-stat-label { font-size: 11px !important; }
 
-  /* Session history rows: badges can wrap on narrow screens */
+  /* Session history rows: badges wrap cleanly on narrow screens */
   .session-badge {
     white-space: normal !important;
     max-width: 90px !important;
@@ -395,26 +392,26 @@ select,
 @media (max-width: 380px) {
   /* Headings — clamp already handles this, but ensure serif headers don't overflow */
   h1.font-serif, h2.font-serif {
-    font-size: clamp(20px, 6vw, 28px) !important;
+    font-size: clamp(22px, 6vw, 28px) !important;
   }
 
-  /* Situation cards — tighter padding on SE */
+  /* Situation cards — tighter padding on SE but label stays readable */
   .situation-card {
     padding: 10px 4px 10px !important;
     min-height: 66px !important;
   }
-  .situation-label { font-size: 9.5px !important; }
+  .situation-label { font-size: 11px !important; }
 
   /* Buttons — maintain tap target */
   .btn-primary, .btn-outline { font-size: 14px !important; }
 
   /* Mirror cards — extra room on SE */
   .mirror-card { padding: 16px 14px !important; }
-  .mirror-card p { font-size: 14px !important; }
+  .mirror-card p { font-size: 15px !important; }
 
-  /* Context textarea — ensure it doesn't feel cramped */
-  textarea { font-size: 14px !important; }
+  /* Context textarea — must not zoom on iOS (min 16px) */
+  textarea { font-size: 16px !important; }
 
-  /* Reduce outer px padding from px-6 (24 px) to px-4 (16 px) context */
+  /* Reduce outer px padding from px-6 (24 px) to px-4 (16 px) */
   .session-outer-pad { padding-left: 16px !important; padding-right: 16px !important; }
 }

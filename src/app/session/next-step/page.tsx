@@ -178,7 +178,7 @@ export default function NextStep() {
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
           Choose one action <em className="text-gold2">for today.</em>
         </h2>
-        <p className="text-xs text-mist mb-4">No prescription. This is entirely yours.</p>
+        <p className="text-sm text-mist mb-4">No prescription. This is entirely yours.</p>
 
         {/* ── Reframe card — a way to hold this differently ─────── */}
         {reframe && (
@@ -189,10 +189,10 @@ export default function NextStep() {
               border: '1px solid rgba(42,140,122,.15)',
             }}
           >
-            <div className="text-[8px] tracking-[.12em] uppercase mb-2" style={{ color: 'rgba(42,140,122,.7)' }}>
+            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(42,140,122,.7)' }}>
               A way to hold this
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '13px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {reframe}
             </p>
           </div>
@@ -227,7 +227,7 @@ export default function NextStep() {
               background: custom ? 'rgba(201,168,76,.03)' : 'transparent',
             }}
           >
-            <div className="text-[9px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <div className="text-[11px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
               Or write your own
             </div>
             <input
@@ -249,7 +249,7 @@ export default function NextStep() {
               border: '1px solid rgba(201,168,76,.12)',
             }}
           >
-            <p className="font-serif italic text-[13px] leading-relaxed" style={{ color: 'rgba(232,201,122,.65)' }}>
+            <p className="font-serif italic text-sm leading-relaxed" style={{ color: 'rgba(232,201,122,.65)' }}>
               {patternInsight}
             </p>
           </div>
@@ -265,8 +265,8 @@ export default function NextStep() {
 
         {/* ── Continuity line — the thread that connects sessions ── */}
         <p
-          className="text-center font-serif italic mt-5 mb-1 leading-relaxed"
-          style={{ fontSize: '12px', color: 'rgba(139,167,184,.38)' }}
+          className="text-center font-serif italic mt-5 mb-1 leading-relaxed text-sm"
+          style={{ color: 'rgba(139,167,184,.38)' }}
         >
           Come back in a few days.<br />
           Your season may already be shifting.

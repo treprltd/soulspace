@@ -31,7 +31,7 @@ export default function Intensity() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.06)' }}
         >
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs text-mist">Weight</span>
+            <span className="text-sm text-mist">Weight</span>
             <span className="font-serif text-gold2 text-xl">{intensity} / 10</span>
           </div>
 
@@ -64,7 +64,7 @@ export default function Intensity() {
             />
           </div>
 
-          <div className="flex justify-between text-[9px] mt-1.5">
+          <div className="flex justify-between text-xs mt-1.5">
             <span className="text-mist">Barely there</span>
             {/* Hide mid-label on narrow phones — it collides with the outer labels */}
             <span className="text-gold2 italic hidden sm:inline">Hard to think clearly</span>
