@@ -7,6 +7,8 @@ import type {
 
 interface FeedbackPanelProps {
   authToken: string | null
+  /** When true the panel slides open immediately on mount (e.g. after session completion). */
+  defaultOpen?: boolean
 }
 
 // ── Option sets ───────────────────────────────────────────────────────────────
@@ -127,10 +129,10 @@ function isValidEmail(email: string) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function FeedbackPanel({ authToken }: FeedbackPanelProps) {
+export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelProps) {
   const isGuest = !authToken
 
-  const [open, setOpen]               = useState(false)
+  const [open, setOpen]               = useState(defaultOpen)
   const [submitted, setSubmitted]     = useState(false)
   const [saving, setSaving]           = useState(false)
   const [lastSubmitted, setLastSubmitted] = useState<string | null>(null)

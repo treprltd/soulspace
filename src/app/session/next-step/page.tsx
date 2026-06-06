@@ -145,11 +145,12 @@ export default function NextStep() {
     ;['ss_branch', 'ss_situation', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']
       .forEach(k => sessionStorage.removeItem(k))
 
-    // Authenticated users go to their dashboard; others go home
+    // All users land on the sign-up/sign-in page with the feedback panel pre-opened.
+    // Authenticated users go to their dashboard (still with feedback open).
     if (isAuthenticated) {
-      router.push('/dashboard')
+      router.push('/dashboard?feedback=1')
     } else {
-      router.push('/')
+      router.push('/auth/register?feedback=1')
     }
   }
 
