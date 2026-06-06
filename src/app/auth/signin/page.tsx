@@ -107,16 +107,16 @@ export default function SignIn() {
             </div>
 
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Check your inbox.</h2>
-            <p className="text-sm text-mist leading-relaxed mb-1">
+            <p className="text-base text-mist leading-relaxed mb-1">
               We sent a sign-in link to
             </p>
-            <p className="text-sm font-medium text-sand mb-5 break-all">{email}</p>
+            <p className="text-base font-medium text-sand mb-5 break-all">{email}</p>
 
             <div
               className="rounded-xl px-4 py-3.5 mb-5 text-left"
               style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.06)' }}
             >
-              <p className="text-xs text-mist leading-relaxed">
+              <p className="text-sm text-mist leading-relaxed">
                 Click the link in the email to sign in — no password needed.<br />
                 <span style={{ color: 'rgba(139,167,184,.6)' }}>
                   Didn&apos;t get it? Check your spam or junk folder. The link expires in 1 hour.
@@ -128,7 +128,7 @@ export default function SignIn() {
             <button
               onClick={handleResend}
               disabled={resendCooldown > 0 || resendLoading}
-              className="w-full py-3 rounded-xl text-sm transition-all mb-3 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl text-base transition-all mb-3 disabled:cursor-not-allowed"
               style={{
                 border: '1px solid rgba(201,168,76,.22)',
                 color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(139,167,184,.4)' : 'var(--gold)',
@@ -157,7 +157,7 @@ export default function SignIn() {
         ) : (
           <>
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Sign in to Soul Space</h2>
-            <p className="text-sm text-mist mb-6 leading-relaxed">
+            <p className="text-base text-mist mb-6 leading-relaxed">
               No password. We&rsquo;ll send a sign-in link to your email.
             </p>
             {/* noValidate disables the browser's native red validation bubble (the "{}") */}
@@ -167,7 +167,7 @@ export default function SignIn() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-xl text-sm text-sand2 focus:outline-none focus:border-gold/40 transition-colors"
+                className="w-full px-4 py-3 rounded-xl text-base text-sand2 focus:outline-none focus:border-gold/40 transition-colors"
                 style={{
                   background: 'rgba(245,237,216,.04)',
                   border: '1px solid rgba(245,237,216,.08)',
@@ -180,7 +180,7 @@ export default function SignIn() {
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
-            <p className="text-sm mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
+            <p className="text-base mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
               Your email is used only to send this link.<br />
               No marketing. No password. CPRA compliant.
             </p>

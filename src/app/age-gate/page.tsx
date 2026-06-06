@@ -40,14 +40,14 @@ export default function AgeGate() {
 
         <p className="text-xs tracking-[.2em] uppercase text-mist mb-4">Before you enter</p>
         <h1 className="font-serif font-light text-sand2 text-2xl mb-2">How old are you?</h1>
-        <p className="text-sm text-mist mb-7 leading-relaxed">
+        <p className="text-base text-mist mb-7 leading-relaxed">
           Soul Space is designed for people 13 and older.<br />We don&apos;t store your answer.
         </p>
 
         <div className="flex flex-col gap-2.5 mb-6">
           <button
             onClick={handleUnder13}
-            className="py-3.5 px-5 rounded-xl text-sm font-serif italic cursor-pointer transition-opacity hover:opacity-80"
+            className="py-3.5 px-5 rounded-xl text-base font-serif italic cursor-pointer transition-opacity hover:opacity-80"
             style={{
               border: '1px solid rgba(212,64,64,.18)',
               color: 'rgba(212,64,64,.6)',
@@ -59,7 +59,7 @@ export default function AgeGate() {
 
           <button
             onClick={handleTeen}
-            className="py-3.5 px-5 rounded-xl text-sm cursor-pointer transition-opacity hover:opacity-80"
+            className="py-3.5 px-5 rounded-xl text-base cursor-pointer transition-opacity hover:opacity-80"
             style={{
               border: '1px solid rgba(124,58,237,.2)',
               color: '#a78bfa',
@@ -67,14 +67,14 @@ export default function AgeGate() {
             }}
           >
             <span className="font-serif italic">Ages 13–17</span>
-            <div className="text-xs mt-0.5" style={{ color: 'rgba(167,139,250,.5)' }}>
+            <div className="text-sm mt-0.5" style={{ color: 'rgba(167,139,250,.5)' }}>
               Teen-safe experience · AADC compliant
             </div>
           </button>
 
           <button
             onClick={handleAdult}
-            className="py-3.5 px-5 rounded-xl text-sm font-serif italic cursor-pointer transition-opacity hover:opacity-80"
+            className="py-3.5 px-5 rounded-xl text-base font-serif italic cursor-pointer transition-opacity hover:opacity-80"
             style={{
               border: '1px solid rgba(201,168,76,.22)',
               color: 'var(--gold2)',

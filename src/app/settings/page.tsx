@@ -205,7 +205,7 @@ export default function Settings() {
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
           Your <em className="text-gold2">account.</em>
         </h2>
-        <p className="text-xs text-mist mb-6">Manage your plan, profile, and data.</p>
+        <p className="text-sm text-mist mb-6">Manage your plan, profile, and data.</p>
 
         {/* ── Profile ── */}
         {user ? (
@@ -222,25 +222,25 @@ export default function Settings() {
 
             <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
               <div className="text-sm text-sand">Email</div>
-              <div className="text-xs text-mist truncate max-w-[200px]">{user.email}</div>
+              <div className="text-sm text-mist truncate max-w-[200px]">{user.email}</div>
             </div>
 
             {joinedDate && (
               <div className="flex justify-between items-center py-2 border-b border-white/[.04]">
                 <div className="text-sm text-sand">Member since</div>
-                <div className="text-xs text-mist">{joinedDate}</div>
+                <div className="text-sm text-mist">{joinedDate}</div>
               </div>
             )}
 
             <div className="flex justify-between items-center pt-3">
               <div>
                 <div className="text-sm text-sand">Sign out</div>
-                <div className="text-xs text-mist mt-0.5">Sign out of this device</div>
+                <div className="text-sm text-mist mt-0.5">Sign out of this device</div>
               </div>
               <button
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="text-xs px-3 py-1.5 rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
+                className="text-sm px-3 py-1.5 rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
                 style={{ border: '1px solid rgba(212,64,64,.3)', color: 'rgba(212,64,64,.75)', background: 'transparent' }}
               >
                 {signingOut ? 'Signing out…' : 'Sign out →'}
@@ -258,10 +258,10 @@ export default function Settings() {
             >
               Profile
             </div>
-            <p className="text-xs text-mist mb-3 leading-relaxed">
+            <p className="text-sm text-mist mb-3 leading-relaxed">
               You&apos;re browsing without an account. Sign in to save sessions and access your history.
             </p>
-            <Link href="/auth/signin" className="btn-outline text-xs py-2 px-4 inline-block">
+            <Link href="/auth/signin" className="btn-outline text-sm py-2 px-4 inline-block">
               Sign in →
             </Link>
           </div>
@@ -274,7 +274,7 @@ export default function Settings() {
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
             <div className="flex items-center justify-between mb-3 pb-1.5" style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
-              <div className="text-[7px] tracking-[.11em] uppercase text-mist">Personal info</div>
+              <div className="text-[10px] tracking-[.11em] uppercase text-mist">Personal info</div>
               {!profileEditing ? (
                 <button
                   onClick={startEditing}
@@ -327,7 +327,7 @@ export default function Settings() {
             {/* Email — always read-only */}
             <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
               <div className="text-sm text-sand">Email</div>
-              <div className="text-xs truncate max-w-[200px]" style={{ color: 'rgba(139,167,184,.45)' }}>
+              <div className="text-sm truncate max-w-[200px]" style={{ color: 'rgba(139,167,184,.45)' }}>
                 {user.email}
               </div>
             </div>
@@ -519,12 +519,12 @@ export default function Settings() {
                   <button
                     onClick={handleManageBilling}
                     disabled={portalLoading}
-                    className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                    className="btn-outline text-sm w-full py-2.5 disabled:opacity-50"
                   >
                     {portalLoading ? 'Opening…' : 'Manage billing & subscription →'}
                   </button>
                 ) : (
-                  <Link href="/pricing" className="btn-primary text-xs block text-center w-full py-2.5">
+                  <Link href="/pricing" className="btn-primary text-sm block text-center w-full py-2.5">
                     Upgrade plan →
                   </Link>
                 )}
@@ -590,7 +590,7 @@ export default function Settings() {
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="w-full py-2.5 text-xs rounded-lg text-center mb-2 transition-opacity hover:opacity-80 disabled:opacity-50"
+                className="w-full py-2.5 text-sm rounded-lg text-center mb-2 transition-opacity hover:opacity-80 disabled:opacity-50"
                 style={{ border: '1px solid rgba(212,64,64,.3)', color: 'rgba(212,64,64,.75)', background: 'transparent' }}
               >
                 {confirmDelete

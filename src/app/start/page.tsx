@@ -36,7 +36,7 @@ export default function Welcome() {
             <em className="text-gold2">what you&rsquo;re carrying.</em>
           </h1>
 
-          <p className="text-xs text-mist mb-8 leading-relaxed">
+          <p className="text-sm text-mist mb-8 leading-relaxed">
             5–10 minutes &nbsp;·&nbsp; Private &nbsp;·&nbsp; No right answers
           </p>
 
@@ -58,10 +58,10 @@ export default function Welcome() {
                   >
                     <span style={{ color: 'var(--gold2)', fontSize: '14px' }}>{item.icon}</span>
                   </div>
-                  <div className="text-[11px] tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
+                  <div className="text-xs tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
                     {item.step}
                   </div>
-                  <p className="text-xs leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
+                  <p className="text-sm leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
                     {item.label}
                   </p>
                 </div>

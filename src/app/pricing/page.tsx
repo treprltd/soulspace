@@ -82,7 +82,7 @@ export default function Pricing() {
             Continue when you&apos;re<br />
             <em className="text-gold2">ready to go deeper.</em>
           </h1>
-          <p className="text-sm text-mist leading-relaxed max-w-sm mx-auto">
+          <p className="text-base text-mist leading-relaxed max-w-sm mx-auto">
             Start free. One session a month, no account required.<br />
             Upgrade when it earns it.
           </p>
@@ -116,7 +116,7 @@ export default function Pricing() {
 
             <ul className="flex-1 mb-5 space-y-2">
               {FREE_FEATURES.map(f => (
-                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-sm text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -125,7 +125,7 @@ export default function Pricing() {
 
             {isCurrentPlan('free') ? (
               <div
-                className="w-full py-2.5 rounded-lg text-[11px] text-center"
+                className="w-full py-2.5 rounded-lg text-sm text-center"
                 style={{ border: '1px solid rgba(201,168,76,.3)', color: 'var(--gold2)' }}
               >
                 Current plan
@@ -133,7 +133,7 @@ export default function Pricing() {
             ) : (
               <Link
                 href="/age-gate"
-                className="w-full py-2.5 rounded-lg text-[11px] text-center block transition-opacity hover:opacity-80"
+                className="w-full py-2.5 rounded-lg text-sm text-center block transition-opacity hover:opacity-80"
                 style={{ border: '1px solid rgba(245,237,216,.1)', color: 'var(--mist)', textDecoration: 'none' }}
               >
                 Continue free →
@@ -153,7 +153,7 @@ export default function Pricing() {
           >
             {!isCurrentPlan('essentials') && (
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[8px] tracking-[.1em] uppercase"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs tracking-[.1em] uppercase"
                 style={{ background: 'var(--gold)', color: 'var(--ink)' }}
               >
                 Most popular
@@ -168,7 +168,7 @@ export default function Pricing() {
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.essentials.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-sm text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -179,14 +179,14 @@ export default function Pricing() {
               <button
                 onClick={handleManage}
                 disabled={manageLoading}
-                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                className="btn-outline text-sm w-full py-2.5 disabled:opacity-50"
               >
                 {manageLoading ? 'Opening…' : 'Manage subscription →'}
               </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('essentials')}
-                className="btn-primary text-xs w-full py-2.5"
+                className="btn-primary text-sm w-full py-2.5"
               >
                 Get Essentials →
               </button>
@@ -211,7 +211,7 @@ export default function Pricing() {
 
             <ul className="flex-1 mb-5 space-y-2">
               {PLANS.insights.features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-xs text-sand leading-relaxed">
+                <li key={f} className="flex items-start gap-2 text-sm text-sand leading-relaxed">
                   <span style={{ color: 'var(--teal2)' }} className="flex-shrink-0 mt-0.5">✓</span>
                   {f}
                 </li>
@@ -222,7 +222,7 @@ export default function Pricing() {
               <button
                 onClick={handleManage}
                 disabled={manageLoading}
-                className="btn-outline text-xs w-full py-2.5 disabled:opacity-50"
+                className="btn-outline text-sm w-full py-2.5 disabled:opacity-50"
               >
                 {manageLoading ? 'Opening…' : 'Manage subscription →'}
               </button>

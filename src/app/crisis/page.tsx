@@ -30,7 +30,7 @@ export default function CrisisPage() {
           We noticed something outside the scope of Soul Space.
         </h1>
 
-        <p className="text-sm text-mist max-w-sm mb-6 leading-relaxed">
+        <p className="text-base text-mist max-w-sm mb-6 leading-relaxed">
           If you are in crisis or having thoughts of harming yourself or others, please reach out now:
         </p>
 
@@ -40,19 +40,19 @@ export default function CrisisPage() {
             className="block px-4 py-3.5 rounded-xl text-left no-underline transition-opacity hover:opacity-90"
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
-            <div className="text-sm font-semibold text-sand2 mb-0.5">988 Suicide &amp; Crisis Lifeline</div>
-            <div className="text-sm text-mist">Call or text 988 · Available 24/7</div>
+            <div className="text-base font-semibold text-sand2 mb-0.5">988 Suicide &amp; Crisis Lifeline</div>
+            <div className="text-base text-mist">Call or text 988 · Available 24/7</div>
           </a>
           <div
             className="px-4 py-3.5 rounded-xl text-left"
             style={{ background: 'rgba(212,64,64,.05)', border: '1px solid rgba(212,64,64,.18)' }}
           >
-            <div className="text-sm font-semibold text-sand2 mb-0.5">Crisis Text Line</div>
-            <div className="text-sm text-mist">Text HOME to 741741</div>
+            <div className="text-base font-semibold text-sand2 mb-0.5">Crisis Text Line</div>
+            <div className="text-base text-mist">Text HOME to 741741</div>
           </div>
         </div>
 
-        <p className="font-serif text-sm italic text-mist mb-4">
+        <p className="font-serif text-base italic text-mist mb-4">
           Soul Space will be here when you are ready to return.
         </p>
 
