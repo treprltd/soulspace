@@ -18,16 +18,20 @@ export function FeedbackWrapper() {
   useEffect(() => {
     setMounted(true)
 
-    // Auto-open the panel when the page is reached with ?feedback=1 (e.g. after
-    // "I'm done for now" at the end of a session). Strip the param from the URL
-    // immediately so a refresh doesn't re-open the panel unexpectedly.
+    // Auto-open the panel on /session/next-step (always) or when any page is
+    // reached with ?feedback=1. Strip the param from the URL immediately so a
+    // refresh doesn't re-open the panel unexpectedly.
     const params = new URLSearchParams(window.location.search)
-    if (params.get('feedback') === '1') {
+    const openByPath  = window.location.pathname === '/session/next-step'
+    const openByParam = params.get('feedback') === '1'
+    if (openByPath || openByParam) {
       setDefaultOpen(true)
-      // Replace the URL without the param so back/refresh behaves cleanly
-      const clean = window.location.pathname +
-        (params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') ? '?' + params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') : '')
-      window.history.replaceState(null, '', clean)
+      if (openByParam) {
+        // Strip the param so back/refresh behaves cleanly
+        const clean = window.location.pathname +
+          (params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') ? '?' + params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') : '')
+        window.history.replaceState(null, '', clean)
+      }
     }
 
     // Try to pull the Supabase access token out of localStorage.
