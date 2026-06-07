@@ -60,9 +60,34 @@ const ADVICE_PHRASES = [
   'you must', 'you have to', 'make sure to', 'consider doing',
 ]
 
+// Words too generic to count as "anchoring" — emotion-tag vocabulary, branch
+// boilerplate, and common stopwords. Anchoring must point at something the
+// person actually described (a noun, situation, person, place — not a feeling).
+const GENERIC_WORDS = new Set([
+  'about', 'after', 'again', 'always', 'because', 'being', 'between', 'could',
+  'doesn', 'didn', 'don', 'every', 'feel', 'feeling', 'feels', 'felt', 'going',
+  'haven', 'have', 'here', 'into', 'isn', 'just', 'keep', 'keeps', 'know',
+  'like', 'months', 'much', 'never', 'something', 'still', 'that', 'their',
+  'them', 'then', 'there', 'these', 'they', 'thing', 'things', 'think',
+  'this', 'those', 'time', 'wasn', 'weeks', 'were', 'what', 'when', 'where',
+  'which', 'while', 'with', 'would', 'years', 'your', 'carrying', 'overwhelmed',
+  'stuck', 'numb', 'exhausted', 'resigned', 'grief', 'hopeful', 'uncertain',
+  'anxious', 'relieved', 'lonely', 'conflicted', 'frustrated', 'afraid',
+  'pressured', 'someone', 'anyone', 'everyone', 'really', 'actually',
+])
+
+// Pull "significant" words (5+ letters, not generic) out of the user's own
+// context text — these are the candidate anchors the Mirror should reference.
+function significantWords(text: string): string[] {
+  return Array.from(new Set(
+    (text.toLowerCase().match(/[a-z']+/g) ?? [])
+      .filter(w => w.length >= 5 && !GENERIC_WORDS.has(w))
+  ))
+}
+
 function checkCriteria(
   output: { carrying: string; underneath: string; question: string },
-  _input: MirrorInput
+  input: MirrorInput
 ): { passed: boolean; failures: string[] } {
   const failures: string[] = []
   const fullText = [output.carrying, output.underneath, output.question].join(' ').toLowerCase()
@@ -88,6 +113,19 @@ function checkCriteria(
   if (output.question) {
     const questionSentences = output.question.split('?').filter(s => s.trim().length > 0)
     if (questionSentences.length > 1) failures.push('question appears to contain multiple sentences')
+  }
+
+  // Criterion 6: anchoring — "carrying" must reference something concrete the
+  // person actually wrote (a word stem shared with their own context text),
+  // not just a restatement of the emotion tags / branch theme. This is the
+  // #1 trust lever named in the beta research (Theme 2 — "horoscope" feedback).
+  if (output.carrying) {
+    const anchors = significantWords(input.contextText)
+    const carryingLower = output.carrying.toLowerCase()
+    const matched = anchors.some(w => carryingLower.includes(w.slice(0, Math.min(w.length, 6))))
+    if (anchors.length > 0 && !matched) {
+      failures.push(`not anchored to specific input (expected one of: ${anchors.slice(0, 6).join(', ')})`)
+    }
   }
 
   return { passed: failures.length === 0, failures }
