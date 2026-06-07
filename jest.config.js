@@ -12,6 +12,9 @@ const createJestConfig = nextJest({ dir: './' })
 const config = {
   coverageProvider: 'v8',
   testEnvironment: 'node',
+  // Adds jest-dom matchers for component tests that opt into jsdom via the
+  // `@jest-environment jsdom` docblock (e.g. SeasonVisual, LoopPreview, VoiceInput).
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
   // Live-AI tests (safety classifier + mirror output) require ANTHROPIC_API_KEY.

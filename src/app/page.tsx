@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
+import { LoopPreview } from '@/components/ui/LoopPreview'
 import { createClient } from '@/lib/supabase/client'
 
 const EMOTIONAL_STATES = [
@@ -72,9 +73,14 @@ export default function Home() {
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
-        <p className="font-serif italic mb-8" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
+        <p className="font-serif italic mb-6" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
+
+        {/* ── How it works — looping Affirm/Ask/Reflect preview ── */}
+        <div className="mb-8 w-full">
+          <LoopPreview />
+        </div>
 
         {/* ── Auth-aware CTAs ── */}
         {isAuthenticated ? (

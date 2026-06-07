@@ -267,6 +267,49 @@ select,
   50%       { opacity: .55; transform: scale(1.35); box-shadow: 0 0 10px rgba(201,168,76,.4); }
 }
 
+/* ── Season scene ambient motion (placeholder CSS visuals — Theme 8) ──────
+   Lightweight, dependency-free animations standing in for illustrated
+   season art until real visual assets are produced. */
+@keyframes season-drift {
+  0%   { transform: translateX(-6%) translateY(0); }
+  50%  { transform: translateX(6%) translateY(-3%); }
+  100% { transform: translateX(-6%) translateY(0); }
+}
+.season-drift { animation: season-drift 14s ease-in-out infinite; }
+
+@keyframes season-twinkle {
+  0%, 100% { opacity: .25; }
+  50%       { opacity: .9; }
+}
+.season-twinkle { animation: season-twinkle 3.2s ease-in-out infinite; }
+
+@keyframes season-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50%       { transform: rotate(4deg); }
+}
+.season-sway { animation: season-sway 6s ease-in-out infinite; transform-origin: bottom center; }
+
+@keyframes season-rise {
+  0%   { transform: translateY(6px); opacity: .35; }
+  50%  { transform: translateY(-2px); opacity: 1; }
+  100% { transform: translateY(6px); opacity: .35; }
+}
+.season-rise { animation: season-rise 5s ease-in-out infinite; }
+
+@keyframes season-fall {
+  0%   { transform: translateY(-4px) rotate(0deg);  opacity: 0; }
+  15%  { opacity: .8; }
+  100% { transform: translateY(46px) rotate(70deg); opacity: 0; }
+}
+.season-fall { animation: season-fall 7s ease-in infinite; }
+
+/* ── Onboarding loop preview — Affirm / Ask / Reflect step cycle ─────────── */
+@keyframes loop-step-glow {
+  0%, 100% { opacity: .35; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.06); }
+}
+.loop-step-active { animation: loop-step-glow 1.8s ease-in-out infinite; }
+
 /* ── Mobile & tablet responsive typography + layout ──────────────────────────
    Rules are ordered from most impactful to most specific.
    !important is only used here, never in component files.
