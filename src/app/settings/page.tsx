@@ -7,6 +7,7 @@ import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import { GENDER_OPTIONS } from '@/components/ui/ProfileFields'
+import { SETTINGS_MEMORY_SECTION } from '@/lib/copy/memory'
 import type { User } from '@supabase/supabase-js'
 
 interface SubscriptionStatus {
@@ -45,6 +46,14 @@ export default function Settings() {
   const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
 
+  // ── Memory & check-ins ─────────────────────────────────────────────────────
+  // Memory itself (the "welcome back" greeting) is always-on and needs no
+  // setting here. The only configurable piece is the opt-in check-in cadence.
+  const [checkInFrequency, setCheckInFrequency] = useState<'off' | 'biweekly' | 'monthly'>('off')
+  const [checkInLoaded, setCheckInLoaded] = useState(false)
+  const [checkInSaving, setCheckInSaving] = useState(false)
+  const [checkInSaved, setCheckInSaved] = useState(false)
+
   // ── Profile editing state ──────────────────────────────────────────────────
   const [profile, setProfile] = useState<ProfileFields>({ firstName: '', lastName: '', dob: '', phone: '', gender: '' })
   const [profileLoaded, setProfileLoaded] = useState(false)
@@ -69,12 +78,19 @@ export default function Settings() {
       const headers: Record<string, string> = {}
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
 
-      const [subData, profileData] = await Promise.all([
+      const [subData, profileData, memoryPrefsData] = await Promise.all([
         fetch('/api/subscription', { headers }).then(r => r.json()).catch(() => null),
         fetch('/api/user/profile', { headers }).then(r => r.json()).catch(() => null),
+        fetch('/api/user/memory-preferences', { headers }).then(r => r.json()).catch(() => null),
       ])
 
       if (subData) setSubStatus(subData as SubscriptionStatus)
+
+      const loadedFrequency = (memoryPrefsData as { checkInFrequency?: string } | null)?.checkInFrequency
+      if (loadedFrequency === 'off' || loadedFrequency === 'biweekly' || loadedFrequency === 'monthly') {
+        setCheckInFrequency(loadedFrequency)
+      }
+      setCheckInLoaded(true)
 
       if (profileData && !profileData.error) {
         const loaded: ProfileFields = {
@@ -139,6 +155,35 @@ export default function Settings() {
       setProfileError('Network error. Please try again.')
     } finally {
       setProfileSaving(false)
+    }
+  }
+
+  async function saveCheckInFrequency(value: 'off' | 'biweekly' | 'monthly') {
+    const previous = checkInFrequency
+    setCheckInFrequency(value)   // optimistic — this is a low-stakes preference
+    setCheckInSaving(true)
+    setCheckInSaved(false)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      const res = await fetch('/api/user/memory-preferences', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ checkInFrequency: value }),
+      })
+      if (!res.ok) {
+        setCheckInFrequency(previous)  // revert on failure
+      } else {
+        setCheckInSaved(true)
+        setTimeout(() => setCheckInSaved(false), 2500)
+      }
+    } catch {
+      setCheckInFrequency(previous)
+    } finally {
+      setCheckInSaving(false)
     }
   }
 
@@ -569,6 +614,50 @@ export default function Settings() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ── Memory & check-ins (locked copy — see src/lib/copy/memory.ts) ── */}
+        <div
+          className="rounded-xl p-4 mb-4"
+          style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+        >
+          <div
+            className="text-[10px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
+            style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+          >
+            {SETTINGS_MEMORY_SECTION.heading}
+          </div>
+          <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(245,237,216,.6)' }}>
+            {SETTINGS_MEMORY_SECTION.body}
+          </p>
+
+          <div className="text-xs text-mist mb-2">{SETTINGS_MEMORY_SECTION.toggleLabel}</div>
+          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={SETTINGS_MEMORY_SECTION.toggleLabel}>
+            {SETTINGS_MEMORY_SECTION.frequencyOptions.map(opt => {
+              const active = checkInFrequency === opt.value
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  disabled={!checkInLoaded || checkInSaving}
+                  onClick={() => saveCheckInFrequency(opt.value as 'off' | 'biweekly' | 'monthly')}
+                  className="px-3.5 py-2 text-xs rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
+                  style={{
+                    border: active ? '1px solid rgba(201,168,76,.4)' : '1px solid rgba(245,237,216,.08)',
+                    background: active ? 'rgba(201,168,76,.1)' : 'transparent',
+                    color: active ? 'var(--gold2)' : 'rgba(245,237,216,.5)',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              )
+            })}
+          </div>
+          {checkInSaved && (
+            <p className="text-xs mt-2" style={{ color: 'rgba(201,168,76,.6)' }}>Saved.</p>
+          )}
         </div>
 
         {/* ── Delete data ── */}

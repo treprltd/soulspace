@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail } from '@/lib/email'
+import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail, checkInDigestEmail } from '@/lib/email'
+import { decrypt } from '@/lib/encryption'
 
 // ── Re-engagement digest + admin daily digest + welcome backfill ───────────────
 //
@@ -11,7 +12,8 @@ import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail } fro
 //   user_digest      — send re-engagement emails to users inactive 7–30 days
 //   admin_digest     — send admin daily digest to ADMIN_EMAIL
 //   welcome_backfill — send welcome email to users who never received one
-//   all              — all three (default)
+//   memory_checkin   — send gentle check-in emails to opted-in users (off by default)
+//   all              — all four (default)
 
 export async function POST(req: NextRequest) {
   // Simple shared-secret auth so only the cron can call this
@@ -153,6 +155,112 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ── Memory check-in emails ─────────────────────────────────────────────────
+  // Opt-in only (check_in_frequency != 'off' — off by default, see
+  // src/lib/copy/memory.ts CHECK_IN_CONSENT). Mirrors the user_digest
+  // cooldown-stamping pattern via last_check_in_sent_at, but the cooldown
+  // window depends on the user's chosen cadence:
+  //   biweekly → don't resend within 13 days   ("about once every couple of weeks, at most")
+  //   monthly  → don't resend within 27 days   ("about monthly")
+  //
+  // Crisis gate: if the user's most recent session was safety-flagged, skip
+  // them entirely this run — Season is suppressed for these, and so is memory
+  // and any memory-adjacent outreach. This is the same gate that prevents
+  // encrypted_memory_note from ever being written for a flagged session.
+  if (mode === 'memory_checkin' || mode === 'all') {
+    try {
+      const now = new Date()
+      const cutoffBiweekly = new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoffMonthly  = new Date(now.getTime() - 27 * 24 * 60 * 60 * 1000).toISOString()
+
+      const { data: optedInUsers } = await db
+        .from('users')
+        .select('id, email, first_name, check_in_frequency, last_check_in_sent_at')
+        .in('check_in_frequency', ['biweekly', 'monthly'])
+        .not('email', 'is', null)
+        .limit(50) // cap per run, mirrors user_digest
+
+      if (!optedInUsers || optedInUsers.length === 0) {
+        results.memoryCheckin = { sent: 0, reason: 'no opted-in users' }
+      } else {
+        let sent = 0
+        let failed = 0
+        let skippedCooldown = 0
+        let skippedCrisisGate = 0
+        let skippedNoSession = 0
+
+        for (const u of optedInUsers) {
+          if (!u.email) continue
+
+          const cutoff = u.check_in_frequency === 'monthly' ? cutoffMonthly : cutoffBiweekly
+          if (u.last_check_in_sent_at && u.last_check_in_sent_at > cutoff) {
+            skippedCooldown++
+            continue
+          }
+
+          // Most recent session that produced a mirror — needed both for the
+          // crisis gate and (when eligible) the memory note to personalize with.
+          const { data: lastSession } = await db
+            .from('sessions')
+            .select('id, safety_flagged')
+            .eq('user_id', u.id)
+            .not('season_assigned', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (!lastSession) {
+            skippedNoSession++
+            continue
+          }
+          if (lastSession.safety_flagged) {
+            skippedCrisisGate++
+            continue
+          }
+
+          let memoryNote: string | null = null
+          try {
+            const { data: content } = await db
+              .from('session_content')
+              .select('encrypted_memory_note')
+              .eq('session_id', lastSession.id)
+              .maybeSingle()
+            if (content?.encrypted_memory_note) {
+              memoryNote = decrypt(content.encrypted_memory_note)
+            }
+          } catch {
+            memoryNote = null // fall back to the generic variant rather than fail the send
+          }
+
+          try {
+            const firstName = u.first_name?.trim() || 'there'
+            // Rotate subject lines by total sends so the same person doesn't
+            // always see the same one — purely cosmetic per checkInEmail's contract.
+            const template = checkInDigestEmail(firstName, memoryNote, sent)
+            await sendEmail({ to: u.email, ...template })
+
+            await db
+              .from('users')
+              .update({ last_check_in_sent_at: now.toISOString() })
+              .eq('id', u.id)
+
+            sent++
+            await new Promise(r => setTimeout(r, 200))
+          } catch {
+            failed++
+          }
+        }
+
+        results.memoryCheckin = {
+          sent, failed, skippedCooldown, skippedCrisisGate, skippedNoSession,
+          eligible: optedInUsers.length,
+        }
+      }
+    } catch (err) {
+      results.memoryCheckin = { sent: 0, error: String(err) }
+    }
+  }
+
   // ── Welcome email backfill ────────────────────────────────────────────────
   // Catches users whose welcome email was never delivered — e.g. registered
   // before Brevo was configured, or whose auth/callback failed silently.
@@ -216,6 +324,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     info: 'POST to this endpoint with x-cron-secret header to trigger digests.',
-    modes: ['user_digest', 'admin_digest', 'welcome_backfill', 'all'],
+    modes: ['user_digest', 'admin_digest', 'welcome_backfill', 'memory_checkin', 'all'],
   })
 }

@@ -1,3 +1,5 @@
+import { checkInEmail } from '@/lib/copy/memory'
+
 // Soul Space — transactional email utility
 // Auth magic links go through Supabase's custom SMTP (configured in Supabase dashboard).
 // All other emails (welcome, subscription, re-engagement) are sent via Brevo (Sendinblue).
@@ -326,6 +328,33 @@ export function reEngagementEmail(daysSinceLastSession: number): { subject: stri
       'To stop receiving these emails, visit your account settings.',
     ),
     textContent: `Soul Space is here whenever you're ready.\n\nNo schedule. No streak to maintain. Just a quiet place for what you're carrying.\n\nReturn: ${APP_URL}/age-gate\n\nTo unsubscribe: ${APP_URL}/settings`,
+  }
+}
+
+/**
+ * Sent only to users who opted in via check_in_frequency (off by default).
+ * Wraps the locked copy from src/lib/copy/memory.ts (checkInEmail) into the
+ * email-shell template. The copy itself is frozen — do not alter wording here;
+ * this function only handles HTML/text presentation of those exact strings.
+ */
+export function checkInDigestEmail(
+  firstName: string,
+  memoryNote: string | null | undefined,
+  subjectIndex = 0
+): { subject: string; htmlContent: string; textContent: string } {
+  const content = checkInEmail(firstName, memoryNote, subjectIndex)
+  const paragraphs = content.body.split('\n\n')
+
+  return {
+    subject: content.subject,
+    htmlContent: emailShell(
+      `${heading(content.greeting)}
+       ${paragraphs.map(p => para(p)).join('\n')}
+       ${btn(content.cta, `${APP_URL}/age-gate`)}`,
+      content.subject,
+      content.footer,
+    ),
+    textContent: `${content.greeting}\n\n${content.body}\n\n${content.cta.replace(' →', '')}: ${APP_URL}/age-gate\n\n${content.footer}`,
   }
 }
 

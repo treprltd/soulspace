@@ -118,6 +118,7 @@ export default function Dashboard() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [detailCache, setDetailCache] = useState<Record<string, SessionDetail>>({})
   const [detailLoading, setDetailLoading] = useState<string | null>(null)
+  const [memoryGreeting, setMemoryGreeting] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -138,11 +139,18 @@ export default function Dashboard() {
       if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
 
 
-      const [subRes, histRes, profileRes] = await Promise.all([
+      const [subRes, histRes, profileRes, memoryRes] = await Promise.all([
         fetch('/api/subscription', { headers: authHeaders }).then(r => r.json()).catch(() => null),
         fetch('/api/sessions/history?limit=50', { headers: authHeaders }).then(r => r.json()).catch(() => ({ sessions: [] })),
         fetch('/api/user/profile', { headers: authHeaders }).then(r => r.json()).catch(() => null),
+        fetch('/api/user/memory-greeting', { headers: authHeaders }).then(r => r.json()).catch(() => null),
       ])
+
+      // Memory is an enhancement, not a blocker — null/error simply means no
+      // greeting renders (first-time visitor, or every prior session was
+      // safety-flagged, in which case the crisis gate suppresses memory too).
+      const greetingText = (memoryRes as { greeting?: string | null } | null)?.greeting
+      if (greetingText) setMemoryGreeting(greetingText)
 
       // Use first name if available, else fall back to email prefix
       const firstName = (profileRes as { first_name?: string } | null)?.first_name
@@ -295,6 +303,22 @@ export default function Dashboard() {
             </p>
           )}
         </div>
+
+        {/* ── Memory greeting — shown only to returning users with a usable
+             memory of their last visit (locked copy, see src/lib/copy/memory.ts).
+             This is always-on / read-only here; the only opt-in piece is the
+             check-in email toggle, configured in Settings. ── */}
+        {memoryGreeting && (
+          <div
+            data-testid="memory-greeting"
+            className="rounded-xl p-4 mb-5"
+            style={{ background: 'rgba(201,168,76,.05)', border: '1px solid rgba(201,168,76,.12)' }}
+          >
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.7)' }}>
+              {memoryGreeting}
+            </p>
+          </div>
+        )}
 
         {/* ── Quick start ──────────────────────────────────────── */}
         <Link

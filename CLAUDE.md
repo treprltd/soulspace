@@ -71,6 +71,18 @@ npm run typecheck  # TypeScript type check
 5. Next Step: "You do not need to resolve anything today. One small thing is enough."
 Welcome screen: "Whatever brought you here — you do not need to have it figured out yet."
 
+## Frozen Memory & Check-in Copy (locked 2026-06-06 — same weight as affirmations above)
+Source of truth: `src/lib/copy/memory.ts` (guarded by `scripts/check-frozen-copy.js`).
+Memory ("welcome back" greeting) is always-on/read-only for all returning users.
+Check-ins (emails) are the only opt-in piece — off by default.
+- `memoryGreeting()` — three gap-band templates ("recent" / "medium" / universal fallback)
+- `CHECK_IN_CONSENT` — the single opt-in toggle copy (headline, body, toggleLabel, toggleHint)
+- `SETTINGS_MEMORY_SECTION` — Settings-page framing of the same control + frequency options
+- `checkInEmail()` — the gentle check-in email, memory-anchored + generic variants, plus footer
+Do not change wording, punctuation, or tone of any of these without the same review
+process as the 5 frozen affirmations — beta research named this exact moment (the
+return) as the trust-defining one, and named "we miss you" nagging as the failure mode.
+
 ## Key Metric
 Binary resonance tap after Mirror output: "This felt accurate" / "Not quite"
 Target: >60% accurate. If below 50% — stop all work and fix Mirror.
