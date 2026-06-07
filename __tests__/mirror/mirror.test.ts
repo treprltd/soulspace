@@ -86,7 +86,7 @@ function significantWords(text: string): string[] {
 }
 
 function checkCriteria(
-  output: { carrying: string; underneath: string; question: string },
+  output: { carrying: string; underneath: string; question: string; memoryNote?: string },
   input: MirrorInput
 ): { passed: boolean; failures: string[] } {
   const failures: string[] = []
@@ -125,6 +125,25 @@ function checkCriteria(
     const matched = anchors.some(w => carryingLower.includes(w.slice(0, Math.min(w.length, 6))))
     if (anchors.length > 0 && !matched) {
       failures.push(`not anchored to specific input (expected one of: ${anchors.slice(0, 6).join(', ')})`)
+    }
+  }
+
+  // Criterion 7: memoryNote — present, short, third-person, no banned/clinical
+  // language, and not a verbatim quote of the raw context text. This field is
+  // never shown to the user today, but it seeds future "welcome back"
+  // greetings and check-in emails, so it must meet the same safety bar.
+  if (!output.memoryNote || output.memoryNote.trim().length < 5) {
+    failures.push('memoryNote missing or too short')
+  } else {
+    const noteLower = output.memoryNote.toLowerCase()
+    if (noteLower.split(/\s+/).length > 25) failures.push('memoryNote too long (expected under ~20 words)')
+    if (/\byou\b|\byour\b|\byou're\b/.test(noteLower)) {
+      failures.push('memoryNote written in second person — must be third person')
+    }
+    const noteClinicalHits = CLINICAL_TERMS.filter(t => noteLower.includes(t))
+    if (noteClinicalHits.length > 0) failures.push(`memoryNote contains clinical terms: ${noteClinicalHits.join(', ')}`)
+    if (noteLower.includes(input.contextText.toLowerCase().trim()) && input.contextText.length > 20) {
+      failures.push('memoryNote appears to quote the raw input verbatim rather than paraphrasing')
     }
   }
 

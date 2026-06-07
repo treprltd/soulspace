@@ -6,7 +6,7 @@ import { BRANCH_B_PROMPT } from './prompts/branchB'
 import { BRANCH_C_PROMPT } from './prompts/branchC'
 import { BRANCH_D_PROMPT } from './prompts/branchD'
 
-const PROMPT_VERSION = '1.1.0'
+const PROMPT_VERSION = '1.2.0'
 
 const BRANCH_PROMPTS: Record<Branch, string> = {
   A: BRANCH_A_PROMPT,
@@ -124,6 +124,7 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
     carrying: string
     underneath: string
     question: string
+    memoryNote?: string
   }
 
   const season = assignSeason(input.emotionTags, input.intensity, input.branch)
@@ -132,6 +133,10 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
     carrying: parsed.carrying,
     underneath: parsed.underneath,
     question: parsed.question,
+    // Defensive fallback — should always be present per the prompt contract,
+    // but a missing/blank memoryNote must never break the session. An empty
+    // string simply means "no memory seeded for this visit."
+    memoryNote: (parsed.memoryNote ?? '').trim(),
     season,
     patternTags: input.emotionTags.slice(0, 3),
     safetyFlagged: false,

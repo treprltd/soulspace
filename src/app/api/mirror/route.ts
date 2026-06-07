@@ -102,10 +102,22 @@ export async function POST(req: NextRequest) {
       const { ciphertext: encryptedContext, keyRef } = encrypt(input.contextText)
       const { ciphertext: encryptedMirror } = encrypt(JSON.stringify(mirrorOutput))
 
+      // memoryNote is narrative-derived (a paraphrase of what the person
+      // shared) — it must be encrypted at rest like everything else here.
+      // It gets its own ciphertext column (rather than living only inside
+      // encrypted_mirror_output) so a future visit's "welcome back" greeting
+      // can fetch one short field without decrypting the full mirror blob.
+      // Crisis gate: never seed memory from a safety-flagged session — Season
+      // is suppressed for these, and so is memory.
+      const encryptedMemoryNote = mirrorOutput.safetyFlagged || !mirrorOutput.memoryNote
+        ? null
+        : encrypt(mirrorOutput.memoryNote).ciphertext
+
       await db.from('session_content').insert({
         session_id: input.sessionId,
         encrypted_context: encryptedContext,
         encrypted_mirror_output: encryptedMirror,
+        encrypted_memory_note: encryptedMemoryNote,
         encryption_key_ref: keyRef,
       })
 
