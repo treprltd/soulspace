@@ -7,6 +7,7 @@ import { NavBar } from '@/components/ui/NavBar'
 import { NotificationBanner } from '@/components/ui/NotificationBanner'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+import { PATTERN_CARD_LABEL } from '@/lib/copy/patterns'
 
 interface SubStatus {
   planTier: 'free' | 'essentials' | 'insights'
@@ -119,6 +120,7 @@ export default function Dashboard() {
   const [detailCache, setDetailCache] = useState<Record<string, SessionDetail>>({})
   const [detailLoading, setDetailLoading] = useState<string | null>(null)
   const [memoryGreeting, setMemoryGreeting] = useState<string | null>(null)
+  const [patternInsight, setPatternInsight] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -139,11 +141,12 @@ export default function Dashboard() {
       if (session?.access_token) authHeaders['Authorization'] = `Bearer ${session.access_token}`
 
 
-      const [subRes, histRes, profileRes, memoryRes] = await Promise.all([
+      const [subRes, histRes, profileRes, memoryRes, patternsRes] = await Promise.all([
         fetch('/api/subscription', { headers: authHeaders }).then(r => r.json()).catch(() => null),
         fetch('/api/sessions/history?limit=50', { headers: authHeaders }).then(r => r.json()).catch(() => ({ sessions: [] })),
         fetch('/api/user/profile', { headers: authHeaders }).then(r => r.json()).catch(() => null),
         fetch('/api/user/memory-greeting', { headers: authHeaders }).then(r => r.json()).catch(() => null),
+        fetch('/api/user/patterns', { headers: authHeaders }).then(r => r.json()).catch(() => null),
       ])
 
       // Memory is an enhancement, not a blocker — null/error simply means no
@@ -151,6 +154,12 @@ export default function Dashboard() {
       // safety-flagged, in which case the crisis gate suppresses memory too).
       const greetingText = (memoryRes as { greeting?: string | null } | null)?.greeting
       if (greetingText) setMemoryGreeting(greetingText)
+
+      // Pattern card — same "enhancement, never a blocker" contract. Renders
+      // only when the server found enough non-flagged history to say
+      // something meaningful (see /api/user/patterns).
+      const patternsBody = patternsRes as { available?: boolean; insight?: string | null } | null
+      if (patternsBody?.available && patternsBody.insight) setPatternInsight(patternsBody.insight)
 
       // Use first name if available, else fall back to email prefix
       const firstName = (profileRes as { first_name?: string } | null)?.first_name
@@ -316,6 +325,30 @@ export default function Dashboard() {
           >
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.7)' }}>
               {memoryGreeting}
+            </p>
+          </div>
+        )}
+
+        {/* ── Pattern card — "what you've been carrying" ───────────────────
+             Lightweight, multi-session pattern surface (Phase 2 scoping,
+             2026-06-07): the one remaining gap named repeatedly in user
+             research after memory/check-ins shipped. Server computes a single
+             gentle, non-diagnostic observation (src/lib/copy/patterns.ts —
+             draft copy, not yet locked) from categorical session data only;
+             never free text, never shown for safety-flagged history (same
+             crisis gate as memory/Season). Appears only once there's enough
+             history to say something meaningful — silent otherwise. ── */}
+        {patternInsight && (
+          <div
+            data-testid="pattern-card"
+            className="rounded-xl p-4 mb-5"
+            style={{ background: 'rgba(139,167,184,.04)', border: '1px solid rgba(139,167,184,.12)' }}
+          >
+            <p className="text-xs tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
+              {PATTERN_CARD_LABEL}
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.7)' }}>
+              {patternInsight}
             </p>
           </div>
         )}
