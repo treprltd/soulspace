@@ -137,6 +137,14 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
   const [saving, setSaving]           = useState(false)
   const [lastSubmitted, setLastSubmitted] = useState<string | null>(null)
 
+  // React to prop changes: FeedbackWrapper is persistent in the layout so
+  // this component never unmounts on navigation. useState(defaultOpen) only
+  // reads the initial value — we need this effect to open the panel whenever
+  // the parent sets defaultOpen=true (e.g. on /session/next-step).
+  useEffect(() => {
+    if (defaultOpen) setOpen(true)
+  }, [defaultOpen])
+
   // Guest email (mandatory for guests)
   const [guestEmail, setGuestEmail]   = useState('')
   const [emailTouched, setEmailTouched] = useState(false)

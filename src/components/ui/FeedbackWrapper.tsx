@@ -1,57 +1,51 @@
 'use client'
 
 // FeedbackWrapper — shown on all non-admin pages.
-// Reads the Supabase session token from localStorage (implicit flow) and
-// passes it down to FeedbackPanel. Renders nothing until mounted so there's
-// no SSR/hydration mismatch.
+// Uses the Supabase client (not a manual localStorage scan) to read the auth
+// token reliably across SDK versions. Renders nothing until mounted to prevent
+// SSR/hydration mismatches.
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { FeedbackPanel } from '@/components/dashboard/FeedbackPanel'
 
+// Pages where the feedback panel opens automatically on load.
+const AUTO_OPEN_PATHS = ['/session/next-step', '/auth/register']
+
 export function FeedbackWrapper() {
-  const pathname  = usePathname()
-  const [mounted, setMounted]       = useState(false)
-  const [token, setToken]           = useState<string | null>(null)
+  const pathname = usePathname()
+  const [mounted, setMounted]         = useState(false)
+  const [token, setToken]             = useState<string | null>(null)
   const [defaultOpen, setDefaultOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
 
-    // Auto-open the panel on /session/next-step (always) or when any page is
-    // reached with ?feedback=1. Strip the param from the URL immediately so a
-    // refresh doesn't re-open the panel unexpectedly.
-    const params = new URLSearchParams(window.location.search)
-    const openByPath  = window.location.pathname === '/session/next-step'
+    // ── Auto-open logic ────────────────────────────────────────────────────
+    // Open on designated paths OR when navigated to with ?feedback=1.
+    // Strip the param from the URL immediately so refresh doesn't re-trigger.
+    const params    = new URLSearchParams(window.location.search)
+    const openByPath  = AUTO_OPEN_PATHS.includes(window.location.pathname)
     const openByParam = params.get('feedback') === '1'
-    if (openByPath || openByParam) {
-      setDefaultOpen(true)
-      if (openByParam) {
-        // Strip the param so back/refresh behaves cleanly
-        const clean = window.location.pathname +
-          (params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') ? '?' + params.toString().replace(/feedback=1&?/, '').replace(/&$/, '') : '')
-        window.history.replaceState(null, '', clean)
-      }
+
+    setDefaultOpen(openByPath || openByParam)
+
+    if (openByParam) {
+      params.delete('feedback')
+      const qs    = params.toString()
+      const clean = window.location.pathname + (qs ? `?${qs}` : '')
+      window.history.replaceState(null, '', clean)
     }
 
-    // Try to pull the Supabase access token out of localStorage.
-    // The key format is: sb-<project-ref>-auth-token
-    // We scan all keys for the Supabase auth payload so we're not hardcoding
-    // the project ref, which differs per environment.
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
-        if (key?.startsWith('sb-') && key?.endsWith('-auth-token')) {
-          const raw  = localStorage.getItem(key)
-          const data = raw ? JSON.parse(raw) : null
-          const at   = data?.access_token ?? data?.session?.access_token ?? null
-          if (at) { setToken(at); break }
-        }
-      }
-    } catch {
-      // localStorage unavailable (SSR guard, incognito policy) — treat as guest
-    }
-  }, [pathname]) // re-check on route change (login/logout navigates)
+    // ── Auth token — use the Supabase client, not a localStorage key scan ──
+    // The manual sb-*-auth-token scan was fragile (key format varies across
+    // SDK versions). getSession() is the reliable, officially-supported path.
+    createClient()
+      .auth.getSession()
+      .then(({ data: { session } }) => setToken(session?.access_token ?? null))
+      .catch(() => setToken(null))
+  }, [pathname]) // re-run on every route change (catches login/logout)
 
   // Don't render on admin pages or before mount (prevents hydration mismatch)
   if (!mounted || pathname.startsWith('/admin')) return null
