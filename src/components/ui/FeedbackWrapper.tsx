@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/client'
 import { FeedbackPanel } from '@/components/dashboard/FeedbackPanel'
 
 // Pages where the feedback panel opens automatically on load.
-const AUTO_OPEN_PATHS = ['/session/next-step', '/auth/register']
+const AUTO_OPEN_PATHS = ['/auth/register']
 
 export function FeedbackWrapper() {
   const pathname = usePathname()
