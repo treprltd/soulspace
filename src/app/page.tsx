@@ -55,34 +55,40 @@ export default function Home() {
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
 
-      {/* ── Hero ── */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-12 pb-16">
-        <div className="eyebrow mb-4 justify-center">
+      {/* ── Hero ──
+          Layout note: the primary CTAs ("Begin your session →",
+          "Sign in / Create account →", and the "Free to start · No account
+          required · 3–5 minutes" line) must be visible in the viewport on
+          initial load without scrolling. They previously sat BELOW the
+          LoopPreview animation, which — combined with generous top/bottom
+          padding and margins — pushed them off-screen on common laptop/phone
+          viewport heights. Fix: render the CTA block immediately after the
+          affirmation copy (right where a visitor's eye lands first) and move
+          the LoopPreview below it, plus trim the section's vertical rhythm
+          (padding/margins) so the whole block fits comfortably above the fold. */}
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-8 pb-10">
+        <div className="eyebrow mb-3 justify-center">
           <span>Phase 1 · Behavior validation · April 2026</span>
         </div>
 
         <h1
-          className="hero-heading font-serif font-light leading-tight mb-4 max-w-3xl"
-          style={{ fontSize: 'clamp(26px, 5vw, 56px)', color: 'var(--sand2)' }}
+          className="hero-heading font-serif font-light leading-tight mb-3 max-w-3xl"
+          style={{ fontSize: 'clamp(24px, 4.5vw, 56px)', color: 'var(--sand2)' }}
         >
           The structured pause between<br />
           <em className="text-gold2">emotional overload</em> and consequential action.
         </h1>
 
-        <p className="text-sm text-mist max-w-md mb-3 leading-loose">
+        <p className="text-sm text-mist max-w-md mb-2 leading-loose">
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
-        <p className="font-serif italic mb-6" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
+        <p className="font-serif italic mb-5" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
 
-        {/* ── How it works — looping Affirm/Ask/Reflect preview ── */}
-        <div className="mb-8 w-full">
-          <LoopPreview />
-        </div>
-
-        {/* ── Auth-aware CTAs ── */}
+        {/* ── Auth-aware CTAs — kept directly under the affirmation copy so
+              they land above the fold on first paint ── */}
         {isAuthenticated ? (
           /* Returning signed-in user */
           <div className="flex flex-col items-center gap-3 w-full max-w-xs">
@@ -122,6 +128,13 @@ export default function Home() {
             </p>
           </div>
         )}
+
+        {/* ── How it works — looping Affirm/Ask/Reflect preview ──
+              Moved below the CTAs: still the first thing visible on scroll,
+              but no longer competing with the CTAs for above-the-fold space. */}
+        <div className="mt-8 w-full">
+          <LoopPreview />
+        </div>
       </section>
 
       {/* ── What you arrive with ── */}

@@ -104,6 +104,27 @@ export default function Register() {
       }))
     } catch { /* non-fatal */ }
 
+    // ALSO stash server-side, keyed by email — magic-link emails are very
+    // often opened in a different browser/profile/device/private window than
+    // the one used to register, none of which can see the localStorage entry
+    // above. /auth/callback consumes this by the verified email regardless of
+    // where the link is opened. Awaited (but non-blocking on failure) so it's
+    // reliably persisted before we navigate away to check the inbox.
+    try {
+      await fetch('/api/auth/pending-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:     email.trim(),
+          firstName: firstName.trim(),
+          lastName:  lastName.trim(),
+          dob,
+          phone:     phone.trim(),
+          gender,
+        }),
+      })
+    } catch { /* non-fatal — localStorage bridge and /profile/setup remain as fallbacks */ }
+
     // Send magic link
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({

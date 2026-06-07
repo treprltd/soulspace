@@ -102,40 +102,79 @@ export default function AuthCallback() {
 
     // ── Profile save ────────────────────────────────────────────────────────
     // When a user registers via /auth/register, their profile data (first_name,
-    // last_name, dob, phone) is stored in localStorage as `ss_pending_profile`
-    // before the magic link is sent. Magic links open in a new tab (destroying
-    // sessionStorage), so localStorage is the bridge.
+    // last_name, dob, phone, gender) needs to make it into `users` once they
+    // authenticate. Two independent bridges carry it across the magic-link
+    // boundary, tried in order:
     //
-    // Returns true if a pending profile was found (even if save failed), so we
-    // can skip the profile-complete check for new registrants.
+    //   1. localStorage `ss_pending_profile` — fast path, works when the link
+    //      is opened in the SAME browser/profile used to register (the entry
+    //      survives the new-tab the email link opens, since localStorage is
+    //      shared across tabs in one browser profile — sessionStorage is not).
+    //
+    //   2. Server-side `pending_profiles` row, looked up by the user's now-
+    //      VERIFIED email (see POST /api/auth/pending-profile and
+    //      /api/auth/pending-profile/consume) — the bridge that actually
+    //      survives the common case where the magic link is opened in a
+    //      DIFFERENT browser, browser profile, device, or private/InPrivate
+    //      window than the one used to register. localStorage written in tab A
+    //      is invisible to tab B in that case, so (1) silently no-ops; (2)
+    //      recovers the same data keyed off the email address instead.
+    //
+    // Returns true if EITHER bridge actually persisted a complete profile —
+    // only then can we safely skip the profile-completeness check below and
+    // skip routing the user to /profile/setup to re-enter what they already gave us.
     async function maybeSaveProfile(session: import('@supabase/supabase-js').Session): Promise<boolean> {
+      let savedViaLocalStorage = false
+
       try {
         const raw = localStorage.getItem('ss_pending_profile')
-        if (!raw) return false
+        if (raw) {
+          try {
+            const data = JSON.parse(raw) as {
+              firstName: string
+              lastName:  string
+              dob:       string
+              phone:     string
+              gender?:   string
+            }
 
-        const data = JSON.parse(raw) as {
-          firstName: string
-          lastName:  string
-          dob:       string
-          phone:     string
-          gender?:   string
+            const res = await fetch('/api/user/profile', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify(data),
+            })
+
+            // Only trust this bridge if the save actually succeeded — a 400/409
+            // (e.g. phone now claimed elsewhere) must NOT be treated as "done",
+            // or the user would be sent straight to a dashboard with an
+            // incomplete profile and no way to fix it.
+            savedViaLocalStorage = res.ok
+          } finally {
+            // Always clear — never retried, whether it succeeded or not.
+            localStorage.removeItem('ss_pending_profile')
+          }
         }
+      } catch { /* fall through to the server-side bridge below */ }
 
-        await fetch('/api/user/profile', {
+      if (savedViaLocalStorage) return true
+
+      // Server-side bridge — works regardless of which browser/device opened
+      // the link, because it keys off the verified email rather than anything
+      // stored client-side.
+      try {
+        const res = await fetch('/api/auth/pending-profile/consume', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(data),
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: AbortSignal.timeout(8000),
         })
-
-        return true
+        if (!res.ok) return false
+        const body = await res.json() as { applied?: boolean }
+        return body.applied === true
       } catch {
         return false
-      } finally {
-        // Always clear — don't retry on next login
-        localStorage.removeItem('ss_pending_profile')
       }
     }
 
