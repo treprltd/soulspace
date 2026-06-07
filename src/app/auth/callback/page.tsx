@@ -50,54 +50,88 @@ export default function AuthCallback() {
     // ── Session recovery ────────────────────────────────────────────────────
     // When an anonymous user clicks "Create free account" on the next-step page,
     // all sessionStorage keys are snapshotted into localStorage as
-    // `ss_pending_session`. sessionStorage is tab-scoped; magic-link emails open
-    // in a NEW tab, so sessionStorage is empty by the time this callback runs.
-    // localStorage survives across tabs, so the snapshot is still here.
+    // `ss_pending_session`. Two independent bridges carry it across the
+    // magic-link boundary, tried in order — same shape as maybeSaveProfile:
+    //
+    //   1. localStorage `ss_pending_session` — works when the link is opened
+    //      in the SAME browser/profile/device the session was completed in
+    //      (localStorage survives the new tab the email link opens;
+    //      sessionStorage does not).
+    //
+    //   2. Server-side `pending_sessions` row, looked up by the user's now-
+    //      VERIFIED email (see POST /api/auth/pending-session and
+    //      /api/auth/pending-session/consume, migration
+    //      016_pending_sessions.sql) — the bridge that survives the common
+    //      case where the magic link is opened in a DIFFERENT browser,
+    //      profile, device, or private/Incognito window. Without it, a
+    //      user's first completed session simply vanishes: dashboard shows
+    //      "No sessions yet", quota reads as untouched, even though they
+    //      just finished one and signed up specifically to save it.
     //
     // IMPORTANT: await this before navigating — the dashboard fetches
     // sessionsThisMonth on mount, and the count must be up-to-date.
     async function maybeRecoverSession(session: import('@supabase/supabase-js').Session) {
+      let recoveredViaLocalStorage = false
+
       try {
         const raw = localStorage.getItem('ss_pending_session')
-        if (!raw) return
+        if (raw) {
+          try {
+            const data = JSON.parse(raw) as {
+              branch: string
+              emotions: string
+              intensity: string
+              contextText: string
+              mirrorOutput: string
+              resonanceTap: string | null
+              savedAt: number
+            }
 
-        const data = JSON.parse(raw) as {
-          branch: string
-          emotions: string
-          intensity: string
-          contextText: string
-          mirrorOutput: string
-          resonanceTap: string | null
-          savedAt: number
+            // Must have mirror output and be within the 1-hour TTL
+            if (data.mirrorOutput && data.savedAt && Date.now() - data.savedAt <= 60 * 60 * 1000) {
+              const res = await fetch('/api/sessions/recover', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({
+                  branch:       data.branch,
+                  contextText:  data.contextText,
+                  mirrorOutput: data.mirrorOutput,
+                  emotions:     data.emotions,
+                  intensity:    Number(data.intensity ?? 5),
+                  resonanceTap: data.resonanceTap ?? null,
+                  savedAt:      data.savedAt,
+                }),
+              })
+              if (res.ok) {
+                const body = await res.json().catch(() => ({})) as { ok?: boolean; paywall?: boolean }
+                // `paywall: true` means recovery was correctly skipped (quota
+                // reached) — not a failure; either way the bridge "handled" it
+                // and the server-side fallback should not also try.
+                recoveredViaLocalStorage = body.ok === true || body.paywall === true
+              }
+            }
+          } finally {
+            // Always clear — never retried, whether it succeeded or not.
+            localStorage.removeItem('ss_pending_session')
+          }
         }
+      } catch { /* fall through to the server-side bridge below */ }
 
-        // Must have mirror output and be within the 1-hour TTL
-        if (!data.mirrorOutput || !data.savedAt) return
-        if (Date.now() - data.savedAt > 60 * 60 * 1000) {
-          localStorage.removeItem('ss_pending_session')
-          return
-        }
+      if (recoveredViaLocalStorage) return
 
-        await fetch('/api/sessions/recover', {
+      // Server-side bridge — works regardless of which browser/device opened
+      // the link, because it keys off the verified email rather than
+      // anything stored client-side.
+      try {
+        await fetch('/api/auth/pending-session/consume', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            branch:       data.branch,
-            contextText:  data.contextText,
-            mirrorOutput: data.mirrorOutput,
-            emotions:     data.emotions,
-            intensity:    Number(data.intensity ?? 5),
-            resonanceTap: data.resonanceTap ?? null,
-            savedAt:      data.savedAt,
-          }),
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: AbortSignal.timeout(8000),
         })
       } catch { /* non-fatal — sign-in proceeds regardless */ }
-
-      // Always clear — even if recovery failed, don't retry on next login
-      localStorage.removeItem('ss_pending_session')
     }
 
     // ── Profile save ────────────────────────────────────────────────────────

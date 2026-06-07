@@ -125,6 +125,30 @@ export default function Register() {
       })
     } catch { /* non-fatal — localStorage bridge and /profile/setup remain as fallbacks */ }
 
+    // ALSO re-stage any anonymously-completed session server-side, keyed by
+    // the same email — companion bridge to the one above. /session/next-step
+    // already snapshotted the completed session into localStorage
+    // (`ss_pending_session`) before routing here; sessionStorage from that
+    // page survives this client-side navigation, so it's readable here too.
+    // Re-staging it now (the moment the email is known, before the magic link
+    // is sent) means /auth/callback can recover it by the verified email
+    // regardless of which browser/device/profile opens the link — without
+    // this, a user's first completed session can simply vanish whenever the
+    // link is opened somewhere other than where the session was completed
+    // (the common case: checking email on a different device/app/profile).
+    // See migration 016_pending_sessions.sql for the full rationale.
+    try {
+      const pendingSessionRaw = localStorage.getItem('ss_pending_session')
+      if (pendingSessionRaw) {
+        const pendingSession = JSON.parse(pendingSessionRaw) as Record<string, unknown>
+        await fetch('/api/auth/pending-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim(), ...pendingSession }),
+        })
+      }
+    } catch { /* non-fatal — localStorage bridge remains as a fallback */ }
+
     // Send magic link
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({
