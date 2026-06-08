@@ -4,13 +4,31 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { LoopPreview } from '@/components/ui/LoopPreview'
+import { HowItWorks } from '@/components/ui/HowItWorks'
 import { createClient } from '@/lib/supabase/client'
 
+// Each state pairs the existing resonance phrase with a short, affirming
+// response — descriptive only, never diagnostic or prescriptive (CLAUDE.md
+// rule #1). Tapping one is a low-stakes way for a first-time visitor to feel
+// "seen" before committing to a full session — a small mirror of the same
+// Affirm → Ask shape the product itself uses.
 const EMOTIONAL_STATES = [
-  "Something keeps pulling you back to a decision you thought you'd made.",
-  "You know what you feel but can't quite explain why.",
-  "You're not in crisis. But something isn't right.",
-  "You've been carrying this alone for a while.",
+  {
+    phrase: "Something keeps pulling you back to a decision you thought you'd made.",
+    response: "That kind of pull is its own kind of tiring — and it makes sense that going over it again hasn't settled it.",
+  },
+  {
+    phrase: "You know what you feel but can't quite explain why.",
+    response: "A feeling can have a shape long before it has a name. That's already something to start from.",
+  },
+  {
+    phrase: "You're not in crisis. But something isn't right.",
+    response: "Noticing that something isn't right is its own kind of clarity — it doesn't need a label to matter.",
+  },
+  {
+    phrase: "You've been carrying this alone for a while.",
+    response: 'Carrying something alone for a while is its own particular weight. Naming that, even quietly, is a start.',
+  },
 ]
 
 const SCOPE_IS = [
@@ -36,6 +54,7 @@ const MIRROR_EXAMPLE = {
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [emailPrefix, setEmailPrefix] = useState('')
+  const [selectedState, setSelectedState] = useState<number | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -83,7 +102,7 @@ export default function Home() {
           Not therapy. Not meditation. Not a budgeting app.<br />
           The pause before the decision that changes things.
         </p>
-        <p className="font-serif italic mb-5" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
+        <p className="font-serif italic mb-5" style={{ fontSize: '15px', color: 'rgba(213,226,235,.74)' }}>
           Whatever brought you here — you do not need to have it figured out yet.
         </p>
 
@@ -113,7 +132,7 @@ export default function Home() {
             <Link href="/auth/signin" className="btn-outline text-sm px-8 py-3 w-full text-center">
               Sign in / Create account →
             </Link>
-            <p className="text-xs mt-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <p className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.66)' }}>
               Free to start · No account required · 3–5 minutes
             </p>
           </div>
@@ -123,7 +142,7 @@ export default function Home() {
             <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
               Begin your session →
             </Link>
-            <p className="text-[10px] mt-1" style={{ color: 'rgba(139,167,184,.35)' }}>
+            <p className="text-[10px] mt-1" style={{ color: 'rgba(213,226,235,.62)' }}>
               Free to start · No account required · 3–5 minutes
             </p>
           </div>
@@ -137,28 +156,74 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── What you arrive with ── */}
+      {/* ── What you arrive with — now tappable ──
+            Lets a first-time visitor try a miniature version of the Affirm →
+            Ask shape before committing to a full session: tap the phrase that
+            feels closest, and a short, non-diagnostic response appears beneath
+            it (see EMOTIONAL_STATES — every response is descriptive, never
+            prescriptive, per CLAUDE.md rule #1). This is presentational only;
+            it does not feed into or alter the actual session flow. */}
       <section className="px-6 py-16 max-w-3xl mx-auto">
-        <div className="eyebrow mb-5">Right now, something feels like this</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {EMOTIONAL_STATES.map((state, i) => (
-            <div
-              key={i}
-              className="rounded-xl px-4 py-4 font-serif italic leading-relaxed"
-              style={{
-                border: '1px solid rgba(201,168,76,.12)',
-                color: 'var(--sand)',
-                fontSize: '14px',
-                background: 'rgba(201,168,76,.02)',
-              }}
-            >
-              &ldquo;{state}&rdquo;
-            </div>
-          ))}
-        </div>
-        <p className="text-sm text-mist mt-4 text-center">
-          You tap one. Everything that follows adapts to your selection.
+        <div className="eyebrow mb-2">Right now, something feels like this</div>
+        <p className="text-sm mb-5 leading-relaxed" style={{ color: 'rgba(213,226,235,.62)' }}>
+          Tap whichever feels closest. No wrong answer — this isn&apos;t being saved or scored.
         </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {EMOTIONAL_STATES.map((state, i) => {
+            const isSelected = selectedState === i
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelectedState(isSelected ? null : i)}
+                aria-pressed={isSelected}
+                className="text-left rounded-xl px-4 py-4 font-serif italic leading-relaxed transition-all cursor-pointer"
+                style={{
+                  border: `1px solid ${isSelected ? 'var(--gold)' : 'rgba(201,168,76,.16)'}`,
+                  color: isSelected ? 'var(--gold3)' : 'var(--sand)',
+                  fontSize: '14px',
+                  background: isSelected ? 'rgba(201,168,76,.07)' : 'rgba(201,168,76,.02)',
+                }}
+              >
+                &ldquo;{state.phrase}&rdquo;
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Response — appears only after a tap; affirming, not diagnostic */}
+        {selectedState !== null && (
+          <div
+            className="mt-4 rounded-xl px-5 py-4 animate-fade-in"
+            style={{ border: '1px solid rgba(42,140,122,.22)', background: 'rgba(42,140,122,.06)' }}
+          >
+            <p className="font-serif italic leading-relaxed mb-3" style={{ fontSize: '14px', color: 'var(--sand2)' }}>
+              {EMOTIONAL_STATES[selectedState].response}
+            </p>
+            <Link
+              href="/age-gate"
+              className="inline-flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ color: 'var(--teal2)' }}
+            >
+              See where this leads — begin a session →
+            </Link>
+          </div>
+        )}
+
+        <p className="text-sm mt-4 text-center" style={{ color: 'rgba(213,226,235,.6)' }}>
+          Tap one. Everything that follows in a real session adapts to your selection.
+        </p>
+      </section>
+
+      {/* ── How it works — illustrated walkthrough ──
+            A slower, more legible companion to the looping hero preview —
+            see src/components/ui/HowItWorks.tsx for the full rationale. */}
+      <section className="px-6 py-16 max-w-4xl mx-auto">
+        <div className="eyebrow mb-2 justify-center">How a session unfolds</div>
+        <p className="text-sm mb-10 text-center max-w-md mx-auto leading-relaxed" style={{ color: 'rgba(213,226,235,.64)' }}>
+          Three short movements. No account needed to try the first one.
+        </p>
+        <HowItWorks />
       </section>
 
       {/* ── Mirror example ── */}
@@ -180,7 +245,7 @@ export default function Home() {
             <div className="mirror-label mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
             <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>{MIRROR_EXAMPLE.question}</p>
           </div>
-          <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.66)' }}>
             Descriptive only — not diagnostic. Clinically reviewed. Not therapy.
           </p>
         </div>
@@ -243,22 +308,22 @@ export default function Home() {
         <p className="font-serif font-light text-sand2 text-sm mb-1">
           Soul <em className="not-italic text-gold font-normal">Space</em>
         </p>
-        <p className="text-xs mt-2 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="text-xs mt-2 leading-relaxed" style={{ color: 'rgba(213,226,235,.62)' }}>
           Affirm. Ask. Reflect. · Non-clinical · Non-diagnostic · Not a crisis service<br />
           If you are in immediate danger, call or text 988.
         </p>
         <div className="flex flex-wrap gap-4 justify-center mt-4">
           {isAuthenticated ? (
-            <Link href="/dashboard" className="text-xs text-mist/50 hover:text-mist transition-colors">Dashboard</Link>
+            <Link href="/dashboard" className="text-xs text-mist/80 hover:text-mist transition-colors">Dashboard</Link>
           ) : (
-            <Link href="/auth/signin" className="text-xs text-mist/50 hover:text-mist transition-colors">Sign in</Link>
+            <Link href="/auth/signin" className="text-xs text-mist/80 hover:text-mist transition-colors">Sign in</Link>
           )}
           <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/pricing" className="text-xs text-mist/50 hover:text-mist transition-colors">Pricing</Link>
+          <Link href="/pricing" className="text-xs text-mist/80 hover:text-mist transition-colors">Pricing</Link>
           <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/settings" className="text-xs text-mist/50 hover:text-mist transition-colors">Settings</Link>
+          <Link href="/settings" className="text-xs text-mist/80 hover:text-mist transition-colors">Settings</Link>
           <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
-          <Link href="/crisis" className="text-xs text-mist/50 hover:text-mist transition-colors">Crisis resources</Link>
+          <Link href="/crisis" className="text-xs text-mist/80 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
       </footer>
     </main>
