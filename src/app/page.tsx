@@ -318,11 +318,11 @@ export default function Home() {
           ) : (
             <Link href="/auth/signin" className="text-xs text-mist/80 hover:text-mist transition-colors">Sign in</Link>
           )}
-          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/pricing" className="text-xs text-mist/80 hover:text-mist transition-colors">Pricing</Link>
-          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/settings" className="text-xs text-mist/80 hover:text-mist transition-colors">Settings</Link>
-          <span className="text-xs" style={{ color: 'rgba(139,167,184,.2)' }}>·</span>
+          <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/crisis" className="text-xs text-mist/80 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
       </footer>

@@ -47,7 +47,7 @@ interface UsersResponse {
 }
 
 const PLAN_COLORS: Record<string, { color: string; bg: string }> = {
-  free:       { color: 'var(--mist)',  bg: 'rgba(139,167,184,.10)' },
+  free:       { color: 'var(--mist)',  bg: 'rgba(213,226,235,.52)' },
   essentials: { color: '#C9A84C',     bg: 'rgba(201,168,76,.12)'  },
   insights:   { color: '#3DAF96',     bg: 'rgba(42,140,122,.12)'  },
 }
@@ -209,7 +209,7 @@ function UsersInner() {
                             {[u.first_name, u.last_name].filter(Boolean).join(' ')}
                           </span>
                         ) : (
-                          <span style={{ color: 'rgba(139,167,184,.3)', fontSize: '11px' }}>—</span>
+                          <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>
                         )}
                       </td>
                       {/* Email */}
@@ -218,19 +218,19 @@ function UsersInner() {
                       </td>
                       {/* Phone */}
                       <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', whiteSpace: 'nowrap' }}>
-                        {u.phone ?? <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                        {u.phone ?? <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                       </td>
                       {/* Age (calculated from DOB) */}
                       <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                         {u.dob
                           ? <span style={{ color: 'var(--sand)' }}>{calcAge(u.dob)}</span>
-                          : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                          : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                       </td>
                       {/* Gender */}
                       <td style={{ padding: '10px 12px', fontSize: '11px', whiteSpace: 'nowrap' }}>
                         {u.gender
                           ? <span style={{ color: 'var(--mist)' }}>{GENDER_LABELS[u.gender] ?? u.gender}</span>
-                          : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                          : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                       </td>
                       {/* Plan */}
                       <td style={{ padding: '10px 12px' }}>
@@ -264,7 +264,7 @@ function UsersInner() {
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{
                           fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
-                          color: u.profile_complete ? '#3DAF96' : 'rgba(139,167,184,.5)',
+                          color: u.profile_complete ? '#3DAF96' : 'rgba(213,226,235,.72)',
                           background: u.profile_complete ? 'rgba(42,140,122,.12)' : 'rgba(139,167,184,.07)',
                         }}>
                           {u.profile_complete ? '✓' : '—'}

@@ -120,7 +120,7 @@ function ResonanceMeter({ rate, target = 60 }: { rate: number | null; target?: n
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--mist)' }}>
         <span>0%</span>
-        <span style={{ color: 'rgba(245,237,216,.5)' }}>{target}% target</span>
+        <span style={{ color: 'rgba(245,237,216,.76)' }}>{target}% target</span>
         <span>100%</span>
       </div>
     </div>
@@ -277,10 +277,10 @@ function DashboardInner() {
                 {/* Drop-off arrow between steps */}
                 {i < arr.length - 1 && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '28px', flexShrink: 0 }}>
-                    <div style={{ fontSize: '10px', color: isBottleneck ? '#D44040' : 'rgba(139,167,184,.4)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '10px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.65)', textAlign: 'center' }}>
                       {drop !== null ? `−${drop}%` : '→'}
                     </div>
-                    <div style={{ fontSize: '14px', color: isBottleneck ? '#D44040' : 'rgba(139,167,184,.25)' }}>›</div>
+                    <div style={{ fontSize: '14px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.56)' }}>›</div>
                   </div>
                 )}
               </div>
@@ -323,7 +323,7 @@ function DashboardInner() {
             }
           </span>
           {system.mirrorSampleSize > 0 && (
-            <span style={{ fontSize: '10px', color: 'rgba(139,167,184,.45)' }}>
+            <span style={{ fontSize: '10px', color: 'rgba(213,226,235,.65)' }}>
               ({system.mirrorSampleSize} samples)
             </span>
           )}

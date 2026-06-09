@@ -96,7 +96,7 @@ function MiniTrend({ daily }: { daily: MirrorData['daily'] }) {
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--mist)', marginTop: '4px' }}>
         <span>0%</span>
-        <span style={{ color: 'rgba(245,237,216,.4)' }}>— 60% target —</span>
+        <span style={{ color: 'rgba(245,237,216,.70)' }}>— 60% target —</span>
         <span>100%</span>
       </div>
     </div>

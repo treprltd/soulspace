@@ -192,7 +192,7 @@ function SafetyInner() {
                       </span>
                     )}
                     {ev.season_suppressed && (
-                      <span style={{ fontSize: '10px', color: 'var(--mist)', background: 'rgba(139,167,184,.08)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '10px', color: 'var(--mist)', background: 'rgba(213,226,235,.52)', padding: '2px 8px', borderRadius: '4px' }}>
                         Season suppressed
                       </span>
                     )}

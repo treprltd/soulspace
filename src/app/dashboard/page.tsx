@@ -307,7 +307,7 @@ export default function Dashboard() {
             {displayName || 'Welcome back'}.
           </h1>
           {joinedDate && (
-            <p className="text-xs mt-1" style={{ color: 'rgba(139,167,184,.45)' }}>
+            <p className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.65)' }}>
               Member since {joinedDate}
             </p>
           )}
@@ -344,7 +344,7 @@ export default function Dashboard() {
             className="rounded-xl p-4 mb-5"
             style={{ background: 'rgba(139,167,184,.04)', border: '1px solid rgba(139,167,184,.12)' }}
           >
-            <p className="text-xs tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
+            <p className="text-xs tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.72)' }}>
               {PATTERN_CARD_LABEL}
             </p>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.7)' }}>
@@ -374,7 +374,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-3">
               <div
                 className="text-[10px] tracking-[.11em] uppercase"
-                style={{ color: 'rgba(139,167,184,.5)' }}
+                style={{ color: 'rgba(213,226,235,.72)' }}
               >
                 Your plan
               </div>
@@ -401,7 +401,7 @@ export default function Dashboard() {
                   </span>
                   <span
                     className="text-xs"
-                    style={{ color: remaining === 0 ? 'var(--danger)' : remaining === 1 ? 'rgba(201,168,76,.8)' : 'rgba(139,167,184,.5)' }}
+                    style={{ color: remaining === 0 ? 'var(--danger)' : remaining === 1 ? 'rgba(201,168,76,.8)' : 'rgba(213,226,235,.72)' }}
                   >
                     {remaining === 0 ? 'None left' : `${remaining} remaining`}
                   </span>
@@ -438,7 +438,7 @@ export default function Dashboard() {
                       }}
                     />
                   ))}
-                  <span className="text-[10px]" style={{ color: 'rgba(139,167,184,.3)' }}>resets monthly</span>
+                  <span className="text-[10px]" style={{ color: 'rgba(213,226,235,.60)' }}>resets monthly</span>
                 </div>
 
                 <Link href="/pricing" className="btn-primary text-xs w-full block text-center py-2">
@@ -452,7 +452,7 @@ export default function Dashboard() {
                   <span className="font-serif font-light text-sand2 text-2xl">{sessionsThisMonth}</span>
                   <span className="text-xs text-mist">sessions this month</span>
                 </div>
-                <p className="text-xs mb-3" style={{ color: 'rgba(139,167,184,.45)' }}>
+                <p className="text-xs mb-3" style={{ color: 'rgba(213,226,235,.65)' }}>
                   Unlimited · {completedSessions.length} total across all time
                   {periodEnd && ` · ${subStatus?.subscription?.cancel_at_period_end ? 'Cancels' : 'Renews'} ${periodEnd}`}
                 </p>
@@ -489,7 +489,7 @@ export default function Dashboard() {
                 <div className="text-[11px] tracking-[.12em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.55)' }}>
                   Your patterns
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.5)' }}>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.76)' }}>
                   After {3 - growthMapSessions.length} more session{3 - growthMapSessions.length === 1 ? '' : 's'}, your patterns will start appearing here — what you keep bringing, how you tend to feel, how your season is shifting.
                 </p>
               </div>
@@ -511,7 +511,7 @@ export default function Dashboard() {
               <div className="text-[11px] tracking-[.14em] uppercase" style={{ color: 'rgba(201,168,76,.7)' }}>
                 What keeps coming up
               </div>
-              <div className="text-[10px]" style={{ color: 'rgba(139,167,184,.3)' }}>
+              <div className="text-[10px]" style={{ color: 'rgba(213,226,235,.60)' }}>
                 {growthMapSessions.length} sessions
               </div>
             </div>
@@ -519,7 +519,7 @@ export default function Dashboard() {
             {/* Top situations */}
             {patternData.topSituations.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(139,167,184,.4)' }}>
+                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
                   You keep bringing
                 </div>
                 {patternData.topSituations.map(([label, count]) => {
@@ -533,7 +533,7 @@ export default function Dashboard() {
                           style={{ width: `${pct}%`, background: 'rgba(201,168,76,.4)' }}
                         />
                       </div>
-                      <div className="text-xs flex-shrink-0" style={{ color: 'rgba(139,167,184,.45)' }}>
+                      <div className="text-xs flex-shrink-0" style={{ color: 'rgba(213,226,235,.65)' }}>
                         {count}×
                       </div>
                     </div>
@@ -545,7 +545,7 @@ export default function Dashboard() {
             {/* Top emotions */}
             {patternData.topEmotions.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(139,167,184,.4)' }}>
+                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
                   How you tend to arrive
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -571,14 +571,14 @@ export default function Dashboard() {
               {/* Intensity */}
               {patternData.firstIntensity !== null && patternData.recentAvg !== null && (
                 <div>
-                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     Intensity
                   </div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="font-serif text-lg font-light" style={{ color: 'var(--sand2)' }}>
                       {patternData.firstIntensity}
                     </span>
-                    <span className="text-xs" style={{ color: 'rgba(139,167,184,.35)' }}>→</span>
+                    <span className="text-xs" style={{ color: 'rgba(213,226,235,.60)' }}>→</span>
                     <span
                       className="font-serif text-lg font-light"
                       style={{
@@ -591,9 +591,9 @@ export default function Dashboard() {
                     >
                       {patternData.recentAvg}
                     </span>
-                    <span className="text-xs" style={{ color: 'rgba(139,167,184,.35)' }}>/10</span>
+                    <span className="text-xs" style={{ color: 'rgba(213,226,235,.60)' }}>/10</span>
                   </div>
-                  <div className="text-xs mt-0.5" style={{ color: 'rgba(139,167,184,.35)' }}>
+                  <div className="text-xs mt-0.5" style={{ color: 'rgba(213,226,235,.60)' }}>
                     {patternData.recentAvg < patternData.firstIntensity
                       ? 'easing'
                       : patternData.recentAvg > patternData.firstIntensity
@@ -606,7 +606,7 @@ export default function Dashboard() {
               {/* Season journey */}
               {patternData.seasonJourney.length > 1 && (
                 <div>
-                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     Your seasons
                   </div>
                   <div className="flex items-center gap-1 flex-wrap">
@@ -623,12 +623,12 @@ export default function Dashboard() {
                           {s}
                         </span>
                         {i < patternData!.seasonJourney.length - 1 && (
-                          <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '10px' }}>→</span>
+                          <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '10px' }}>→</span>
                         )}
                       </span>
                     ))}
                   </div>
-                  <div className="text-xs mt-1" style={{ color: 'rgba(139,167,184,.35)' }}>
+                  <div className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.60)' }}>
                     {patternData.seasonJourney[patternData.seasonJourney.length - 1] === patternData.seasonJourney[0]
                       ? 'same season throughout'
                       : 'your season is shifting'}
@@ -680,7 +680,7 @@ export default function Dashboard() {
           >
             <div className="text-[10px] tracking-[.11em] uppercase text-mist">Session history</div>
             {sessions.length > 0 && (
-              <div className="text-xs" style={{ color: 'rgba(139,167,184,.4)' }}>
+              <div className="text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                 {sessions.length} total
               </div>
             )}
@@ -697,7 +697,7 @@ export default function Dashboard() {
           ) : sessions.length === 0 ? (
             <div className="px-4 py-10 text-center">
               <p className="font-serif italic text-mist text-sm mb-1.5">No sessions yet.</p>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.65)' }}>
                 Complete a session while signed in<br />and it will appear here.
               </p>
             </div>
@@ -745,7 +745,7 @@ export default function Dashboard() {
 
                           {/* Description — only shown when no situation stored (legacy sessions) */}
                           {!s.situation && (
-                            <p className="text-xs leading-relaxed mb-1.5" style={{ color: 'rgba(139,167,184,.5)' }}>
+                            <p className="text-xs leading-relaxed mb-1.5" style={{ color: 'rgba(213,226,235,.72)' }}>
                               {BRANCH_DESC[s.branch]}
                             </p>
                           )}
@@ -756,7 +756,7 @@ export default function Dashboard() {
 
                             {s.season_assigned && (
                               <>
-                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '11px' }}>·</span>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
                                 <span className="text-xs" style={{ color: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}>
                                   {SEASON_LABELS[s.season_assigned]}
                                 </span>
@@ -765,8 +765,8 @@ export default function Dashboard() {
 
                             {s.intensity !== null && (
                               <>
-                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '11px' }}>·</span>
-                                <span className="text-xs" style={{ color: 'rgba(139,167,184,.45)' }}>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
+                                <span className="text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                                   intensity {s.intensity}/10
                                 </span>
                               </>
@@ -774,7 +774,7 @@ export default function Dashboard() {
 
                             {!s.completed_at && (
                               <>
-                                <span style={{ color: 'rgba(139,167,184,.2)', fontSize: '11px' }}>·</span>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
                                 <span className="text-xs" style={{ color: 'rgba(212,64,64,.45)' }}>incomplete</span>
                               </>
                             )}
@@ -802,7 +802,7 @@ export default function Dashboard() {
                             <div
                               className="text-[8px] px-2 py-0.5 rounded-full"
                               style={{
-                                color: 'rgba(139,167,184,.3)',
+                                color: 'rgba(213,226,235,.60)',
                                 border: '1px solid rgba(139,167,184,.08)',
                               }}
                             >
@@ -813,7 +813,7 @@ export default function Dashboard() {
                           {/* Chevron indicator */}
                           <span
                             style={{
-                              color: 'rgba(139,167,184,.3)',
+                              color: 'rgba(213,226,235,.60)',
                               fontSize: '9px',
                               transition: 'transform .2s',
                               display: 'inline-block',
@@ -849,7 +849,7 @@ export default function Dashboard() {
                           <div className="pt-3 space-y-3">
 
                             {/* Full timestamp */}
-                            <div className="text-xs" style={{ color: 'rgba(139,167,184,.35)' }}>
+                            <div className="text-xs" style={{ color: 'rgba(213,226,235,.60)' }}>
                               {new Date(s.created_at).toLocaleString('en-US', {
                                 weekday: 'long', month: 'long', day: 'numeric',
                                 year: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -875,14 +875,14 @@ export default function Dashboard() {
                               <div>
                                 <div
                                   className="text-[10px] tracking-[.11em] uppercase mb-1.5"
-                                  style={{ color: 'rgba(139,167,184,.4)' }}
+                                  style={{ color: 'rgba(213,226,235,.65)' }}
                                 >
                                   What you shared
                                 </div>
                                 <p
                                   className="text-xs leading-relaxed"
                                   style={{
-                                    color: 'rgba(245,237,216,.55)',
+                                    color: 'rgba(245,237,216,.76)',
                                     fontStyle: 'italic',
                                     borderLeft: '2px solid rgba(245,237,216,.08)',
                                     paddingLeft: '10px',
@@ -908,7 +908,7 @@ export default function Dashboard() {
                                   </div>
                                   {parsed.carrying && (
                                     <div>
-                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
                                         What you were carrying
                                       </div>
                                       <p className="font-serif italic text-xs leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>
@@ -918,7 +918,7 @@ export default function Dashboard() {
                                   )}
                                   {parsed.underneath && (
                                     <div>
-                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(139,167,184,.4)' }}>
+                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
                                         What appeared underneath
                                       </div>
                                       <p className="font-serif italic text-xs leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>

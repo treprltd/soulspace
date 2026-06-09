@@ -150,7 +150,7 @@ export default function ProfileSetup() {
           </button>
         </form>
 
-        <p className="text-xs text-center mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="text-xs text-center mt-4 leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
           Your data is encrypted and never sold. CPRA compliant.
         </p>
       </div>

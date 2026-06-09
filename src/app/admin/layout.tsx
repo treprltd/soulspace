@@ -103,7 +103,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 >
                   <span style={{
                     width: '7px', height: '7px', borderRadius: '50%',
-                    background: active ? meta.color : 'rgba(139,167,184,.3)',
+                    background: active ? meta.color : 'rgba(213,226,235,.60)',
                     flexShrink: 0,
                   }} />
                   {meta.label}

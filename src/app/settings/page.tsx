@@ -333,7 +333,7 @@ export default function Settings() {
                   <button
                     onClick={cancelEditing}
                     className="text-xs px-2.5 py-1 rounded-md transition-opacity hover:opacity-80"
-                    style={{ color: 'var(--mist)', border: '1px solid rgba(139,167,184,.15)', background: 'transparent' }}
+                    style={{ color: 'var(--mist)', border: '1px solid rgba(213,226,235,.52)', background: 'transparent' }}
                   >
                     Cancel
                   </button>
@@ -372,7 +372,7 @@ export default function Settings() {
             {/* Email — always read-only */}
             <div className="flex justify-between items-center py-2.5 border-b border-white/[.04]">
               <div className="text-sm text-sand">Email</div>
-              <div className="text-sm truncate max-w-[200px]" style={{ color: 'rgba(139,167,184,.45)' }}>
+              <div className="text-sm truncate max-w-[200px]" style={{ color: 'rgba(213,226,235,.65)' }}>
                 {user.email}
               </div>
             </div>
@@ -396,7 +396,7 @@ export default function Settings() {
                   }}
                 />
               ) : (
-                <div className="text-xs text-mist">{profile.firstName || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+                <div className="text-xs text-mist">{profile.firstName || <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}</div>
               )}
             </div>
 
@@ -419,7 +419,7 @@ export default function Settings() {
                   }}
                 />
               ) : (
-                <div className="text-xs text-mist">{profile.lastName || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+                <div className="text-xs text-mist">{profile.lastName || <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}</div>
               )}
             </div>
 
@@ -445,7 +445,7 @@ export default function Settings() {
                 <div className="text-xs text-mist">
                   {profile.dob
                     ? new Date(profile.dob + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-                    : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                    : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                 </div>
               )}
             </div>
@@ -469,7 +469,7 @@ export default function Settings() {
                   }}
                 />
               ) : (
-                <div className="text-xs text-mist">{profile.phone || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}</div>
+                <div className="text-xs text-mist">{profile.phone || <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}</div>
               )}
             </div>
 
@@ -501,7 +501,7 @@ export default function Settings() {
               ) : (
                 <div className="text-xs text-mist">
                   {GENDER_OPTIONS.find(o => o.value === profile.gender)?.label
-                    || <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                    || <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                 </div>
               )}
             </div>
@@ -647,7 +647,7 @@ export default function Settings() {
                   style={{
                     border: active ? '1px solid rgba(201,168,76,.4)' : '1px solid rgba(245,237,216,.08)',
                     background: active ? 'rgba(201,168,76,.1)' : 'transparent',
-                    color: active ? 'var(--gold2)' : 'rgba(245,237,216,.5)',
+                    color: active ? 'var(--gold2)' : 'rgba(245,237,216,.76)',
                   }}
                 >
                   {opt.label}
@@ -686,7 +686,7 @@ export default function Settings() {
                   ? 'Tap again to confirm — this is permanent'
                   : 'Delete all my sessions and data →'}
               </button>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
                 Permanent. Encrypted. No recycle bin. CPRA compliant.<br />
                 Full privacy dashboard ships in Phase 2.
               </p>
@@ -694,7 +694,7 @@ export default function Settings() {
           )}
         </div>
 
-        <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.3)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
           Phase 2 will add: toggle controls per data type, export, assessment reset, notification preferences.
         </p>
       </div>

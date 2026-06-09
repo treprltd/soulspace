@@ -46,7 +46,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
             background: selected === 'not_quite'
               ? 'rgba(245,237,216,.1)'
               : 'transparent',
-            color: selected === 'not_quite' ? 'var(--sand2)' : 'rgba(139,167,184,.55)',
+            color: selected === 'not_quite' ? 'var(--sand2)' : 'rgba(213,226,235,.72)',
           }}
         >
           {selected === 'not_quite' ? '✓ Not quite' : 'Not quite'}
@@ -55,7 +55,7 @@ export function ResonanceTap({ onTap, selected }: ResonanceTapProps) {
 
       {/* Confirmation message after tap */}
       {selected && (
-        <p className="text-xs mt-2.5 text-center leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
+        <p className="text-xs mt-2.5 text-center leading-relaxed" style={{ color: 'rgba(213,226,235,.65)' }}>
           {selected === 'accurate'
             ? 'Noted. This helps Soul Space improve.'
             : 'Noted. That helps too — every response teaches the Mirror.'}

@@ -61,7 +61,7 @@ export function LoopPreview() {
                   width: active === i ? 44 : 34,
                   height: active === i ? 44 : 34,
                   background: `radial-gradient(circle, ${step.glow}, transparent 75%)`,
-                  border: `1px solid ${active === i ? step.color : 'rgba(245,237,216,.1)'}`,
+                  border: `1px solid ${active === i ? step.color : 'rgba(245,237,216,.76)'}`,
                 }}
               >
                 <span
@@ -69,13 +69,13 @@ export function LoopPreview() {
                   style={{
                     width: active === i ? 14 : 9,
                     height: active === i ? 14 : 9,
-                    background: active === i ? step.color : 'rgba(245,237,216,.2)',
+                    background: active === i ? step.color : 'rgba(245,237,216,.76)',
                   }}
                 />
               </div>
               <span
                 className="text-xs uppercase tracking-[.12em] transition-colors duration-300"
-                style={{ color: active === i ? step.color : 'rgba(139,167,184,.4)' }}
+                style={{ color: active === i ? step.color : 'rgba(213,226,235,.65)' }}
               >
                 {step.label}
               </span>
@@ -85,7 +85,7 @@ export function LoopPreview() {
               <span
                 aria-hidden="true"
                 className="block h-px w-6 sm:w-10 transition-colors duration-500"
-                style={{ background: active > i ? step.color : 'rgba(245,237,216,.08)' }}
+                style={{ background: active > i ? step.color : 'rgba(245,237,216,.76)' }}
               />
             )}
           </div>

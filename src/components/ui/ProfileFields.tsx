@@ -14,7 +14,7 @@ import React from 'react'
 
 export const inputClass = `
   w-full px-4 py-3 rounded-xl text-sm text-sand2 focus:outline-none transition-colors
-  placeholder:text-mist/40
+  placeholder:text-mist/80
 `.trim()
 
 export const inputStyle = {
@@ -104,7 +104,7 @@ export function Field({
       <label className="text-[10px] tracking-[.08em] uppercase text-mist pl-0.5">{label}</label>
       {children}
       {hint && !error && (
-        <p className="text-[9px] pl-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>{hint}</p>
+        <p className="text-[9px] pl-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>{hint}</p>
       )}
       {error && (
         <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>

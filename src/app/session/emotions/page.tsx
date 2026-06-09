@@ -29,7 +29,7 @@ export default function Emotions() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right={<span style={{ color: 'rgba(139,167,184,.45)', fontSize: '11px' }}>Your session</span>} />
+      <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '11px' }}>Your session</span>} />
       <div className="session-outer-pad px-6 py-5 max-w-xl mx-auto animate-fade-in">
         <ProgressBar step={1} total={3} />
 
@@ -59,7 +59,7 @@ export default function Emotions() {
         </div>
 
         {selected.length > 0 && (
-          <p className="text-xs mb-5" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs mb-5" style={{ color: 'rgba(213,226,235,.65)' }}>
             {selected.length} selected
           </p>
         )}

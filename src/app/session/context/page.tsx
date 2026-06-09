@@ -143,7 +143,7 @@ export default function ContextField() {
         <div className="flex items-center justify-between mb-6" style={{ minHeight: '16px' }}>
           <span
             className="text-xs leading-none"
-            style={{ color: 'rgba(139,167,184,.3)', visibility: (!isAuthenticated || !isPaid) ? 'visible' : 'hidden' }}
+            style={{ color: 'rgba(213,226,235,.60)', visibility: (!isAuthenticated || !isPaid) ? 'visible' : 'hidden' }}
           >
             {!isAuthenticated
               ? 'Voice input available for subscribers'
@@ -152,7 +152,7 @@ export default function ContextField() {
               : null}
           </span>
           {text.length > 0 && (
-            <span className="text-xs" style={{ color: 'rgba(139,167,184,.3)' }}>
+            <span className="text-xs" style={{ color: 'rgba(213,226,235,.60)' }}>
               {text.length} / {MAX_CHARS}
             </span>
           )}

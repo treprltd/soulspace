@@ -33,7 +33,7 @@ export default function CookiesPage() {
                   session token so you stay signed in between page loads. Expires when you
                   sign out or after 7 days of inactivity. Without this cookie, sign-in
                   cannot work.</p>
-                <p className="mt-1 text-xs" style={{ color: 'rgba(139,167,184,.45)' }}>
+                <p className="mt-1 text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                   Type: Strictly necessary · Duration: Session / 7 days · Party: First-party
                 </p>
               </div>
@@ -42,7 +42,7 @@ export default function CookiesPage() {
                 <p className="text-sand font-medium mb-1">Admin session (admin_session)</p>
                 <p>Set only when an administrator signs in to the admin panel. Contains the
                   admin authentication token. Never set for regular users.</p>
-                <p className="mt-1 text-xs" style={{ color: 'rgba(139,167,184,.45)' }}>
+                <p className="mt-1 text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                   Type: Strictly necessary · Duration: Session · Party: First-party
                 </p>
               </div>
@@ -52,7 +52,7 @@ export default function CookiesPage() {
                 <p>Set when you confirm you are 13 or older on the age gate screen. Stores
                   your consent so you are not asked again on the same device. Does not
                   contain any personal information.</p>
-                <p className="mt-1 text-xs" style={{ color: 'rgba(139,167,184,.45)' }}>
+                <p className="mt-1 text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                   Type: Strictly necessary · Duration: 1 year · Party: First-party
                 </p>
               </div>

@@ -102,7 +102,7 @@ function Stars({ rating, size = 'sm' }: { rating: number | null; size?: 'sm' | '
 }
 
 function RecommendChip({ value }: { value: string | null }) {
-  if (!value) return <span style={{ color: 'rgba(139,167,184,.35)', fontSize: '11px' }}>—</span>
+  if (!value) return <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>
   const c = RECOMMEND_COLORS[value] ?? RECOMMEND_COLORS.maybe
   return (
     <span style={{
@@ -120,7 +120,7 @@ function Tag({ label }: { label: string }) {
     <span style={{
       display: 'inline-block', fontSize: '10px', padding: '2px 7px',
       borderRadius: '4px', background: 'rgba(245,237,216,.06)',
-      border: '1px solid rgba(245,237,216,.1)', color: 'var(--sand)',
+      border: '1px solid rgba(245,237,216,.76)', color: 'var(--sand)',
       marginRight: '4px', marginBottom: '3px',
     }}>
       {label}
@@ -437,7 +437,7 @@ function FeedbackInner() {
                                   </div>
                                 </div>
                               ) : (
-                                <span style={{ color: 'rgba(139,167,184,.35)', fontSize: '11px' }}>—</span>
+                                <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>
                               )}
                             </td>
                             {/* Date */}
@@ -450,7 +450,7 @@ function FeedbackInner() {
                             </td>
                             {/* Ease */}
                             <td style={{ padding: '11px 14px', color: 'var(--mist)', whiteSpace: 'nowrap', fontSize: '11px' }}>
-                              {row.ease_of_use ? (EASE_LABELS[row.ease_of_use] ?? row.ease_of_use) : <span style={{ color: 'rgba(139,167,184,.3)' }}>—</span>}
+                              {row.ease_of_use ? (EASE_LABELS[row.ease_of_use] ?? row.ease_of_use) : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                             </td>
                             {/* Recommend */}
                             <td style={{ padding: '11px 14px' }}>
@@ -466,12 +466,12 @@ function FeedbackInner() {
                                 } as React.CSSProperties}>
                                   {row.comments.length > 100 ? row.comments.slice(0, 100) + '…' : row.comments}
                                 </span>
-                              ) : <span style={{ color: 'rgba(139,167,184,.3)', fontSize: '11px' }}>—</span>}
+                              ) : <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>}
                             </td>
                             {/* Expand */}
                             <td style={{ padding: '11px 14px', textAlign: 'center', width: '32px' }}>
                               <span style={{
-                                color: 'rgba(139,167,184,.4)', fontSize: '10px',
+                                color: 'rgba(213,226,235,.65)', fontSize: '10px',
                                 display: 'inline-block',
                                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                                 transition: 'transform .15s',
@@ -494,7 +494,7 @@ function FeedbackInner() {
 
                                   {/* Use frequency */}
                                   <div>
-                                    <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
+                                    <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '5px' }}>
                                       Use Frequency
                                     </div>
                                     <span style={{ color: 'var(--sand)', fontSize: '12px' }}>
@@ -505,7 +505,7 @@ function FeedbackInner() {
                                   {/* Most valuable */}
                                   {row.most_valuable && row.most_valuable.length > 0 && (
                                     <div>
-                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '6px' }}>
+                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '6px' }}>
                                         Most Valuable
                                       </div>
                                       <div>
@@ -519,7 +519,7 @@ function FeedbackInner() {
                                   {/* Improvements */}
                                   {row.improvements && row.improvements.length > 0 && (
                                     <div>
-                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '6px' }}>
+                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '6px' }}>
                                         Would Improve
                                       </div>
                                       <div>
@@ -533,7 +533,7 @@ function FeedbackInner() {
                                   {/* Full comments */}
                                   {row.comments && (
                                     <div style={{ gridColumn: '1 / -1' }}>
-                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '6px' }}>
+                                      <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '6px' }}>
                                         Full Comment
                                       </div>
                                       <p style={{
@@ -551,16 +551,16 @@ function FeedbackInner() {
                                   <div>
                                     {row.user_id ? (
                                       <>
-                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
+                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '5px' }}>
                                           User ID
                                         </div>
-                                        <span style={{ color: 'rgba(139,167,184,.45)', fontSize: '10px', fontFamily: 'monospace' }}>
+                                        <span style={{ color: 'rgba(213,226,235,.65)', fontSize: '10px', fontFamily: 'monospace' }}>
                                           {row.user_id}
                                         </span>
                                       </>
                                     ) : row.guest_email ? (
                                       <>
-                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(139,167,184,.5)', marginBottom: '5px' }}>
+                                        <div style={{ fontSize: '9px', letterSpacing: '0.11em', textTransform: 'uppercase', color: 'rgba(213,226,235,.72)', marginBottom: '5px' }}>
                                           Guest Email
                                         </div>
                                         <span style={{ color: 'var(--sand)', fontSize: '11px' }}>
@@ -568,7 +568,7 @@ function FeedbackInner() {
                                         </span>
                                       </>
                                     ) : (
-                                      <span style={{ color: 'rgba(139,167,184,.35)', fontSize: '11px' }}>—</span>
+                                      <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>
                                     )}
                                   </div>
                                 </div>

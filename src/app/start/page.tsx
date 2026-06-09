@@ -61,7 +61,7 @@ export default function Welcome() {
                   <div className="text-xs tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
                     {item.step}
                   </div>
-                  <p className="text-sm leading-snug text-center" style={{ color: 'rgba(245,237,216,.45)' }}>
+                  <p className="text-sm leading-snug text-center" style={{ color: 'rgba(245,237,216,.70)' }}>
                     {item.label}
                   </p>
                 </div>
@@ -95,7 +95,7 @@ export default function Welcome() {
             <Link
               href="/auth/signin"
               className="text-xs block text-center transition-opacity hover:opacity-80"
-              style={{ color: 'rgba(139,167,184,.45)' }}
+              style={{ color: 'rgba(213,226,235,.65)' }}
             >
               Sign in to save your sessions →
             </Link>
@@ -103,7 +103,7 @@ export default function Welcome() {
 
           <p
             className="text-xs mt-10 leading-relaxed"
-            style={{ color: 'rgba(139,167,184,.28)' }}
+            style={{ color: 'rgba(213,226,235,.56)' }}
           >
             Not therapy &nbsp;·&nbsp; Not a diagnosis &nbsp;·&nbsp; Not a crisis service
           </p>

@@ -61,7 +61,7 @@ export function NavBar({ right }: NavBarProps) {
           /* ── Authenticated: avatar + dropdown ── */
           <div className="flex items-center gap-3">
           {right && (
-            <div className="text-[9px]" style={{ color: 'rgba(139,167,184,.5)' }}>{right}</div>
+            <div className="text-[9px]" style={{ color: 'rgba(213,226,235,.72)' }}>{right}</div>
           )}
           <div className="relative" ref={menuRef}>
             <button

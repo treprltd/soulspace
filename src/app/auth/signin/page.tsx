@@ -131,7 +131,7 @@ export default function SignIn() {
               className="w-full py-3 rounded-xl text-base transition-all mb-3 disabled:cursor-not-allowed"
               style={{
                 border: '1px solid rgba(201,168,76,.22)',
-                color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(139,167,184,.4)' : 'var(--gold)',
+                color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(213,226,235,.65)' : 'var(--gold)',
                 background: 'transparent',
                 cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer',
               }}
@@ -149,7 +149,7 @@ export default function SignIn() {
             <button
               onClick={() => { setSent(false); setResendCooldown(0); setResendDone(false) }}
               className="text-xs block mx-auto underline underline-offset-4 transition-colors hover:text-mist"
-              style={{ color: 'rgba(139,167,184,.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ color: 'rgba(213,226,235,.72)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               Use a different email
             </button>
@@ -180,7 +180,7 @@ export default function SignIn() {
                 {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
-            <p className="text-base mt-4 leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
+            <p className="text-base mt-4 leading-relaxed" style={{ color: 'rgba(213,226,235,.72)' }}>
               Your email is used only to send this link.<br />
               No marketing. No password. CPRA compliant.
             </p>
@@ -190,7 +190,7 @@ export default function SignIn() {
         <button
           onClick={() => router.push('/start')}
           className="text-xs mt-5 underline underline-offset-4 hover:text-mist transition-colors"
-          style={{ color: 'rgba(139,167,184,.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ color: 'rgba(213,226,235,.72)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           Continue without signing in
         </button>

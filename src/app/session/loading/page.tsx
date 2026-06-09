@@ -149,7 +149,7 @@ export default function MirrorLoading() {
           {errorState.retryCount > 1 && (
             <p
               className="mt-5"
-              style={{ fontSize: '13px', color: 'rgba(139,167,184,.4)' }}
+              style={{ fontSize: '13px', color: 'rgba(213,226,235,.65)' }}
             >
               Still not working? Try refreshing the page.
             </p>
@@ -182,7 +182,7 @@ export default function MirrorLoading() {
         </h2>
         {/* AFFIRMATION MOMENT 3 — frozen copy */}
         {!retrying && (
-          <p className="font-serif italic leading-loose" style={{ fontSize: '15px', color: 'rgba(139,167,184,.5)' }}>
+          <p className="font-serif italic leading-loose" style={{ fontSize: '15px', color: 'rgba(213,226,235,.72)' }}>
             Not judging. Just trying to find<br />what sits underneath it.
           </p>
         )}

@@ -228,7 +228,7 @@ export default function NextStep() {
               background: custom ? 'rgba(201,168,76,.03)' : 'transparent',
             }}
           >
-            <div className="text-[11px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <div className="text-[11px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
               Or write your own
             </div>
             <input
@@ -236,7 +236,7 @@ export default function NextStep() {
               value={custom}
               onChange={e => setCustom(e.target.value)}
               placeholder="What would actually feel right for you today?"
-              className="w-full bg-transparent text-sm text-sand2 placeholder:text-mist/40 focus:outline-none"
+              className="w-full bg-transparent text-sm text-sand2 placeholder:text-mist/80 focus:outline-none"
             />
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function NextStep() {
         {/* ── Continuity line — the thread that connects sessions ── */}
         <p
           className="text-center font-serif italic mt-5 mb-1 leading-relaxed text-sm"
-          style={{ color: 'rgba(139,167,184,.38)' }}
+          style={{ color: 'rgba(213,226,235,.60)' }}
         >
           Come back in a few days.<br />
           Your season may already be shifting.

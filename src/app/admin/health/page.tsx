@@ -319,7 +319,7 @@ function HealthInner() {
               <HourBar data={data.sessions.hourlySessions} />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
                 {[0, 6, 12, 18, 23].map(h => (
-                  <span key={h} style={{ fontSize: '9px', color: 'rgba(139,167,184,.4)' }}>{h}:00</span>
+                  <span key={h} style={{ fontSize: '9px', color: 'rgba(213,226,235,.65)' }}>{h}:00</span>
                 ))}
               </div>
               <div style={{ ...metaText, marginTop: '8px' }}>

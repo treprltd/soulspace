@@ -182,7 +182,7 @@ export function VoiceInput({ onTranscript, isAuthenticated, isPaid, disabled = f
           style={{
             background: 'rgba(245,237,216,.04)',
             border: '1px solid rgba(245,237,216,.07)',
-            color: 'rgba(139,167,184,.35)',
+            color: 'rgba(213,226,235,.60)',
             cursor: 'default',
           }}
         >
@@ -190,7 +190,7 @@ export function VoiceInput({ onTranscript, isAuthenticated, isPaid, disabled = f
           {/* Lock badge */}
           <span
             className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full"
-            style={{ background: '#060E18', border: '1px solid rgba(245,237,216,.1)', color: 'rgba(139,167,184,.5)' }}
+            style={{ background: '#060E18', border: '1px solid rgba(245,237,216,.76)', color: 'rgba(213,226,235,.72)' }}
           >
             <LockIcon size={8} />
           </span>
@@ -260,7 +260,7 @@ export function VoiceInput({ onTranscript, isAuthenticated, isPaid, disabled = f
       {(isRecording || isProcessing) && (
         <span
           className="absolute -bottom-5 right-0 whitespace-nowrap"
-          style={{ fontSize: '10px', color: isRecording ? 'rgba(212,64,64,.7)' : 'rgba(139,167,184,.5)' }}
+          style={{ fontSize: '10px', color: isRecording ? 'rgba(212,64,64,.7)' : 'rgba(213,226,235,.72)' }}
         >
           {isRecording ? '● Listening…' : 'Done'}
         </span>

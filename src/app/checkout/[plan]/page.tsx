@@ -115,7 +115,7 @@ export default function CheckoutPage() {
         <Link
           href="/pricing"
           className="text-[10px] hover:text-sand transition-colors"
-          style={{ color: 'rgba(139,167,184,.5)', textDecoration: 'none' }}
+          style={{ color: 'rgba(213,226,235,.72)', textDecoration: 'none' }}
         >
           ← Back to plans
         </Link>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
               <span className="text-[10px] text-mist">Total due today</span>
               <span className="text-sand2 text-[13px] font-medium">{planData.priceDisplay}</span>
             </div>
-            <div className="text-[9px] text-right mt-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <div className="text-[9px] text-right mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
               Billed monthly · Cancel any time
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
           </button>
 
           {/* Stripe badge */}
-          <p className="text-[9px] text-center mt-2.5" style={{ color: 'rgba(139,167,184,.3)' }}>
+          <p className="text-[9px] text-center mt-2.5" style={{ color: 'rgba(213,226,235,.60)' }}>
             Payments secured by Stripe · PCI DSS Level 1
           </p>
 
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                 </span>
                 <div>
                   <div className="text-[10px] text-sand leading-tight">{s.label}</div>
-                  <div className="text-[9px] leading-relaxed mt-0.5" style={{ color: 'rgba(139,167,184,.45)' }}>
+                  <div className="text-[9px] leading-relaxed mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     {s.desc}
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Footer note */}
-          <p className="text-[9px] text-center mt-8 leading-relaxed" style={{ color: 'rgba(139,167,184,.25)' }}>
+          <p className="text-[9px] text-center mt-8 leading-relaxed" style={{ color: 'rgba(213,226,235,.56)' }}>
             Soul Space is not a medical service. Sessions are a private pause,<br />
             not treatment or advice.
           </p>

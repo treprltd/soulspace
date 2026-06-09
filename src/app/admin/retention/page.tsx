@@ -104,7 +104,7 @@ function CohortCell({ rate, label }: { rate: number | null; label?: string }) {
     return (
       <td style={{
         padding: '6px 10px', textAlign: 'center',
-        fontSize: '11px', color: 'rgba(139,167,184,.3)',
+        fontSize: '11px', color: 'rgba(213,226,235,.60)',
       }}>
         {label ?? '—'}
       </td>
@@ -228,7 +228,7 @@ function RetentionInner() {
               {(() => {
                 const max = Math.max(...r!.sessionDistribution.map(d => d.count), 1)
                 return r!.sessionDistribution.map((d, i) => {
-                  const colors = ['rgba(139,167,184,.5)', '#6B8CAE', '#C9A84C', '#3DAF96', '#C4784A']
+                  const colors = ['rgba(213,226,235,.72)', '#6B8CAE', '#C9A84C', '#3DAF96', '#C4784A']
                   return (
                     <HBar
                       key={d.label}

@@ -25,7 +25,7 @@ export function LegalLayout({ title, subtitle, lastUpdated, sections }: LegalLay
         <Link
           href="/"
           className="text-xs transition-opacity hover:opacity-70"
-          style={{ color: 'rgba(139,167,184,.55)' }}
+          style={{ color: 'rgba(213,226,235,.72)' }}
         >
           ← Back
         </Link>
@@ -43,7 +43,7 @@ export function LegalLayout({ title, subtitle, lastUpdated, sections }: LegalLay
               {title}
             </h1>
             <p className="text-sm text-mist mb-1">{subtitle}</p>
-            <p className="text-xs" style={{ color: 'rgba(139,167,184,.4)' }}>
+            <p className="text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
               Last updated: {lastUpdated}
             </p>
           </div>
@@ -76,10 +76,10 @@ export function LegalLayout({ title, subtitle, lastUpdated, sections }: LegalLay
             className="mt-14 pt-6 flex flex-wrap gap-x-5 gap-y-2"
             style={{ borderTop: '1px solid rgba(245,237,216,.05)' }}
           >
-            <Link href="/privacy" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(139,167,184,.4)' }}>Privacy Policy</Link>
-            <Link href="/terms"   className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(139,167,184,.4)' }}>Terms of Use</Link>
-            <Link href="/cookies" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(139,167,184,.4)' }}>Cookie Notice</Link>
-            <a href="mailto:hello@soulspacehealth.org" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(139,167,184,.4)' }}>Contact</a>
+            <Link href="/privacy" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(213,226,235,.65)' }}>Privacy Policy</Link>
+            <Link href="/terms"   className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(213,226,235,.65)' }}>Terms of Use</Link>
+            <Link href="/cookies" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(213,226,235,.65)' }}>Cookie Notice</Link>
+            <a href="mailto:hello@soulspacehealth.org" className="text-xs hover:opacity-80 transition-opacity" style={{ color: 'rgba(213,226,235,.65)' }}>Contact</a>
           </div>
 
         </div>

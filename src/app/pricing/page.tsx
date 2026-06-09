@@ -134,7 +134,7 @@ export default function Pricing() {
               <Link
                 href="/age-gate"
                 className="w-full py-2.5 rounded-lg text-sm text-center block transition-opacity hover:opacity-80"
-                style={{ border: '1px solid rgba(245,237,216,.1)', color: 'var(--mist)', textDecoration: 'none' }}
+                style={{ border: '1px solid rgba(245,237,216,.76)', color: 'var(--mist)', textDecoration: 'none' }}
               >
                 Continue free →
               </Link>
@@ -239,14 +239,14 @@ export default function Pricing() {
 
         {/* Footer notes */}
         <div className="mt-8 text-center space-y-1.5">
-          <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.4)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.65)' }}>
             Billed monthly. Cancel any time from your account settings.
           </p>
-          <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
             Secure payment via Stripe · Soul Space does not store card details.
           </p>
           {authenticated === false && (
-            <p className="text-xs mt-2" style={{ color: 'rgba(139,167,184,.35)' }}>
+            <p className="text-xs mt-2" style={{ color: 'rgba(213,226,235,.60)' }}>
               Signing in is required to subscribe.{' '}
               <Link href="/auth/signin?next=/pricing" className="underline underline-offset-2 hover:text-mist">
                 Sign in →

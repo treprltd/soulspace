@@ -35,7 +35,7 @@ export default function Breathe() {
         className="animate-fade-in"
         style={{
           fontSize: '14px',
-          color: 'rgba(139,167,184,.5)',
+          color: 'rgba(213,226,235,.72)',
           letterSpacing: '.05em',
         }}
       >

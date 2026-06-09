@@ -245,7 +245,7 @@ export default function Register() {
               className="w-full py-3 rounded-xl text-sm transition-all mb-3 disabled:cursor-not-allowed"
               style={{
                 border: '1px solid rgba(201,168,76,.22)',
-                color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(139,167,184,.4)' : 'var(--gold)',
+                color: resendDone ? 'var(--teal2)' : resendCooldown > 0 ? 'rgba(213,226,235,.65)' : 'var(--gold)',
                 background: 'transparent',
               }}
             >
@@ -255,7 +255,7 @@ export default function Register() {
             <button
               onClick={() => { setStep('form'); setResendCooldown(0); setResendDone(false) }}
               className="text-xs block mx-auto underline underline-offset-4 hover:text-mist transition-colors"
-              style={{ color: 'rgba(139,167,184,.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ color: 'rgba(213,226,235,.72)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               Change details
             </button>
@@ -293,7 +293,7 @@ export default function Register() {
                   className={inputClass}
                   style={focusedField === 'email' ? inputFocusStyle : inputStyle}
                 />
-                <p className="text-xs pl-0.5" style={{ color: 'rgba(139,167,184,.4)' }}>
+                <p className="text-xs pl-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                   We&rsquo;ll email you a sign-in link — no password needed.
                 </p>
               </Field>
@@ -308,7 +308,7 @@ export default function Register() {
             </form>
 
             <div className="mt-4 text-center">
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.45)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.65)' }}>
                 Already have an account?{' '}
                 <button
                   onClick={() => router.push('/auth/signin')}

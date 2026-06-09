@@ -329,7 +329,7 @@ function RevenueInner() {
             <div style={sectionLabel}>User Conversion Breakdown</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
               {[
-                { label: 'Free',       count: data.conversion.totalUsers - data.conversion.paidUsers, color: 'rgba(139,167,184,.4)' },
+                { label: 'Free',       count: data.conversion.totalUsers - data.conversion.paidUsers, color: 'rgba(213,226,235,.65)' },
                 { label: 'Essentials', count: data.activeSubscriptions.essentials, color: '#C9A84C' },
                 { label: 'Insights',   count: data.activeSubscriptions.insights, color: '#3DAF96' },
               ].map(({ label, count, color }) => {
@@ -398,7 +398,7 @@ function RevenueInner() {
                           <td style={{ padding: '8px 10px', color: 'var(--mist)' }}>
                             {s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : '—'}
                           </td>
-                          <td style={{ padding: '8px 10px', color: 'rgba(139,167,184,.5)', fontFamily: 'monospace', fontSize: '11px' }}>
+                          <td style={{ padding: '8px 10px', color: 'rgba(213,226,235,.72)', fontFamily: 'monospace', fontSize: '11px' }}>
                             {s.customerId}
                           </td>
                         </tr>

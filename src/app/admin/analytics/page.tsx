@@ -236,7 +236,7 @@ function HourHeatmap({ data }: { data: Array<{ hour: number; count: number }> })
                     }}
                     title={`${h}:00 — ${item?.count ?? 0} sessions`}
                   />
-                  <span style={{ fontSize: '9px', color: 'rgba(139,167,184,.5)' }}>{h}</span>
+                  <span style={{ fontSize: '9px', color: 'rgba(213,226,235,.72)' }}>{h}</span>
                 </div>
               )
             })}
@@ -276,9 +276,9 @@ function IntensityHistogram({ data }: { data: Array<{ intensity: number; count: 
       <div style={{ display: 'flex', gap: '4px' }}>
         {data.map(d => (
           <div key={d.intensity} style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '9px', color: 'rgba(139,167,184,.5)' }}>{d.intensity}</div>
+            <div style={{ fontSize: '9px', color: 'rgba(213,226,235,.72)' }}>{d.intensity}</div>
             {total > 0 && (
-              <div style={{ fontSize: '8px', color: 'rgba(139,167,184,.35)' }}>
+              <div style={{ fontSize: '8px', color: 'rgba(213,226,235,.60)' }}>
                 {Math.round((d.count / total) * 100)}%
               </div>
             )}

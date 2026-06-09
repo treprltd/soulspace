@@ -44,7 +44,7 @@ export default function SituationEntry() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right={<span style={{ color: 'rgba(139,167,184,.45)', fontSize: '11px' }}>Your session</span>} />
+      <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '11px' }}>Your session</span>} />
       <div className="flex items-center justify-center px-4 sm:px-5 py-8 sm:py-10">
         <div className="w-full max-w-lg animate-fade-in">
 
@@ -81,7 +81,7 @@ export default function SituationEntry() {
 
           <p
             className="text-center leading-relaxed text-xs"
-            style={{ color: 'rgba(139,167,184,.38)' }}
+            style={{ color: 'rgba(213,226,235,.60)' }}
           >
             No wrong answer. Everything that follows adapts to what you choose.
           </p>

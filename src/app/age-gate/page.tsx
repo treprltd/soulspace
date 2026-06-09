@@ -85,7 +85,7 @@ export default function AgeGate() {
           </button>
         </div>
 
-        <p className="text-xs leading-relaxed" style={{ color: 'rgba(139,167,184,.35)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
           No data collected or stored from this screen.<br />
           CPRA · AADC · COPPA compliant
         </p>

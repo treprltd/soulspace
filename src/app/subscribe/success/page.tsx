@@ -136,7 +136,7 @@ function SuccessContent() {
           <button
             onClick={() => router.push('/settings')}
             className="block text-xs mx-auto hover:text-mist transition-colors w-full text-center"
-            style={{ color: 'rgba(139,167,184,.45)', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{ color: 'rgba(213,226,235,.65)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             View settings &amp; subscription →
           </button>
