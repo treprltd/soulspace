@@ -219,13 +219,21 @@ export default function AuthCallback() {
       try {
         const res = await fetch('/api/user/profile', {
           headers: { Authorization: `Bearer ${session.access_token}` },
-          signal: AbortSignal.timeout(5000),
+          signal: AbortSignal.timeout(8000),
         })
-        if (!res.ok) return true // assume complete if check fails — don't block sign-in
+        // Any non-OK response (401, 500, network error) means we cannot confirm
+        // the profile is complete — send the user to /profile/setup rather than
+        // silently bypassing it. A partial profile is worse than an extra setup
+        // page visit; the old "return true on error" logic is what caused users
+        // like adetokunbo949@ and reshbety@ to land on the dashboard with every
+        // profile field empty and no way to know they needed to fill it in.
+        if (!res.ok) return false
         const data = await res.json() as { profile_complete?: boolean }
         return data.profile_complete === true
       } catch {
-        return true // assume complete on network error
+        // Network error or timeout: cannot confirm profile exists.
+        // Redirect to /profile/setup — safer than silently skipping it.
+        return false
       }
     }
 

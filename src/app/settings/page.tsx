@@ -102,6 +102,13 @@ export default function Settings() {
         }
         setProfile(loaded)
         setProfileSnapshot(loaded)
+        // If the profile is incomplete (any required field missing), open the
+        // edit form immediately so the user sees exactly what needs filling in —
+        // rather than showing blank fields silently with no clear call to action.
+        const isIncomplete = !profileData.profile_complete ||
+          !loaded.firstName || !loaded.lastName || !loaded.dob ||
+          !loaded.phone || !loaded.gender
+        if (isIncomplete) setProfileEditing(true)
       }
       setProfileLoaded(true)
     }
@@ -318,6 +325,18 @@ export default function Settings() {
             className="rounded-xl p-4 mb-4"
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
+            {/* Incomplete-profile notice — shown when edit form auto-opens because
+                fields are missing. Disappears once the user saves successfully. */}
+            {profileEditing && (!profile.firstName || !profile.lastName || !profile.dob || !profile.phone || !profile.gender) && !profileSaved && (
+              <div
+                className="rounded-lg px-3 py-2.5 text-xs mb-3 leading-relaxed"
+                style={{ background: 'rgba(201,168,76,.07)', border: '1px solid rgba(201,168,76,.25)', color: 'var(--sand2)' }}
+              >
+                <span style={{ color: 'var(--gold2)', fontWeight: 600 }}>Required:</span>{' '}
+                Your account needs a first name, last name, date of birth, phone number, and gender to be complete. These details are used only for account verification and communication.
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-3 pb-1.5" style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
               <div className="text-[10px] tracking-[.11em] uppercase text-mist">Personal info</div>
               {!profileEditing ? (

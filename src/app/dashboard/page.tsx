@@ -121,6 +121,7 @@ export default function Dashboard() {
   const [detailLoading, setDetailLoading] = useState<string | null>(null)
   const [memoryGreeting, setMemoryGreeting] = useState<string | null>(null)
   const [patternInsight, setPatternInsight] = useState<string | null>(null)
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -162,8 +163,11 @@ export default function Dashboard() {
       if (patternsBody?.available && patternsBody.insight) setPatternInsight(patternsBody.insight)
 
       // Use first name if available, else fall back to email prefix
-      const firstName = (profileRes as { first_name?: string } | null)?.first_name
+      const profileBody = profileRes as { first_name?: string; profile_complete?: boolean } | null
+      const firstName = profileBody?.first_name
       setDisplayName(firstName?.trim() ? firstName.trim() : (user.email?.split('@')[0] ?? ''))
+      // Track profile completeness — drives the incomplete-profile banner below
+      setProfileComplete(profileBody?.profile_complete === true)
 
       if (subRes) setSubStatus(subRes as SubStatus)
       setSessions((histRes as { sessions: Session[] }).sessions ?? [])
@@ -285,6 +289,12 @@ export default function Dashboard() {
       <div className="px-5 py-6 max-w-xl mx-auto animate-fade-in">
 
         {/* ── Notification banners ─────────────────────────────── */}
+        {/* Profile incomplete — shown until the user fills in all required
+            fields. Non-dismissable: profile data is required for the account
+            to function properly (comms, verification, age compliance). */}
+        {profileComplete === false && (
+          <NotificationBanner type="profile_incomplete" />
+        )}
         {subStatus?.subscription?.status === 'past_due' && (
           <NotificationBanner type="payment_past_due" />
         )}

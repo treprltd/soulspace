@@ -17,6 +17,7 @@ export type BannerType =
   | 'session_limit_reached'
   | 'subscription_expiring'
   | 'subscription_expired'
+  | 'profile_incomplete'
 
 interface NotificationBannerProps {
   type: BannerType
@@ -89,6 +90,15 @@ const CONFIGS: Record<BannerType, BannerConfig> = {
     message: () => 'Your paid subscription has ended. Your history is still here. Upgrade to continue unlimited sessions.',
     action: { label: 'Resubscribe →', href: '/pricing' },
     dismissable: true,
+  },
+  profile_incomplete: {
+    bg: 'rgba(201,168,76,.07)',
+    border: 'rgba(201,168,76,.28)',
+    icon: '◌',
+    title: 'Your profile isn\'t complete yet',
+    message: () => 'We\'re missing some details — name, date of birth, phone, and gender. These are required to keep your account active.',
+    action: { label: 'Complete your profile →', href: '/settings' },
+    dismissable: false,
   },
 }
 
