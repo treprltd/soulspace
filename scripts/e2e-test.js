@@ -313,8 +313,26 @@ async function setup() {
 // ── Teardown: delete test user and all related data ───────────────────────────
 
 async function teardown() {
-  if (!testUser) return
   log('\n🧹  TEARDOWN')
+
+  // Delete guest feedback rows created by testGuestFeedbackAPI() — these have
+  // no user_id, so they are never reached by the user-cascade delete below.
+  // Without this, every e2e run leaves @soulspace.test rows behind in
+  // whichever environment BASE_URL points at (including production), which
+  // is what caused the admin feedback panel to fill up with test data.
+  try {
+    const { error: delFeedbackErr, count } = await adminClient
+      .from('feedback')
+      .delete({ count: 'exact' })
+      .is('user_id', null)
+      .like('guest_email', '%@soulspace.test')
+    if (delFeedbackErr) log(`  ⚠️  guest feedback delete warning: ${delFeedbackErr.message}`)
+    else log(`  Deleted ${count ?? 0} e2e guest feedback row(s)`)
+  } catch (err) {
+    log(`  ⚠️  Could not delete guest feedback rows: ${err.message}`)
+  }
+
+  if (!testUser) return
   try {
     // Delete public.users row first (sessions cascade to session_content + events via FK)
     const { error: delUserErr } = await adminClient.from('users').delete().eq('id', testUser.id)
