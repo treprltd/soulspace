@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
+import type { MirrorOutput } from '@/types'
 
 // One reframe per resonance branch — a cognitive shift, not an action
 const BRANCH_REFRAMES: Record<string, string> = {
@@ -56,6 +57,7 @@ export default function NextStep() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
   const [patternInsight, setPatternInsight] = useState<string | null>(null)
+  const [carrying, setCarrying] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -69,6 +71,16 @@ export default function NextStep() {
     const branch = sessionStorage.getItem('ss_branch')
     if (branch && BRANCH_REFRAMES[branch]) {
       setReframe(BRANCH_REFRAMES[branch])
+    }
+
+    // Echo back "what you're carrying" from the Mirror — closes the loop
+    // between reflection and action without generating anything new.
+    const storedMirror = sessionStorage.getItem('ss_mirror')
+    if (storedMirror) {
+      try {
+        const m = JSON.parse(storedMirror) as MirrorOutput
+        if (m.carrying) setCarrying(m.carrying)
+      } catch { /* malformed — skip the carrying recap */ }
     }
 
     // Keep in sync if auth changes mid-page
@@ -177,11 +189,28 @@ export default function NextStep() {
         </div>
 
         <h2 className="font-serif font-light text-sand2 text-2xl mb-1.5 leading-tight">
-          Choose one action <em className="text-gold2">for today.</em>
+          Bringing it <em className="text-gold2">together.</em>
         </h2>
-        <p className="text-sm text-mist mb-4">No prescription. This is entirely yours.</p>
+        <p className="text-sm text-mist mb-4">A short recap before you go.</p>
 
-        {/* ── Reframe card — a way to hold this differently ─────── */}
+        {/* ── What you're carrying — echoes the Mirror, no new generation ─── */}
+        {carrying && (
+          <div
+            className="rounded-xl p-4 mb-3 animate-fade-in"
+            style={{
+              border: '1px solid rgba(201,168,76,.12)',
+            }}
+          >
+            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
+              What you&apos;re carrying
+            </div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+              {carrying}
+            </p>
+          </div>
+        )}
+
+        {/* ── Reframe card — what seems to matter most ─────────────────────── */}
         {reframe && (
           <div
             className="rounded-xl p-4 mb-5 animate-fade-in"
@@ -191,13 +220,19 @@ export default function NextStep() {
             }}
           >
             <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(42,140,122,.7)' }}>
-              A way to hold this
+              What seems to matter most
             </div>
             <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {reframe}
             </p>
           </div>
         )}
+
+        {/* ── One action for today ──────────────────────────────────────────── */}
+        <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
+          One action for today
+        </div>
+        <p className="text-sm text-mist mb-3">No prescription. This is entirely yours.</p>
 
         <div className="mb-5">
           {NEXT_STEPS.slice(0, 6).map((step, i) => (
