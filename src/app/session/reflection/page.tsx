@@ -6,6 +6,7 @@ import type { MirrorOutput, ResonanceTap } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { ResonanceTap as ResonanceTapComponent } from '@/components/session/ResonanceTap'
 import { createClient } from '@/lib/supabase/client'
+import { IconBadge, CarryingIcon, UnderneathIcon, MirrorQuestionIcon } from '@/components/session/SectionIcons'
 
 export default function MirrorOutputPage() {
   const router = useRouter()
@@ -76,8 +77,13 @@ export default function MirrorOutputPage() {
           className="mirror-card mb-3"
           style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}
         >
-          <div className="mirror-label text-gold uppercase mb-2.5">
-            What you&apos;re carrying
+          <div className="flex items-center gap-2 mb-2.5">
+            <IconBadge background="rgba(201,168,76,.1)">
+              <CarryingIcon color="var(--gold)" />
+            </IconBadge>
+            <div className="mirror-label text-gold uppercase">
+              What you&apos;re carrying
+            </div>
           </div>
           <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
             {mirror.carrying}
@@ -88,8 +94,13 @@ export default function MirrorOutputPage() {
           className="mirror-card mb-3"
           style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}
         >
-          <div className="mirror-label text-gold uppercase mb-2.5">
-            What appears underneath
+          <div className="flex items-center gap-2 mb-2.5">
+            <IconBadge background="rgba(201,168,76,.1)">
+              <UnderneathIcon color="var(--gold)" />
+            </IconBadge>
+            <div className="mirror-label text-gold uppercase">
+              What appears underneath
+            </div>
           </div>
           <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
             {mirror.underneath}
@@ -105,8 +116,13 @@ export default function MirrorOutputPage() {
             animation: 'mirrorFadeIn 0.6s ease 2.6s forwards',
           }}
         >
-          <div className="mirror-label uppercase mb-2.5" style={{ color: 'var(--teal2)' }}>
-            One question back to you
+          <div className="flex items-center gap-2 mb-2.5">
+            <IconBadge background="rgba(61,175,150,.12)">
+              <MirrorQuestionIcon color="var(--teal2)" />
+            </IconBadge>
+            <div className="mirror-label uppercase" style={{ color: 'var(--teal2)' }}>
+              One question back to you
+            </div>
           </div>
           {/* Question stays italic — the contemplative moment */}
           <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '16px' }}>

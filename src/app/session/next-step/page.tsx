@@ -7,6 +7,7 @@ import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import type { MirrorOutput } from '@/types'
+import { IconBadge, CarryingIcon, MattersIcon, ConsiderWeekIcon, TodayIcon } from '@/components/session/SectionIcons'
 
 // One reframe per resonance branch — a cognitive shift, not an action
 const BRANCH_REFRAMES: Record<string, string> = {
@@ -215,8 +216,13 @@ export default function NextStep() {
               border: '1px solid rgba(201,168,76,.12)',
             }}
           >
-            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
-              What you&apos;re carrying
+            <div className="flex items-center gap-2 mb-2">
+              <IconBadge background="rgba(201,168,76,.1)">
+                <CarryingIcon color="var(--gold)" />
+              </IconBadge>
+              <div className="text-[11px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+                What you&apos;re carrying
+              </div>
             </div>
             <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {carrying}
@@ -233,8 +239,13 @@ export default function NextStep() {
               border: '1px solid rgba(42,140,122,.15)',
             }}
           >
-            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(42,140,122,.7)' }}>
-              What seems to matter most
+            <div className="flex items-center gap-2 mb-2">
+              <IconBadge background="rgba(61,175,150,.1)">
+                <MattersIcon color="var(--teal2)" />
+              </IconBadge>
+              <div className="text-[11px] tracking-[.1em] uppercase" style={{ color: 'rgba(42,140,122,.7)' }}>
+                What seems to matter most
+              </div>
             </div>
             <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {reframe}
@@ -250,8 +261,13 @@ export default function NextStep() {
               border: '1px solid rgba(201,168,76,.12)',
             }}
           >
-            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
-              One thing to consider this week
+            <div className="flex items-center gap-2 mb-2">
+              <IconBadge background="rgba(201,168,76,.1)">
+                <ConsiderWeekIcon color="var(--gold)" />
+              </IconBadge>
+              <div className="text-[11px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+                One thing to consider this week
+              </div>
             </div>
             <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {considerThisWeek}
@@ -260,8 +276,13 @@ export default function NextStep() {
         )}
 
         {/* ── One action for today ──────────────────────────────────────────── */}
-        <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
-          One action for today
+        <div className="flex items-center gap-2 mb-2">
+          <IconBadge background="rgba(201,168,76,.1)" size={22}>
+            <TodayIcon color="var(--gold)" />
+          </IconBadge>
+          <div className="text-[11px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+            One action for today
+          </div>
         </div>
         <p className="text-sm text-mist mb-3">No prescription. This is entirely yours.</p>
 

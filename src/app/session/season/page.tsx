@@ -6,6 +6,7 @@ import type { MirrorOutput } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { getSeason } from '@/lib/seasons'
 import { SeasonVisual } from '@/components/session/SeasonVisual'
+import { IconBadge, GroundingIcon, SeasonReflectionIcon, ReturnIcon } from '@/components/session/SectionIcons'
 
 export default function SeasonCard() {
   const router = useRouter()
@@ -60,10 +61,10 @@ export default function SeasonCard() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {[
-              { label: 'Grounding', text: season.grounding },
-              { label: 'Reflection', text: season.reflection },
-              { label: 'Return', text: season.returnPrompt },
-            ].map(({ label, text }) => (
+              { label: 'Grounding', text: season.grounding, Icon: GroundingIcon },
+              { label: 'Reflection', text: season.reflection, Icon: SeasonReflectionIcon },
+              { label: 'Return', text: season.returnPrompt, Icon: ReturnIcon },
+            ].map(({ label, text, Icon }) => (
               <div
                 key={label}
                 className="rounded-lg px-3 py-3 sm:px-3"
@@ -72,8 +73,13 @@ export default function SeasonCard() {
                   border: `1px solid ${season.color}22`,
                 }}
               >
-                <div className="season-tile-label text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: season.color }}>
-                  {label}
+                <div className="flex items-center gap-2 mb-2">
+                  <IconBadge background={`${season.color}1A`} size={22}>
+                    <Icon color={season.color} />
+                  </IconBadge>
+                  <div className="season-tile-label text-[11px] tracking-[.1em] uppercase" style={{ color: season.color }}>
+                    {label}
+                  </div>
                 </div>
                 <p className="season-tile-body text-sm text-sand leading-relaxed">{text}</p>
               </div>
