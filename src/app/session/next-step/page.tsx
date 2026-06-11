@@ -16,6 +16,16 @@ const BRANCH_REFRAMES: Record<string, string> = {
   D: "Carrying something alone for a long time doesn't mean you were wrong to. It means you've been strong for a long time. You don't have to keep carrying it the same way.",
 }
 
+// One "this week" noticing prompt per resonance branch — observation only,
+// never an instruction. Scoped to a week (vs. the "today" action picker)
+// so the two cards don't feel redundant.
+const CONSIDER_THIS_WEEK: Record<string, string> = {
+  A: 'This week, notice if the decision feels different on different days. What seems to shift it?',
+  B: "This week, notice when the feeling shows up most strongly — and what's happening around it.",
+  C: 'This week, notice the next time this pattern appears. What seems to come right before it?',
+  D: 'This week, notice if there\'s a moment you almost said something to someone — and what held you back.',
+}
+
 const NEXT_STEPS = [
   'Write down the two things that are in tension, side by side, without trying to resolve them yet.',
   'Give yourself permission to not decide anything today — just for the next 24 hours.',
@@ -58,6 +68,7 @@ export default function NextStep() {
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null)
   const [patternInsight, setPatternInsight] = useState<string | null>(null)
   const [carrying, setCarrying] = useState<string | null>(null)
+  const [considerThisWeek, setConsiderThisWeek] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -71,6 +82,9 @@ export default function NextStep() {
     const branch = sessionStorage.getItem('ss_branch')
     if (branch && BRANCH_REFRAMES[branch]) {
       setReframe(BRANCH_REFRAMES[branch])
+    }
+    if (branch && CONSIDER_THIS_WEEK[branch]) {
+      setConsiderThisWeek(CONSIDER_THIS_WEEK[branch])
     }
 
     // Echo back "what you're carrying" from the Mirror — closes the loop
@@ -224,6 +238,23 @@ export default function NextStep() {
             </div>
             <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
               {reframe}
+            </p>
+          </div>
+        )}
+
+        {/* ── One thing to consider this week ───────────────────────────────── */}
+        {considerThisWeek && (
+          <div
+            className="rounded-xl p-4 mb-5 animate-fade-in"
+            style={{
+              border: '1px solid rgba(201,168,76,.12)',
+            }}
+          >
+            <div className="text-[11px] tracking-[.1em] uppercase mb-2" style={{ color: 'var(--gold)' }}>
+              One thing to consider this week
+            </div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+              {considerThisWeek}
             </p>
           </div>
         )}
