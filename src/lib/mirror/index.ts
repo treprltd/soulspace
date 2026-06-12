@@ -39,6 +39,12 @@ export interface MirrorInput {
   contextText: string
   /** Human-readable life situation label selected by the user (e.g. "Work or career") */
   situation?: string
+  /**
+   * Set when the user tapped "Not quite" and answered the gentle follow-up
+   * ("What did it miss?"). Tells the Mirror to try again, taking this into
+   * account. The safety classifier covers this text too — see runMirror.
+   */
+  correctionContext?: string
 }
 
 function assignSeason(
@@ -69,8 +75,12 @@ function assignSeason(
 }
 
 export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
-  // Safety classifier MUST run before every Mirror call — no exceptions
-  const safety = await classifySafety(input.contextText)
+  // Safety classifier MUST run before every Mirror call — no exceptions.
+  // When a correction is present, it must be screened too.
+  const safetyText = input.correctionContext
+    ? `${input.contextText}\n${input.correctionContext}`
+    : input.contextText
+  const safety = await classifySafety(safetyText)
   if (safety.flagged) {
     throw new SafetyFlagError(safety.flagType, safety.confidence)
   }
@@ -84,6 +94,9 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
     `Emotion tags selected: ${input.emotionTags.join(', ')}`,
     `Intensity: ${input.intensity}/10`,
     `What they shared: ${input.contextText}`,
+    input.correctionContext
+      ? `The person felt the first reflection didn't quite land. What it missed: ${input.correctionContext}\nWrite a new reflection that takes this into account — same format, same voice.`
+      : null,
   ].filter(Boolean).join('\n')
 
   // Retry on 529 (Anthropic overloaded) with exponential backoff.

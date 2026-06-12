@@ -182,7 +182,7 @@ export default function MirrorLoading() {
         </h2>
         {/* AFFIRMATION MOMENT 3 — frozen copy */}
         {!retrying && (
-          <p className="font-serif italic leading-loose" style={{ fontSize: '15px', color: 'rgba(213,226,235,.72)' }}>
+          <p className="font-serif leading-loose" style={{ fontSize: '15px', color: 'rgba(213,226,235,.85)' }}>
             Not judging. Just trying to find<br />what sits underneath it.
           </p>
         )}

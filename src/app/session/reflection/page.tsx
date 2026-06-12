@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { MirrorOutput, ResonanceTap } from '@/types'
+import type { Branch, MirrorOutput, ResonanceTap } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { ResonanceTap as ResonanceTapComponent } from '@/components/session/ResonanceTap'
 import { createClient } from '@/lib/supabase/client'
@@ -13,6 +13,10 @@ export default function MirrorOutputPage() {
   const [mirror, setMirror] = useState<MirrorOutput | null>(null)
   const [resonanceTap, setResonanceTap] = useState<ResonanceTap | undefined>()
   const [tapped, setTapped] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
+  const [correctionUsed, setCorrectionUsed] = useState(false)
+  const [correctionError, setCorrectionError] = useState(false)
+  const [mirrorVersion, setMirrorVersion] = useState(0)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('ss_mirror')
@@ -44,6 +48,61 @@ export default function MirrorOutputPage() {
     }
   }
 
+  const handleCorrection = async (text: string) => {
+    setRegenerating(true)
+    setCorrectionError(false)
+    try {
+      const branch = (sessionStorage.getItem('ss_branch') ?? 'A') as Branch
+      const situation = sessionStorage.getItem('ss_situation') ?? undefined
+      const emotions = JSON.parse(sessionStorage.getItem('ss_emotions') ?? '[]') as string[]
+      const intensity = Number(sessionStorage.getItem('ss_intensity') ?? '5')
+      const context = sessionStorage.getItem('ss_context') ?? ''
+      const sessionId = sessionStorage.getItem('ss_session_id') ?? crypto.randomUUID()
+
+      const supabase = createClient()
+      const { data: { session: authSession } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (authSession?.access_token) {
+        headers['Authorization'] = `Bearer ${authSession.access_token}`
+      }
+
+      const res = await fetch('/api/mirror/regenerate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          sessionId,
+          branch,
+          emotionTags: emotions,
+          intensity,
+          contextText: context,
+          ...(situation ? { situation } : {}),
+          correctionContext: text,
+        }),
+      })
+
+      const data = await res.json() as { crisis?: boolean; mirror?: MirrorOutput }
+
+      if (data.crisis) { router.push('/crisis'); return }
+
+      if (data.mirror) {
+        setMirror(data.mirror)
+        sessionStorage.setItem('ss_mirror', JSON.stringify(data.mirror))
+        sessionStorage.removeItem('ss_resonance')
+        setResonanceTap(undefined)
+        setTapped(false)
+        setCorrectionUsed(true)
+        setMirrorVersion(v => v + 1)
+        return
+      }
+
+      setCorrectionError(true)
+    } catch {
+      setCorrectionError(true)
+    } finally {
+      setRegenerating(false)
+    }
+  }
+
   const handleSeason = () => {
     router.push('/session/season')
   }
@@ -71,75 +130,98 @@ export default function MirrorOutputPage() {
           </div>
         )}
 
+        {/* Correction note — shown once, after a regenerated reflection */}
+        {correctionUsed && (
+          <p className="text-xs text-center mb-4" style={{ color: 'rgba(232,201,122,.8)' }}>
+            Updated, based on what you shared.
+          </p>
+        )}
+
         {/* ── Mirror cards — staged reveal: each layer fades in after the previous ── */}
         {/* Body paragraphs: serif upright (not italic) at 16px — easier to read */}
-        <div
-          className="mirror-card mb-3"
-          style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}
-        >
-          <div className="flex items-center gap-2 mb-2.5">
-            <IconBadge background="rgba(201,168,76,.1)">
-              <CarryingIcon color="var(--gold)" />
-            </IconBadge>
-            <div className="mirror-label text-gold uppercase">
-              What you&apos;re carrying
+        {/* key={mirrorVersion} forces a remount so the fade-in replays after a correction */}
+        <div key={mirrorVersion}>
+          <div
+            className="mirror-card mb-3"
+            style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}
+          >
+            <div className="flex items-center gap-2 mb-2.5">
+              <IconBadge background="rgba(201,168,76,.1)">
+                <CarryingIcon color="var(--gold)" />
+              </IconBadge>
+              <div className="mirror-label text-gold uppercase">
+                What you&apos;re carrying
+              </div>
             </div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
+              {mirror.carrying}
+            </p>
           </div>
-          <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
-            {mirror.carrying}
-          </p>
-        </div>
 
-        <div
-          className="mirror-card mb-3"
-          style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}
-        >
-          <div className="flex items-center gap-2 mb-2.5">
-            <IconBadge background="rgba(201,168,76,.1)">
-              <UnderneathIcon color="var(--gold)" />
-            </IconBadge>
-            <div className="mirror-label text-gold uppercase">
-              What appears underneath
+          <div
+            className="mirror-card mb-3"
+            style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}
+          >
+            <div className="flex items-center gap-2 mb-2.5">
+              <IconBadge background="rgba(201,168,76,.1)">
+                <UnderneathIcon color="var(--gold)" />
+              </IconBadge>
+              <div className="mirror-label text-gold uppercase">
+                What appears underneath
+              </div>
             </div>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
+              {mirror.underneath}
+            </p>
           </div>
-          <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
-            {mirror.underneath}
-          </p>
-        </div>
 
-        <div
-          className="rounded-xl p-4 mb-5"
-          style={{
-            background: 'rgba(42,140,122,.08)',
-            border: '1px solid rgba(42,140,122,.2)',
-            opacity: 0,
-            animation: 'mirrorFadeIn 0.6s ease 2.6s forwards',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-2.5">
-            <IconBadge background="rgba(61,175,150,.12)">
-              <MirrorQuestionIcon color="var(--teal2)" />
-            </IconBadge>
-            <div className="mirror-label uppercase" style={{ color: 'var(--teal2)' }}>
-              One question back to you
+          <div
+            className="rounded-xl p-4 mb-5"
+            style={{
+              background: 'rgba(42,140,122,.08)',
+              border: '1px solid rgba(42,140,122,.2)',
+              opacity: 0,
+              animation: 'mirrorFadeIn 0.6s ease 2.6s forwards',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-2.5">
+              <IconBadge background="rgba(61,175,150,.12)">
+                <MirrorQuestionIcon color="var(--teal2)" />
+              </IconBadge>
+              <div className="mirror-label uppercase" style={{ color: 'var(--teal2)' }}>
+                One question back to you
+              </div>
             </div>
+            {/* Question stays italic — the contemplative moment */}
+            <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '16px' }}>
+              {mirror.question}
+            </p>
           </div>
-          {/* Question stays italic — the contemplative moment */}
-          <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '16px' }}>
-            {mirror.question}
-          </p>
         </div>
 
         {/* ── AI transparency — just before "did this feel accurate?" ─────── */}
         <p
           className="text-center text-sm mb-5 leading-relaxed"
-          style={{ color: 'rgba(213,226,235,.65)', fontStyle: 'italic' }}
+          style={{ color: 'rgba(213,226,235,.8)' }}
         >
           This reflection was shaped by AI from what you shared — not a diagnosis, not advice.
         </p>
 
         {/* ── Resonance tap — comes AFTER reading, not beside it ───────────── */}
-        <ResonanceTapComponent onTap={handleTap} selected={resonanceTap} />
+        <ResonanceTapComponent
+          onTap={handleTap}
+          selected={resonanceTap}
+          onCorrection={handleCorrection}
+          regenerating={regenerating}
+          correctionUsed={correctionUsed}
+        />
+
+        {/* Correction error — original reflection stays in place */}
+        {correctionError && (
+          <p className="text-xs text-center mb-3 -mt-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+            Couldn&apos;t update — your original reflection is still here.
+          </p>
+        )}
 
         {/* ── Season CTA ───────────────────────────────────────────────────── */}
         <button

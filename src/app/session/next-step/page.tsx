@@ -337,7 +337,7 @@ export default function NextStep() {
               border: '1px solid rgba(201,168,76,.12)',
             }}
           >
-            <p className="font-serif italic text-sm leading-relaxed" style={{ color: 'rgba(232,201,122,.65)' }}>
+            <p className="font-serif text-sm leading-relaxed" style={{ color: 'rgba(232,201,122,.8)' }}>
               {patternInsight}
             </p>
           </div>
@@ -353,8 +353,8 @@ export default function NextStep() {
 
         {/* ── Continuity line — the thread that connects sessions ── */}
         <p
-          className="text-center font-serif italic mt-5 mb-1 leading-relaxed text-sm"
-          style={{ color: 'rgba(213,226,235,.60)' }}
+          className="text-center font-serif mt-5 mb-1 leading-relaxed text-sm"
+          style={{ color: 'rgba(213,226,235,.8)' }}
         >
           Come back in a few days.<br />
           Your season may already be shifting.
