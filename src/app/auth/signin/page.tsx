@@ -12,6 +12,7 @@ export default function SignIn() {
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [noAccount, setNoAccount] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   // Resend state
   const [resendCooldown, setResendCooldown] = useState(0)
@@ -45,15 +46,24 @@ export default function SignIn() {
     }
     setLoading(true)
     setError(null)
+    setNoAccount(false)
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        // Sign-in only — never create a new account from this form. New
+        // accounts must go through /auth/register, which collects the
+        // profile fields (name, DOB, phone, gender) required at signup.
+        shouldCreateUser: false,
       },
     })
     setLoading(false)
-    if (error) { setError(error.message); return }
+    if (error) {
+      if (error.code === 'otp_disabled') { setNoAccount(true); return }
+      setError(error.message)
+      return
+    }
     setSent(true)
   }
 
@@ -64,6 +74,7 @@ export default function SignIn() {
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        shouldCreateUser: false,
       },
     })
     setResendLoading(false)
@@ -165,7 +176,7 @@ export default function SignIn() {
               <input
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); setError(null); setNoAccount(false) }}
                 placeholder="your@email.com"
                 className="w-full px-4 py-3 rounded-xl text-base text-sand2 focus:outline-none focus:border-gold/40 transition-colors"
                 style={{
@@ -175,6 +186,19 @@ export default function SignIn() {
               />
               {error && typeof error === 'string' && error.length > 0 && (
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>
+              )}
+              {noAccount && (
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>
+                  We couldn&apos;t find an account with that email.{' '}
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/auth/register?next=${encodeURIComponent(next)}`)}
+                    className="underline underline-offset-2"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
+                  >
+                    Create an account →
+                  </button>
+                </p>
               )}
               <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 disabled:opacity-50">
                 {loading ? 'Sending…' : 'Send sign-in link →'}
