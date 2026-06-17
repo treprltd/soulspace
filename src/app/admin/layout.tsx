@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { href: '/admin/mirror',      label: 'Mirror Quality', icon: '◎' },
   { href: '/admin/feedback',    label: 'Feedback',       icon: '★' },
   { href: '/admin/contact',     label: 'Contact',        icon: '✉' },
+  { href: '/admin/emails',      label: 'Emails',         icon: '◫' },
   { href: '/admin/sessions',    label: 'Sessions',       icon: '⊟' },
   { href: '/admin/safety',      label: 'Safety',         icon: '⚑' },
   { href: '/admin/users',       label: 'Users',          icon: '⊕' },
