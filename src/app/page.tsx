@@ -275,6 +275,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Privacy & trust ── */}
+      <section className="px-6 pb-8 max-w-3xl mx-auto">
+        <div
+          className="rounded-xl px-5 py-5"
+          style={{ background: 'rgba(15,30,46,.5)', border: '1px solid rgba(245,237,216,.05)' }}
+        >
+          <div className="eyebrow mb-4 justify-center">Your data, your privacy</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
+            {([
+              ['Encrypted at rest', 'Session content is AES-256 encrypted before it reaches our database.'],
+              ['Never sold or shared', 'We do not sell, rent, or share your data. Ever.'],
+              ['No third-party tracking', 'No Google Analytics. No Meta Pixel. No ad networks.'],
+              ['AI inference, not storage', 'Anthropic processes your session for the Mirror — they do not retain your content.'],
+            ] as [string, string][]).map(([title, detail]) => (
+              <div key={title} className="flex items-start gap-2">
+                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>◈</span>
+                <div>
+                  <span className="text-sm text-sand">{title}</span>
+                  <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'rgba(213,226,235,.58)' }}>{detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-center mt-4" style={{ color: 'rgba(213,226,235,.50)' }}>
+            <Link href="/privacy" className="underline underline-offset-2 hover:text-mist transition-colors">
+              Full privacy policy →
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* ── Bottom CTA ── */}
       <section className="px-6 py-20 text-center">
         <h2 className="font-serif font-light text-sand2 text-3xl mb-3 leading-tight">
@@ -324,6 +355,8 @@ export default function Home() {
           <Link href="/settings" className="text-xs text-mist/80 hover:text-mist transition-colors">Settings</Link>
           <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/contact" className="text-xs text-mist/80 hover:text-mist transition-colors">Contact</Link>
+          <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
+          <Link href="/privacy" className="text-xs text-mist/80 hover:text-mist transition-colors">Privacy</Link>
           <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/crisis" className="text-xs text-mist/80 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
