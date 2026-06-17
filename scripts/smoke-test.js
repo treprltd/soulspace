@@ -267,6 +267,25 @@ async function get(path, opts = {}) {
     assert(res.status === 401, `Expected 401, got ${res.status}`)
   })
 
+  await test('GET /api/admin/contact returns 401 without auth', async () => {
+    const res = await get('/api/admin/contact')
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('POST /api/admin/contact returns 401 without auth', async () => {
+    const res = await get('/api/admin/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'fake-id', reply: 'Hello.', env: 'prod' }),
+    })
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('GET /admin/contact returns 200', async () => {
+    const res = await get('/admin/contact')
+    assert(res.ok, `Expected 200, got ${res.status}`)
+  })
+
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50))
   if (failed > 0) {
