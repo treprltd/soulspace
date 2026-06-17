@@ -158,6 +158,13 @@ export default function ContextField() {
           )}
         </div>
 
+        <p className="text-xs text-center mb-4 leading-relaxed" style={{ color: 'rgba(213,226,235,.55)' }}>
+          ◈ What you share is encrypted at rest and never used to train AI.{' '}
+          <a href="/privacy" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+            Privacy policy →
+          </a>
+        </p>
+
         <div className="flex gap-3">
           <button onClick={() => router.back()} className="btn-outline text-xs px-5">
             ← Back
