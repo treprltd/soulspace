@@ -421,6 +421,33 @@ export function contactAckEmail(name: string): { subject: string; htmlContent: s
   }
 }
 
+/**
+ * Sent by an admin replying to a contact form submission.
+ * replyBody is the admin's free-form reply message.
+ */
+export function contactReplyEmail(opts: {
+  name:      string
+  category:  string
+  replyBody: string
+}): { subject: string; htmlContent: string; textContent: string } {
+  const firstName = opts.name.split(' ')[0]
+  return {
+    subject: `Re: your message to Soul Space`,
+    htmlContent: emailShell(
+      `${heading(`Hi ${firstName} —`)}
+       ${para(`Thanks for reaching out about <strong style="color:#08111C;">${opts.category}</strong>. Here's a reply from our team:`)}
+       <div style="background:#F5F4F0;border-left:3px solid #C9A84C;border-radius:0 6px 6px 0;padding:14px 16px;margin:20px 0;">
+         <p style="font-size:14px;color:#1A2A3A;line-height:1.8;margin:0;white-space:pre-wrap;">${opts.replyBody.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+       </div>
+       ${para('If you have a follow-up question, just reply to this email.')}
+       ${alertBox('Soul Space is not a crisis service. If you are in immediate danger, please call or text <strong>988</strong>.', '#3DAF96')}`,
+      `A reply from the Soul Space team.`,
+      'You received this because you submitted the Soul Space contact form.',
+    ),
+    textContent: `Hi ${firstName},\n\nThanks for reaching out about ${opts.category}. Here's a reply from our team:\n\n${opts.replyBody}\n\nIf you have a follow-up question, just reply to this email.\n\nSoul Space is not a crisis service. If you are in immediate danger, call or text 988.`,
+  }
+}
+
 // ── Admin alert emails ────────────────────────────────────────────────────────
 
 /** Sent to ADMIN_EMAIL when a safety flag fires. */

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail, contactNotificationEmail, contactAckEmail } from '@/lib/email'
+import { createServiceClient } from '@/lib/supabase/server'
 
 const VALID_CATEGORIES = [
   'General question',
@@ -65,6 +66,17 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[contact] email send failed:', err)
     return NextResponse.json({ error: 'Something went wrong sending your message. Please try again.' }, { status: 500 })
+  }
+
+  // Persist submission for admin inbox (non-blocking — don't fail the request if this errors)
+  try {
+    const db = createServiceClient()
+    await db.from('contact_submissions').insert({
+      name: cleanName, email: cleanEmail, category,
+      sub_option: cleanSubOption, message: cleanMessage,
+    })
+  } catch (err) {
+    console.error('[contact] failed to persist submission:', err)
   }
 
   return NextResponse.json({ ok: true })
