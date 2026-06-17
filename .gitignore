@@ -39,3 +39,6 @@ next-env.d.ts
 
 # Claude Code local session files
 .claude/
+
+# Generated artifacts
+prod-screenshots/

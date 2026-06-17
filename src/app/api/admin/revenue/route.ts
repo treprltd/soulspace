@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
 import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 const ESSENTIALS_PRICE = 9.99

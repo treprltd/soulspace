@@ -323,6 +323,8 @@ export default function Home() {
           <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/settings" className="text-xs text-mist/80 hover:text-mist transition-colors">Settings</Link>
           <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
+          <Link href="/contact" className="text-xs text-mist/80 hover:text-mist transition-colors">Contact</Link>
+          <span className="text-xs" style={{ color: 'rgba(213,226,235,.56)' }}>·</span>
           <Link href="/crisis" className="text-xs text-mist/80 hover:text-mist transition-colors">Crisis resources</Link>
         </div>
       </footer>

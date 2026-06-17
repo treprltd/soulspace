@@ -102,6 +102,10 @@ export function NavBar({ right }: NavBarProps) {
                   className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors">
                   Begin a session
                 </Link>
+                <Link href="/contact" onClick={() => setMenuOpen(false)}
+                  className="flex items-center px-3.5 py-2.5 text-[11px] text-sand hover:text-sand2 transition-colors">
+                  Contact
+                </Link>
                 <div style={{ borderTop: '1px solid rgba(245,237,216,.05)', margin: '4px 0' }} />
                 <button onClick={handleSignOut}
                   className="w-full text-left flex items-center px-3.5 py-2.5 text-[11px] hover:opacity-80 transition-opacity"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { getAdminClient, getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
+import { getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
 import { getDefaultAdminEnv } from '@/lib/admin/env'
 
 export async function GET(req: NextRequest) {

@@ -358,6 +358,69 @@ export function checkInDigestEmail(
   }
 }
 
+// ── Contact form emails ───────────────────────────────────────────────────────
+
+/**
+ * Sent to SUPPORT_EMAIL (or ADMIN_EMAIL) when a visitor submits the contact form.
+ * Contains the full message so staff can reply directly.
+ */
+export function contactNotificationEmail(opts: {
+  name:      string
+  email:     string
+  category:  string
+  subOption: string
+  message:   string
+}): { subject: string; htmlContent: string; textContent: string } {
+  const topicLabel = opts.subOption ? `${opts.category} → ${opts.subOption}` : opts.category
+  const rows: [string, string][] = [
+    ['Name',     opts.name],
+    ['Email',    opts.email],
+    ['Category', opts.category],
+    ...(opts.subOption ? [['Topic', opts.subOption] as [string, string]] : []),
+  ]
+  return {
+    subject: `[Contact] ${topicLabel} — ${opts.name}`,
+    htmlContent: emailShell(
+      `${alertBox(`New contact form submission from <strong>${opts.name}</strong> (${opts.email}).`, '#C9A84C')}
+       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 24px;">
+         ${rows.map(([k, v]) => `
+           <tr>
+             <td style="font-size:12px;color:#4A6070;padding:8px 0;border-bottom:1px solid #EEE9DF;width:35%;">${k}</td>
+             <td style="font-size:12px;color:#08111C;padding:8px 0;border-bottom:1px solid #EEE9DF;font-weight:500;">${v}</td>
+           </tr>`).join('')}
+       </table>
+       <p style="font-size:11px;color:#9AA8B5;text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px;">Message</p>
+       <div style="background:#F5F4F0;border-left:3px solid #C9A84C;border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:20px;">
+         <p style="font-size:14px;color:#1A2A3A;line-height:1.75;margin:0;white-space:pre-wrap;">${opts.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+       </div>
+       ${btn(`Reply to ${opts.name} →`, `mailto:${opts.email}`)}`,
+      `Contact form: ${topicLabel} from ${opts.name}`,
+    ),
+    textContent: `New contact form submission\n\nName: ${opts.name}\nEmail: ${opts.email}\nCategory: ${opts.category}${opts.subOption ? `\nTopic: ${opts.subOption}` : ''}\n\nMessage:\n${opts.message}`,
+  }
+}
+
+/**
+ * Acknowledgment sent to the person who submitted the contact form.
+ * Warm, non-clinical — confirms we received their message.
+ */
+export function contactAckEmail(name: string): { subject: string; htmlContent: string; textContent: string } {
+  const firstName = name.split(' ')[0]
+  return {
+    subject: 'We received your message.',
+    htmlContent: emailShell(
+      `${heading(`We&rsquo;ll be in touch, ${firstName}.`)}
+       ${para('Your message reached us. We read every one and aim to reply within 1–2 business days.')}
+       ${para('If your question is about a specific session or your account, having your email address on hand (the one you used to sign in) will help us find things quickly.')}
+       ${alertBox('Soul Space is not a crisis service. If you are in immediate danger, please call or text <strong>988</strong>.', '#3DAF96')}
+       ${btn('Back to Soul Space →', `${APP_URL}`)}`,
+      `We received your message — we'll be in touch within 1–2 business days.`,
+      'You received this because you submitted the Soul Space contact form.',
+    ),
+    textContent: `We'll be in touch, ${firstName}.\n\nYour message reached us. We aim to reply within 1–2 business days.\n\nSoul Space is not a crisis service. If you are in immediate danger, call or text 988.\n\n${APP_URL}`,
+  }
+}
+
 // ── Admin alert emails ────────────────────────────────────────────────────────
 
 /** Sent to ADMIN_EMAIL when a safety flag fires. */

@@ -184,13 +184,98 @@ async function get(path, opts = {}) {
     })
   }
 
+  // ── Contact page & API ───────────────────────────────────────────────────
+  await test('GET /contact returns 200', async () => {
+    const res = await get('/contact')
+    assert(res.ok, `Expected 200, got ${res.status}`)
+  })
+
+  await test('POST /api/contact with malformed body returns 400', async () => {
+    const res = await get('/api/contact', {
+           method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'not-json{{{',
+    })
+    assert(res.status === 400, `Expected 400, got ${res.status}`)
+  })
+
+  await test('POST /api/contact with invalid category returns 422', async () => {
+    const res = await get('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Test', email: 'test@example.com', category: 'INVALID', subOption: '', message: 'This is a valid test message.' }),
+    })
+    assert(res.status === 422, `Expected 422, got ${res.status}`)
+    const body = await res.json()
+    assert(typeof body.error === 'string', 'Expected error string in body')
+  })
+
+  await test('POST /api/contact missing subOption for Subscription returns 422', async () => {
+    const res = await get('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Test', email: 'test@example.com', category: 'Subscription', subOption: '', message: 'I have a subscription question here.' }),
+    })
+    assert(res.status === 422, `Expected 422, got ${res.status}`)
+  })
+
+  await test('POST /api/contact with message too short returns 422', async () => {
+    const res = await get('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Test', email: 'test@example.com', category: 'Other', subOption: '', message: 'Short' }),
+    })
+    assert(res.status === 422, `Expected 422, got ${res.status}`)
+  })
+
+  // ── Admin routes (unauthenticated guards) ─────────────────────────────────
+  await test('GET /admin/login returns 200', async () => {
+    const res = await get('/admin/login')
+    assert(res.ok, `Expected 200, got ${res.status}`)
+  })
+
+  await test('GET /api/admin/test-email returns 401 without auth header', async () => {
+    const res = await get('/api/admin/test-email?to=test@example.com')
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('GET /api/admin/users returns 401 without auth', async () => {
+    const res = await get('/api/admin/users')
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('GET /api/admin/safety returns 401 without auth', async () => {
+    const res = await get('/api/admin/safety')
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('PATCH /api/admin/safety returns 401 without auth', async () => {
+    const res = await get('/api/admin/safety', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'fake-id', env: 'prod' }),
+    })
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
+  await test('PATCH /api/admin/users returns 401 without auth', async () => {
+    const res = await get('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'fake-id', plan_tier: 'free', env: 'prod' }),
+    })
+    assert(res.status === 401, `Expected 401, got ${res.status}`)
+  })
+
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50))
   if (failed > 0) {
     console.error(`\n❌  ${failed} test(s) FAILED, ${passed} passed.\n`)
     process.exit(1)
   } else {
-    console.log(`\n✅  All ${passed} smoke tests passed.\n`)
+    console.log(`
+✅  All ${passed} smoke tests passed.
+`)
     process.exit(0)
   }
 })()
