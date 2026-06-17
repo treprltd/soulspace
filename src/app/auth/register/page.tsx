@@ -307,7 +307,7 @@ export default function Register() {
               </button>
             </form>
 
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center space-y-2">
               <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.65)' }}>
                 Already have an account?{' '}
                 <button
@@ -317,6 +317,15 @@ export default function Register() {
                 >
                   Sign in here
                 </button>
+              </p>
+              <p className="text-xs" style={{ color: 'rgba(213,226,235,.45)' }}>
+                <a
+                  href="/privacy"
+                  className="underline underline-offset-2 hover:text-mist transition-colors"
+                  style={{ color: 'inherit' }}
+                >
+                  Privacy policy →
+                </a>
               </p>
             </div>
           </>
