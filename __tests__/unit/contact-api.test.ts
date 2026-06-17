@@ -43,8 +43,8 @@ function makeReq(body: unknown): NextRequest {
 const VALID_BASE = {
   name:      'Ada Lovelace',
   email:     'ada@example.com',
-  category:  'Feedback',      // no subOption required for this category in the route
-  subOption: '',
+  category:  'Feedback',
+  subOption: 'General feedback',
   message:   'This is a test message that meets the minimum length requirement.',
 }
 
