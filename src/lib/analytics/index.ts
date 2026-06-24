@@ -1,22 +1,28 @@
-import { EventName, EventPayload } from '@/types'
-import crypto from 'crypto'
+import type { EventName } from '@/types'
+import { createClient } from '@/lib/supabase/client'
 
-export function hashUserId(userId: string): string {
-  return crypto.createHash('sha256').update(userId).digest('hex').slice(0, 16)
+interface LogEventInput {
+  sessionId?: string
+  eventName: EventName
+  properties?: Record<string, unknown>
 }
 
-export async function logEvent(
-  payload: EventPayload & { userId?: string }
-): Promise<void> {
+// Client-side funnel event logger. user_hash is derived server-side from the
+// Bearer token (see /api/events) — never computed or trusted client-side.
+export async function logEvent({ sessionId, eventName, properties }: LogEventInput): Promise<void> {
   try {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
     await fetch('/api/events', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
-        session_id: payload.sessionId,
-        event_name: payload.eventName,
-        user_hash: payload.userId ? hashUserId(payload.userId) : undefined,
-        properties: payload.properties ?? {},
+        session_id: sessionId,
+        event_name: eventName,
+        properties: properties ?? {},
       }),
     })
   } catch {
@@ -24,7 +30,7 @@ export async function logEvent(
   }
 }
 
-export function createEventLogger(sessionId: string, userId?: string) {
+export function createEventLogger(sessionId?: string) {
   return (eventName: EventName, properties?: Record<string, unknown>) =>
-    logEvent({ sessionId, eventName, userId, properties })
+    logEvent({ sessionId, eventName, properties })
 }

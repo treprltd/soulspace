@@ -6,6 +6,7 @@ import type { Branch, MirrorOutput, ResonanceTap } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { ResonanceTap as ResonanceTapComponent } from '@/components/session/ResonanceTap'
 import { createClient } from '@/lib/supabase/client'
+import { logEvent } from '@/lib/analytics'
 import { IconBadge, CarryingIcon, UnderneathIcon, MirrorQuestionIcon } from '@/components/session/SectionIcons'
 
 export default function MirrorOutputPage() {
@@ -33,6 +34,7 @@ export default function MirrorOutputPage() {
     sessionStorage.setItem('ss_resonance', result)
 
     const sessionId = sessionStorage.getItem('ss_session_id')
+    logEvent({ sessionId: sessionId ?? undefined, eventName: 'resonance_tapped', properties: { result } })
     if (sessionId) {
       const supabase = createClient()
       const { data: { session: authSession } } = await supabase.auth.getSession()

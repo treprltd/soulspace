@@ -37,12 +37,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 })
   }
 
+  // Phone and gender are optional — see applyProfile.ts. Only the fields
+  // actually required to create an account (name, DOB) are required here too.
   const { firstName, lastName, dob, phone, gender } = body
-  if (!firstName?.trim() || !lastName?.trim() || !dob || !phone?.trim()) {
+  if (!firstName?.trim() || !lastName?.trim() || !dob) {
     return NextResponse.json({ error: 'Missing profile fields.' }, { status: 400 })
   }
-  if (!gender || !(VALID_GENDERS as readonly string[]).includes(gender)) {
-    return NextResponse.json({ error: 'Missing profile fields.' }, { status: 400 })
+  if (gender && !(VALID_GENDERS as readonly string[]).includes(gender)) {
+    return NextResponse.json({ error: 'Invalid gender value.' }, { status: 400 })
   }
 
   const service = createServiceClient()
@@ -54,8 +56,8 @@ export async function POST(req: NextRequest) {
         first_name: firstName.trim(),
         last_name:  lastName.trim(),
         dob,
-        phone:      phone.trim(),
-        gender,
+        phone:      phone?.trim() || null,
+        gender:     gender || null,
         created_at: new Date().toISOString(),
       },
       { onConflict: 'email' },

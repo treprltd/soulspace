@@ -30,7 +30,11 @@ export async function GET(req: NextRequest) {
 
     const planTier = userData?.plan_tier ?? 'free'
 
-    // Count sessions this calendar month
+    // Count sessions this calendar month — only ones where a Mirror actually
+    // rendered (season_assigned set). Matches the gate in /api/mirror so this
+    // status check can't disagree with the gate it's meant to preview (an
+    // abandoned/incomplete session would otherwise count against the limit
+    // here but not there, falsely blocking a user with a free session left).
     const startOfMonth = new Date()
     startOfMonth.setDate(1)
     startOfMonth.setHours(0, 0, 0, 0)
@@ -40,6 +44,7 @@ export async function GET(req: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .gte('created_at', startOfMonth.toISOString())
+      .not('season_assigned', 'is', null)
 
     // Get active subscription details
     const { data: subscription } = await db

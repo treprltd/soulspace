@@ -6,6 +6,7 @@ import type { MirrorOutput } from '@/types'
 import { NavBar } from '@/components/ui/NavBar'
 import { getSeason } from '@/lib/seasons'
 import { SeasonVisual } from '@/components/session/SeasonVisual'
+import { logEvent } from '@/lib/analytics'
 import { IconBadge, GroundingIcon, SeasonReflectionIcon, ReturnIcon } from '@/components/session/SectionIcons'
 
 export default function SeasonCard() {
@@ -18,6 +19,11 @@ export default function SeasonCard() {
     const m = JSON.parse(stored) as MirrorOutput
     if (m.safetyFlagged) { router.push('/crisis'); return }
     setMirror(m)
+    logEvent({
+      sessionId: sessionStorage.getItem('ss_session_id') ?? undefined,
+      eventName: 'season_shown',
+      properties: { season: m.season },
+    })
   }, [router])
 
   if (!mirror) return null

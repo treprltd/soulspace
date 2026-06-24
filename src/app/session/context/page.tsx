@@ -6,8 +6,36 @@ import { NavBar } from '@/components/ui/NavBar'
 import { ProgressBar } from '@/components/session/ProgressBar'
 import { VoiceInput } from '@/components/session/VoiceInput'
 import { createClient } from '@/lib/supabase/client'
+import { logEvent } from '@/lib/analytics'
 
 const MAX_CHARS = 800
+
+// Attempts to create the sessions row — used as a fallback retry here when
+// the primary creation at the situation-picker screen didn't leave a
+// ss_session_id behind (failed silently, or this page was reached directly).
+async function tryCreateSession(): Promise<string | undefined> {
+  try {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) return undefined
+
+    const branch    = sessionStorage.getItem('ss_branch')    ?? 'A'
+    const situation = sessionStorage.getItem('ss_situation') ?? undefined
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ branch, ...(situation ? { situation } : {}) }),
+    })
+    if (!res.ok) return undefined
+    const { session: dbSession } = await res.json() as { session: { id: string } }
+    return dbSession.id
+  } catch {
+    return undefined
+  }
+}
 
 export default function ContextField() {
   const router = useRouter()
@@ -15,6 +43,8 @@ export default function ContextField() {
   const [submitting, setSubmitting]       = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isPaid, setIsPaid]               = useState(false)
+  const [sessionSaveFailed, setSessionSaveFailed] = useState(false)
+  const [retrying, setRetrying]           = useState(false)
 
   // ── Check auth + subscription status on mount ────────────────────────────
   useEffect(() => {
@@ -36,9 +66,32 @@ export default function ContextField() {
       } catch {
         // Subscription check failed — voice input stays locked, session continues normally
       }
+
+      // Session row is normally created already at the situation-picker
+      // screen. If it's missing here for an authenticated user, that attempt
+      // failed silently — retry once now and surface a banner (not blocking)
+      // if it fails again, instead of quietly proceeding with no record at all.
+      if (!sessionStorage.getItem('ss_session_id')) {
+        const id = await tryCreateSession()
+        if (id) {
+          sessionStorage.setItem('ss_session_id', id)
+        } else {
+          setSessionSaveFailed(true)
+        }
+      }
     }
     checkStatus()
   }, [])
+
+  const handleRetrySave = async () => {
+    setRetrying(true)
+    const id = await tryCreateSession()
+    if (id) {
+      sessionStorage.setItem('ss_session_id', id)
+      setSessionSaveFailed(false)
+    }
+    setRetrying(false)
+  }
 
   // ── Transcript handler — appends to existing text ────────────────────────
   const handleTranscript = (transcript: string) => {
@@ -53,42 +106,16 @@ export default function ContextField() {
     setSubmitting(true)
     sessionStorage.setItem('ss_context', text)
 
-    // ── Create a session row in Supabase for authenticated users ─────────────
-    // This is the earliest point at which we have all info needed to create a
-    // session (branch is already in sessionStorage from the situation screen).
-    // The session ID is stored in sessionStorage so the loading page can pass
-    // it to the mirror API, which then links session_content to this row.
-    //
-    // Unauthenticated users skip this — they still get the mirror output, it
-    // just won't be persisted.
-    try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session?.access_token) {
-        const branch    = sessionStorage.getItem('ss_branch')    ?? 'A'
-        const situation = sessionStorage.getItem('ss_situation') ?? undefined
-        const res = await fetch('/api/sessions', {
-          method: 'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ branch, ...(situation ? { situation } : {}) }),
-        })
-
-        if (res.ok) {
-          const { session: dbSession } = await res.json() as { session: { id: string } }
-          sessionStorage.setItem('ss_session_id', dbSession.id)
-        } else {
-          sessionStorage.removeItem('ss_session_id')
-        }
-      } else {
-        sessionStorage.removeItem('ss_session_id')
-      }
-    } catch {
-      sessionStorage.removeItem('ss_session_id')
-    }
+    // The session row (if any — authenticated users only) was already
+    // created at the situation-picker screen, with a retry attempted above
+    // on mount if that failed. Use whatever ended up in sessionStorage rather
+    // than creating another row here, which would otherwise leave a duplicate
+    // orphaned session behind every time this page is reached.
+    logEvent({
+      sessionId: sessionStorage.getItem('ss_session_id') ?? undefined,
+      eventName: 'context_submitted',
+      properties: { char_count: text.length },
+    })
 
     router.push('/session/loading')
   }
@@ -164,6 +191,27 @@ export default function ContextField() {
             Privacy policy →
           </a>
         </p>
+
+        {/* Session-save failure — non-blocking. The reflection still works
+            either way; this only affects whether it's saved to the account. */}
+        {sessionSaveFailed && (
+          <div
+            className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 mb-4"
+            style={{ background: 'rgba(201,168,76,.05)', border: '1px solid rgba(201,168,76,.15)' }}
+          >
+            <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.7)' }}>
+              This session may not save to your account right now.
+            </p>
+            <button
+              onClick={handleRetrySave}
+              disabled={retrying}
+              className="text-xs flex-shrink-0 underline underline-offset-2 disabled:opacity-50"
+              style={{ color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {retrying ? 'Retrying…' : 'Retry'}
+            </button>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <button onClick={() => router.back()} className="btn-outline text-xs px-5">

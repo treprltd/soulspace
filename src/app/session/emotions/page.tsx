@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
 import { ProgressBar } from '@/components/session/ProgressBar'
+import { logEvent } from '@/lib/analytics'
 
 const EMOTION_TAGS = [
   'Overwhelmed', 'Stuck', 'Uncertain', 'Pressured', 'Anxious', 'Conflicted',
@@ -24,6 +25,11 @@ export default function Emotions() {
   const handleContinue = () => {
     if (selected.length === 0) return
     sessionStorage.setItem('ss_emotions', JSON.stringify(selected))
+    logEvent({
+      sessionId: sessionStorage.getItem('ss_session_id') ?? undefined,
+      eventName: 'emotions_submitted',
+      properties: { count: selected.length },
+    })
     router.push('/session/intensity')
   }
 

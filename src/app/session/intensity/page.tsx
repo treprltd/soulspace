@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { NavBar } from '@/components/ui/NavBar'
 import { ProgressBar } from '@/components/session/ProgressBar'
+import { logEvent } from '@/lib/analytics'
 
 export default function Intensity() {
   const router = useRouter()
@@ -11,6 +12,11 @@ export default function Intensity() {
 
   const handleContinue = () => {
     sessionStorage.setItem('ss_intensity', String(intensity))
+    logEvent({
+      sessionId: sessionStorage.getItem('ss_session_id') ?? undefined,
+      eventName: 'intensity_submitted',
+      properties: { intensity },
+    })
     router.push('/session/context')
   }
 

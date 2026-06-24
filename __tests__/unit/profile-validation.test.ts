@@ -99,8 +99,8 @@ describe('validateProfileFields — dob', () => {
 })
 
 describe('validateProfileFields — phone', () => {
-  test('fails with empty string', () => {
-    expect(validateProfileFields({ ...VALID, phone: '' }).phone).toBeDefined()
+  test('passes with empty string (optional field)', () => {
+    expect(validateProfileFields({ ...VALID, phone: '' }).phone).toBeUndefined()
   })
 
   test('fails with too-short number (under 7 digits)', () => {
@@ -117,8 +117,8 @@ describe('validateProfileFields — phone', () => {
 })
 
 describe('validateProfileFields — gender', () => {
-  test('fails with empty string', () => {
-    expect(validateProfileFields({ ...VALID, gender: '' }).gender).toBeDefined()
+  test('passes with empty string (optional field)', () => {
+    expect(validateProfileFields({ ...VALID, gender: '' }).gender).toBeUndefined()
   })
 
   test('fails with arbitrary string not in allowed set', () => {
@@ -151,7 +151,7 @@ describe('validateProfileFields — gender', () => {
 })
 
 describe('validateProfileFields — multiple errors', () => {
-  test('returns errors for all invalid fields simultaneously', () => {
+  test('returns errors only for required fields when phone/gender are blank', () => {
     const errs = validateProfileFields({
       firstName: '',
       lastName:  '',
@@ -159,12 +159,12 @@ describe('validateProfileFields — multiple errors', () => {
       phone:     '',
       gender:    '',
     })
-    expect(Object.keys(errs)).toHaveLength(5)
+    expect(Object.keys(errs)).toHaveLength(3)
     expect(errs.firstName).toBeDefined()
     expect(errs.lastName).toBeDefined()
     expect(errs.dob).toBeDefined()
-    expect(errs.phone).toBeDefined()
-    expect(errs.gender).toBeDefined()
+    expect(errs.phone).toBeUndefined()
+    expect(errs.gender).toBeUndefined()
   })
 })
 

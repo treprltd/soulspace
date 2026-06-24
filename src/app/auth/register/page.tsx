@@ -77,19 +77,22 @@ export default function Register() {
     setErrors({})
     setLoading(true)
 
-    // Check phone uniqueness before sending magic link
-    try {
-      const res = await fetch(
-        `/api/user/profile/check-phone?phone=${encodeURIComponent(phone.trim())}`,
-      )
-      const { available } = await res.json()
-      if (!available) {
-        setErrors({ phone: 'This phone number is already registered. Try signing in instead.' })
-        setLoading(false)
-        return
+    // Check phone uniqueness before sending magic link — only when a phone
+    // number was actually given, since it's now optional.
+    if (phone.trim()) {
+      try {
+        const res = await fetch(
+          `/api/user/profile/check-phone?phone=${encodeURIComponent(phone.trim())}`,
+        )
+        const { available } = await res.json()
+        if (!available) {
+          setErrors({ phone: 'This phone number is already registered. Try signing in instead.' })
+          setLoading(false)
+          return
+        }
+      } catch {
+        // Non-fatal — proceed; server will catch duplicate on profile save
       }
-    } catch {
-      // Non-fatal — proceed; server will catch duplicate on profile save
     }
 
     // Snapshot profile to localStorage so the auth/callback page can save it

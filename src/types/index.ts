@@ -58,7 +58,8 @@ export interface SessionState {
 }
 
 export interface EventPayload {
-  sessionId: string
+  /** Omitted for events fired before a sessions row exists (e.g. anonymous flow). */
+  sessionId?: string
   eventName: string
   properties?: Record<string, unknown>
 }

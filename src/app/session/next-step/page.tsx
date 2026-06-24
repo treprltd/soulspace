@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { createClient } from '@/lib/supabase/client'
+import { logEvent } from '@/lib/analytics'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import type { MirrorOutput } from '@/types'
 import { IconBadge, CarryingIcon, MattersIcon, ConsiderWeekIcon, TodayIcon } from '@/components/session/SectionIcons'
@@ -158,6 +159,13 @@ export default function NextStep() {
   const handleDone = async () => {
     setDone(true)
     const sessionId = sessionStorage.getItem('ss_session_id')
+
+    logEvent({
+      sessionId: sessionId ?? undefined,
+      eventName: 'nextstep_selected',
+      properties: selected !== null ? { kind: 'preset', index: selected } : custom.trim() ? { kind: 'custom' } : { kind: 'none' },
+    })
+
     if (sessionId) {
       // Pass Bearer token so server can authenticate implicit-flow JWT
       const supabase = createClient()
@@ -168,6 +176,8 @@ export default function NextStep() {
       }
       await fetch(`/api/sessions/${sessionId}/complete`, { method: 'POST', headers }).catch(() => {})
     }
+    logEvent({ sessionId: sessionId ?? undefined, eventName: 'session_complete' })
+
     // Clear session state
     ;['ss_branch', 'ss_situation', 'ss_emotions', 'ss_intensity', 'ss_context', 'ss_mirror', 'ss_resonance', 'ss_session_id']
       .forEach(k => sessionStorage.removeItem(k))

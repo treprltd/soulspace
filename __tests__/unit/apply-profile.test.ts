@@ -80,16 +80,27 @@ describe('applyProfile — required field validation', () => {
     expect(result).toEqual({ ok: false, error: 'Date of birth is required.', status: 400 })
   })
 
-  test('rejects missing phone', async () => {
-    const { service } = makeMockService()
+  test('accepts missing phone (optional field)', async () => {
+    const { service, upsertCalls } = makeMockService()
     const result = await applyProfile(service as never, 'user-1', 'jane@example.com', { ...VALID, phone: '' })
-    expect(result).toEqual({ ok: false, error: 'Phone number is required.', status: 400 })
+    expect(result).toEqual({ ok: true })
+    expect((upsertCalls[0].payload as { phone: string | null }).phone).toBeNull()
   })
 
-  test('rejects missing gender', async () => {
-    const { service } = makeMockService()
+  test('accepts missing gender (optional field)', async () => {
+    const { service, upsertCalls } = makeMockService()
     const result = await applyProfile(service as never, 'user-1', 'jane@example.com', { ...VALID, gender: '' })
-    expect(result).toEqual({ ok: false, error: 'Please select your gender identity.', status: 400 })
+    expect(result).toEqual({ ok: true })
+    expect((upsertCalls[0].payload as { gender: string | null }).gender).toBeNull()
+  })
+
+  test('skips the phone-uniqueness check entirely when phone is omitted', async () => {
+    // phoneOwner is set, but since no phone is given there's nothing to check —
+    // the upsert must still succeed rather than rejecting on someone else's phone.
+    const { service, upsertCalls } = makeMockService({ phoneOwner: { id: 'other-user' } })
+    const result = await applyProfile(service as never, 'user-1', 'jane@example.com', { ...VALID, phone: '' })
+    expect(result).toEqual({ ok: true })
+    expect(upsertCalls).toHaveLength(1)
   })
 
   test('rejects gender not in VALID_GENDERS', async () => {

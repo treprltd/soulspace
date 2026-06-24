@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Generated artifacts
 prod-screenshots/
+scripts/.prod-snapshot.json
+scripts/.prod-secret.tmp
+scripts/.prod-contact.json

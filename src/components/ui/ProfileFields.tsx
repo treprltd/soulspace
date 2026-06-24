@@ -47,7 +47,15 @@ export function maxDobDate(): string {
   return d.toISOString().split('T')[0]
 }
 
-/** Client-side profile validation — returns a map of field → error string. */
+/**
+ * Client-side profile validation — returns a map of field → error string.
+ *
+ * Phone and gender are optional: they're demographic/contact metadata, not
+ * needed for auth (magic-link email only) or for using the product itself.
+ * Requiring them upfront was pure signup friction with no functional payoff —
+ * if provided, they're still validated below. First/last name and DOB stay
+ * required: DOB enforces the 18+ compliance boundary on account creation.
+ */
 export function validateProfileFields(values: {
   firstName: string
   lastName:  string
@@ -71,16 +79,18 @@ export function validateProfileFields(values: {
     }
   }
 
-  const digits = values.phone.replace(/\D/g, '')
-  if (!values.phone.trim()) {
-    errs.phone = 'Phone number is required.'
-  } else if (digits.length < 7 || digits.length > 15) {
-    errs.phone = 'Please enter a valid phone number (include country code).'
+  if (values.phone.trim()) {
+    const digits = values.phone.replace(/\D/g, '')
+    if (digits.length < 7 || digits.length > 15) {
+      errs.phone = 'Please enter a valid phone number (include country code).'
+    }
   }
 
-  const validGenders = GENDER_OPTIONS.map(o => o.value) as string[]
-  if (!values.gender || !validGenders.includes(values.gender)) {
-    errs.gender = 'Please select your gender identity.'
+  if (values.gender) {
+    const validGenders = GENDER_OPTIONS.map(o => o.value) as string[]
+    if (!validGenders.includes(values.gender)) {
+      errs.gender = 'Please select your gender identity.'
+    }
   }
 
   return errs
@@ -200,8 +210,8 @@ export function ProfileFields({
         />
       </Field>
 
-      {/* Gender identity */}
-      <Field label="Gender identity" error={errors.gender}>
+      {/* Gender identity — optional */}
+      <Field label="Gender identity (optional)" error={errors.gender}>
         <select
           value={values.gender}
           onChange={e => setters.setGender(e.target.value)}
@@ -214,8 +224,8 @@ export function ProfileFields({
             cursor: 'pointer',
           }}
         >
-          <option value="" disabled style={{ background: '#0F1E2E' }}>
-            Select…
+          <option value="" style={{ background: '#0F1E2E' }}>
+            Prefer not to answer
           </option>
           {GENDER_OPTIONS.map(opt => (
             <option key={opt.value} value={opt.value} style={{ background: '#0F1E2E' }}>
@@ -225,9 +235,9 @@ export function ProfileFields({
         </select>
       </Field>
 
-      {/* Phone */}
+      {/* Phone — optional */}
       <Field
-        label="Phone number"
+        label="Phone number (optional)"
         hint="Include country code. Used only for account communications."
         error={errors.phone}
       >

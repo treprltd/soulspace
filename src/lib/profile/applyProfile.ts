@@ -31,6 +31,8 @@ export async function applyProfile(
   const { firstName, lastName, dob, phone, gender } = body
 
   // ── Validation ────────────────────────────────────────────────────────────
+  // Phone and gender are optional — see the comment on validateProfileFields
+  // in ProfileFields.tsx for why. First/last name and DOB stay required.
   if (!firstName?.trim()) {
     return { ok: false, error: 'First name is required.', status: 400 }
   }
@@ -40,10 +42,7 @@ export async function applyProfile(
   if (!dob) {
     return { ok: false, error: 'Date of birth is required.', status: 400 }
   }
-  if (!phone?.trim()) {
-    return { ok: false, error: 'Phone number is required.', status: 400 }
-  }
-  if (!gender || !(VALID_GENDERS as readonly string[]).includes(gender)) {
+  if (gender && !(VALID_GENDERS as readonly string[]).includes(gender)) {
     return { ok: false, error: 'Please select your gender identity.', status: 400 }
   }
 
@@ -58,27 +57,28 @@ export async function applyProfile(
     return { ok: false, error: 'You must be 18 or older to use Soul Space.', status: 400 }
   }
 
-  // Phone: at least 7 digits (international formats accepted)
-  const digitsOnly = phone.replace(/\D/g, '')
-  if (digitsOnly.length < 7 || digitsOnly.length > 15) {
-    return { ok: false, error: 'Please enter a valid phone number.', status: 400 }
-  }
+  // Phone: only validated/checked for uniqueness when actually provided
+  let cleanPhone: string | null = null
+  if (phone?.trim()) {
+    const digitsOnly = phone.replace(/\D/g, '')
+    if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+      return { ok: false, error: 'Please enter a valid phone number.', status: 400 }
+    }
+    cleanPhone = phone.trim()
 
-  const cleanPhone = phone.trim()
+    const { data: phoneOwner } = await service
+      .from('users')
+      .select('id')
+      .eq('phone', cleanPhone)
+      .neq('id', userId)
+      .maybeSingle()
 
-  // ── Phone uniqueness ──────────────────────────────────────────────────────
-  const { data: phoneOwner } = await service
-    .from('users')
-    .select('id')
-    .eq('phone', cleanPhone)
-    .neq('id', userId)
-    .maybeSingle()
-
-  if (phoneOwner) {
-    return {
-      ok: false,
-      error: 'This phone number is already registered with another account.',
-      status: 409,
+    if (phoneOwner) {
+      return {
+        ok: false,
+        error: 'This phone number is already registered with another account.',
+        status: 409,
+      }
     }
   }
 
@@ -93,7 +93,7 @@ export async function applyProfile(
         last_name:        lastName.trim(),
         dob,
         phone:            cleanPhone,
-        gender,
+        gender:           gender || null,
         profile_complete: true,
       },
       { onConflict: 'id' },
