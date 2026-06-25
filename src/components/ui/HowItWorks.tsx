@@ -72,7 +72,7 @@ export function HowItWorks() {
             </div>
 
             <span
-              className="text-[11px] uppercase tracking-[.16em] mb-2"
+              className="text-[13px] uppercase tracking-[.16em] mb-2"
               style={{ color: step.color }}
             >
               {String(i + 1).padStart(2, '0')} · {step.label}

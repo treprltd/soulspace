@@ -83,7 +83,7 @@ export default function SeasonCard() {
                   <IconBadge background={`${season.color}1A`} size={22}>
                     <Icon color={season.color} />
                   </IconBadge>
-                  <div className="season-tile-label text-[11px] tracking-[.1em] uppercase" style={{ color: season.color }}>
+                  <div className="season-tile-label text-[13px] tracking-[.1em] uppercase" style={{ color: season.color }}>
                     {label}
                   </div>
                 </div>

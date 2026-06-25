@@ -114,8 +114,8 @@ export default function Contact() {
     return (
       <div className="flex flex-col gap-1" style={{ marginBottom: '6px' }}>
         <label htmlFor={id} className="text-xs tracking-wide" style={{ color: 'rgba(213,226,235,.72)' }}>{label}</label>
-        {hint && <p className="text-[11px]" style={{ color: 'rgba(139,167,184,.6)' }}>{hint}</p>}
-        {errors[id] && <p className="text-[11px]" style={{ color: 'var(--danger)' }} role="alert">{errors[id]}</p>}
+        {hint && <p className="text-[13px]" style={{ color: 'rgba(139,167,184,.6)' }}>{hint}</p>}
+        {errors[id] && <p className="text-[13px]" style={{ color: 'var(--danger)' }} role="alert">{errors[id]}</p>}
       </div>
     )
   }
@@ -216,7 +216,7 @@ export default function Contact() {
               className={focusCls}
               style={{ ...inputStyle(!!errors.message), resize: 'vertical', minHeight: '140px', lineHeight: '1.7' }}
               placeholder="What would you like to share or ask?" />
-            <p className="text-[11px] mt-1 text-right" style={{ color: 'rgba(139,167,184,.45)' }}>{form.message.length} / 4,000</p>
+            <p className="text-[13px] mt-1 text-right" style={{ color: 'rgba(139,167,184,.45)' }}>{form.message.length} / 4,000</p>
           </div>
 
           {serverErr && (
@@ -231,7 +231,7 @@ export default function Contact() {
             {submitting ? 'Sending…' : 'Send message →'}
           </button>
 
-          <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
             By submitting this form you agree to our{' '}
             <Link href="/privacy" style={{ color: 'rgba(139,167,184,.75)', textDecoration: 'underline' }}>Privacy Policy</Link>.
             We do not sell or share your information.

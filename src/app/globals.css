@@ -47,7 +47,7 @@ html, body {
   .font-serif { font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif; }
 
   .eyebrow {
-    @apply text-[10px] tracking-[.18em] uppercase text-gold flex items-center gap-1.5;
+    @apply text-[12px] tracking-[.18em] uppercase text-gold flex items-center gap-1.5;
   }
   .eyebrow::before {
     content: '';
@@ -81,7 +81,7 @@ html, body {
 
   /* Mirror section labels */
   .mirror-label {
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -363,7 +363,7 @@ select,
   }
 
   /* ── Eyebrow labels ─────────────────────────────────────────────────────── */
-  .eyebrow { font-size: 11px !important; }
+  .eyebrow { font-size: 12px !important; }
 
   /* ── Progress bars — keep thin ─────────────────────────────────────────── */
   .progress-bar { height: 2px !important; }
@@ -380,7 +380,7 @@ select,
 
   /* ── Mirror card section labels ────────────────────────────────────────── */
   .mirror-label {
-    font-size: 11px !important;
+    font-size: 13px !important;
     letter-spacing: 0.12em !important;
   }
 
@@ -400,7 +400,7 @@ select,
   .situation-symbol { font-size: 16px !important; }
 
   /* ── Season card info tiles ─────────────────────────────────────────────── */
-  .season-tile-label  { font-size: 11px !important; }
+  .season-tile-label  { font-size: 13px !important; }
   .season-tile-body   { font-size: 14px !important; line-height: 1.7 !important; }
 
   /* ── Dashboard ──────────────────────────────────────────────────────────── */

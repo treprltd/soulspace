@@ -142,7 +142,7 @@ export default function Home() {
             <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
               Begin your session →
             </Link>
-            <p className="text-[10px] mt-1" style={{ color: 'rgba(213,226,235,.62)' }}>
+            <p className="text-[12px] mt-1" style={{ color: 'rgba(213,226,235,.62)' }}>
               Free to start · No account required · 3–5 minutes
             </p>
           </div>

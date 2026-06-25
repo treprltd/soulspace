@@ -109,7 +109,7 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[10px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
+              <div className="text-[12px] tracking-[.14em] uppercase text-mist mb-1">Free</div>
               <div className="font-serif font-light text-sand2 text-3xl">$0</div>
               <div className="text-xs text-mist mt-0.5">forever</div>
             </div>
@@ -161,7 +161,7 @@ export default function Pricing() {
             )}
 
             <div className="mb-4">
-              <div className="text-[10px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
+              <div className="text-[12px] tracking-[.14em] uppercase text-gold mb-1">Essentials</div>
               <div className="font-serif font-light text-sand2 text-3xl">$9.99</div>
               <div className="text-xs text-mist mt-0.5">per month</div>
             </div>
@@ -204,7 +204,7 @@ export default function Pricing() {
             }}
           >
             <div className="mb-4">
-              <div className="text-[10px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
+              <div className="text-[12px] tracking-[.14em] uppercase text-mist mb-1">Insights</div>
               <div className="font-serif font-light text-sand2 text-3xl">$19.99</div>
               <div className="text-xs text-mist mt-0.5">per month</div>
             </div>

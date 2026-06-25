@@ -30,7 +30,7 @@ export default function AuthError() {
           Request a new link →
         </Link>
         <br />
-        <Link href="/" className="text-[9px] underline underline-offset-4" style={{ color: 'rgba(213,226,235,.65)' }}>
+        <Link href="/" className="text-[13px] underline underline-offset-4" style={{ color: 'rgba(213,226,235,.65)' }}>
           Return home
         </Link>
       </div>

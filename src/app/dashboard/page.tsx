@@ -383,7 +383,7 @@ export default function Dashboard() {
             {/* Plan header */}
             <div className="flex items-center justify-between mb-3">
               <div
-                className="text-[10px] tracking-[.11em] uppercase"
+                className="text-[12px] tracking-[.11em] uppercase"
                 style={{ color: 'rgba(213,226,235,.72)' }}
               >
                 Your plan
@@ -448,7 +448,7 @@ export default function Dashboard() {
                       }}
                     />
                   ))}
-                  <span className="text-[10px]" style={{ color: 'rgba(213,226,235,.60)' }}>resets monthly</span>
+                  <span className="text-[12px]" style={{ color: 'rgba(213,226,235,.60)' }}>resets monthly</span>
                 </div>
 
                 <Link href="/pricing" className="btn-primary text-xs w-full block text-center py-2">
@@ -496,7 +496,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <div>
-                <div className="text-[11px] tracking-[.12em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.55)' }}>
+                <div className="text-[13px] tracking-[.12em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.55)' }}>
                   Your patterns
                 </div>
                 <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,237,216,.76)' }}>
@@ -518,10 +518,10 @@ export default function Dashboard() {
               className="flex items-center justify-between mb-3 pb-2"
               style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
             >
-              <div className="text-[11px] tracking-[.14em] uppercase" style={{ color: 'rgba(201,168,76,.7)' }}>
+              <div className="text-[13px] tracking-[.14em] uppercase" style={{ color: 'rgba(201,168,76,.7)' }}>
                 What keeps coming up
               </div>
-              <div className="text-[10px]" style={{ color: 'rgba(213,226,235,.60)' }}>
+              <div className="text-[12px]" style={{ color: 'rgba(213,226,235,.60)' }}>
                 {growthMapSessions.length} sessions
               </div>
             </div>
@@ -529,7 +529,7 @@ export default function Dashboard() {
             {/* Top situations */}
             {patternData.topSituations.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
+                <div className="text-[12px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
                   You keep bringing
                 </div>
                 {patternData.topSituations.map(([label, count]) => {
@@ -555,7 +555,7 @@ export default function Dashboard() {
             {/* Top emotions */}
             {patternData.topEmotions.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
+                <div className="text-[12px] tracking-[.1em] uppercase mb-2" style={{ color: 'rgba(213,226,235,.65)' }}>
                   How you tend to arrive
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -581,7 +581,7 @@ export default function Dashboard() {
               {/* Intensity */}
               {patternData.firstIntensity !== null && patternData.recentAvg !== null && (
                 <div>
-                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+                  <div className="text-[12px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     Intensity
                   </div>
                   <div className="flex items-baseline gap-1.5">
@@ -616,14 +616,14 @@ export default function Dashboard() {
               {/* Season journey */}
               {patternData.seasonJourney.length > 1 && (
                 <div>
-                  <div className="text-[10px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+                  <div className="text-[12px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     Your seasons
                   </div>
                   <div className="flex items-center gap-1 flex-wrap">
                     {patternData.seasonJourney.map((s, i) => (
                       <span key={i} className="flex items-center gap-1">
                         <span
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-medium"
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-medium"
                           style={{
                             background: `${SEASON_COLORS[s] ?? 'var(--mist)'}18`,
                             color: SEASON_COLORS[s] ?? 'var(--mist)',
@@ -633,7 +633,7 @@ export default function Dashboard() {
                           {s}
                         </span>
                         {i < patternData!.seasonJourney.length - 1 && (
-                          <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '10px' }}>→</span>
+                          <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '12px' }}>→</span>
                         )}
                       </span>
                     ))}
@@ -672,7 +672,7 @@ export default function Dashboard() {
                 >
                   {stat.value}
                 </div>
-                <div className="dash-stat-label text-[8px] text-mist mt-0.5 leading-tight">{stat.label}</div>
+                <div className="dash-stat-label text-[11px] text-mist mt-0.5 leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -688,7 +688,7 @@ export default function Dashboard() {
             className="px-4 pt-4 pb-3 flex items-center justify-between"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
-            <div className="text-[10px] tracking-[.11em] uppercase text-mist">Session history</div>
+            <div className="text-[12px] tracking-[.11em] uppercase text-mist">Session history</div>
             {sessions.length > 0 && (
               <div className="text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                 {sessions.length} total
@@ -766,7 +766,7 @@ export default function Dashboard() {
 
                             {s.season_assigned && (
                               <>
-                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '12px' }}>·</span>
                                 <span className="text-xs" style={{ color: SEASON_COLORS[s.season_assigned] ?? 'var(--mist)' }}>
                                   {SEASON_LABELS[s.season_assigned]}
                                 </span>
@@ -775,7 +775,7 @@ export default function Dashboard() {
 
                             {s.intensity !== null && (
                               <>
-                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '12px' }}>·</span>
                                 <span className="text-xs" style={{ color: 'rgba(213,226,235,.65)' }}>
                                   intensity {s.intensity}/10
                                 </span>
@@ -784,7 +784,7 @@ export default function Dashboard() {
 
                             {!s.completed_at && (
                               <>
-                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '11px' }}>·</span>
+                                <span style={{ color: 'rgba(213,226,235,.56)', fontSize: '12px' }}>·</span>
                                 <span className="text-xs" style={{ color: 'rgba(212,64,64,.45)' }}>incomplete</span>
                               </>
                             )}
@@ -795,7 +795,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
                           {s.resonance_tap ? (
                             <div
-                              className="session-badge text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                              className="session-badge text-[12px] px-2 py-0.5 rounded-full whitespace-nowrap"
                               style={{
                                 background: s.resonance_tap === 'accurate'
                                   ? 'rgba(42,140,122,.1)'
@@ -810,7 +810,7 @@ export default function Dashboard() {
                             </div>
                           ) : s.completed_at ? (
                             <div
-                              className="text-[8px] px-2 py-0.5 rounded-full"
+                              className="text-[11px] px-2 py-0.5 rounded-full"
                               style={{
                                 color: 'rgba(213,226,235,.60)',
                                 border: '1px solid rgba(139,167,184,.08)',
@@ -824,7 +824,7 @@ export default function Dashboard() {
                           <span
                             style={{
                               color: 'rgba(213,226,235,.60)',
-                              fontSize: '9px',
+                              fontSize: '12px',
                               transition: 'transform .2s',
                               display: 'inline-block',
                               transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -884,7 +884,7 @@ export default function Dashboard() {
                             {detail?.contextText && (
                               <div>
                                 <div
-                                  className="text-[10px] tracking-[.11em] uppercase mb-1.5"
+                                  className="text-[12px] tracking-[.11em] uppercase mb-1.5"
                                   style={{ color: 'rgba(213,226,235,.65)' }}
                                 >
                                   What you shared
@@ -911,14 +911,14 @@ export default function Dashboard() {
                               return (
                                 <div className="space-y-2.5">
                                   <div
-                                    className="text-[10px] tracking-[.11em] uppercase"
+                                    className="text-[12px] tracking-[.11em] uppercase"
                                     style={{ color: 'rgba(201,168,76,.5)' }}
                                   >
                                     Mirror reflection
                                   </div>
                                   {parsed.carrying && (
                                     <div>
-                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
+                                      <div className="text-[12px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
                                         What you were carrying
                                       </div>
                                       <p className="font-serif italic text-xs leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>
@@ -928,7 +928,7 @@ export default function Dashboard() {
                                   )}
                                   {parsed.underneath && (
                                     <div>
-                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
+                                      <div className="text-[12px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(213,226,235,.65)' }}>
                                         What appeared underneath
                                       </div>
                                       <p className="font-serif italic text-xs leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(201,168,76,.2)', paddingLeft: '10px' }}>
@@ -938,7 +938,7 @@ export default function Dashboard() {
                                   )}
                                   {parsed.question && (
                                     <div>
-                                      <div className="text-[10px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(61,175,150,.5)' }}>
+                                      <div className="text-[12px] tracking-[.1em] uppercase mb-1" style={{ color: 'rgba(61,175,150,.5)' }}>
                                         Question back to you
                                       </div>
                                       <p className="font-serif italic text-xs leading-relaxed" style={{ color: 'rgba(245,237,216,.65)', borderLeft: '2px solid rgba(42,140,122,.25)', paddingLeft: '10px' }}>
