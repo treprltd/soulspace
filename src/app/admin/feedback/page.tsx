@@ -463,6 +463,7 @@ function FeedbackInner() {
                                   color: 'var(--sand)', fontSize: '11px',
                                   display: '-webkit-box',
                                   overflow: 'hidden',
+                                  whiteSpace: 'pre-line',
                                 } as React.CSSProperties}>
                                   {row.comments.length > 100 ? row.comments.slice(0, 100) + '…' : row.comments}
                                 </span>
@@ -541,6 +542,7 @@ function FeedbackInner() {
                                         lineHeight: 1.65, fontStyle: 'italic',
                                         borderLeft: '2px solid rgba(245,237,216,.1)',
                                         paddingLeft: '10px', margin: 0,
+                                        whiteSpace: 'pre-line',
                                       }}>
                                         {row.comments}
                                       </p>
