@@ -16,24 +16,32 @@ const env = process.env
 // ---------------------------------------------------------------------------
 // Supabase var resolution — accept either generic or env-specific naming.
 //
-// Amplify branches use SUPABASE_PROD_URL / SUPABASE_DEV_URL / SUPABASE_QA_URL
+// local, dev, qa, and prod are four separate Supabase projects (see the same
+// comment in next.config.mjs). Amplify branches use SUPABASE_PROD_URL /
+// SUPABASE_DEV_URL / SUPABASE_QA_URL; local machines use SUPABASE_LOCAL_URL
 // (and matching ANON_KEY / SERVICE_KEY). The app code uses the generic names.
 // next.config.mjs resolves them at build time; validate-env.js must do the
 // same check here so missing values are caught early before the build spends time.
 // ---------------------------------------------------------------------------
 const _e = env.NEXT_PUBLIC_ENV
+function _aliasFor(prod, qa, dev, local) {
+  if (_e === 'production') return prod
+  if (_e === 'test')       return qa
+  if (_e === 'local')      return local
+  return dev
+}
 const _supabaseAliases = [
   {
     name:  'NEXT_PUBLIC_SUPABASE_URL',
-    alias: _e === 'production' ? 'SUPABASE_PROD_URL'         : _e === 'test' ? 'SUPABASE_QA_URL'         : 'SUPABASE_DEV_URL',
+    alias: _aliasFor('SUPABASE_PROD_URL', 'SUPABASE_QA_URL', 'SUPABASE_DEV_URL', 'SUPABASE_LOCAL_URL'),
   },
   {
     name:  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    alias: _e === 'production' ? 'SUPABASE_PROD_ANON_KEY'    : _e === 'test' ? 'SUPABASE_QA_ANON_KEY'    : 'SUPABASE_DEV_ANON_KEY',
+    alias: _aliasFor('SUPABASE_PROD_ANON_KEY', 'SUPABASE_QA_ANON_KEY', 'SUPABASE_DEV_ANON_KEY', 'SUPABASE_LOCAL_ANON_KEY'),
   },
   {
     name:  'SUPABASE_SERVICE_ROLE_KEY',
-    alias: _e === 'production' ? 'SUPABASE_PROD_SERVICE_KEY' : _e === 'test' ? 'SUPABASE_QA_SERVICE_KEY' : 'SUPABASE_DEV_SERVICE_KEY',
+    alias: _aliasFor('SUPABASE_PROD_SERVICE_KEY', 'SUPABASE_QA_SERVICE_KEY', 'SUPABASE_DEV_SERVICE_KEY', 'SUPABASE_LOCAL_SERVICE_KEY'),
   },
 ]
 

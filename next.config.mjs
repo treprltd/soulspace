@@ -6,29 +6,37 @@ import { withSentryConfig } from '@sentry/nextjs'
 // Resolve Supabase connection vars from env-specific names.
 //
 // Amplify branches use a consistent naming convention:
-//   SUPABASE_PROD_URL / SUPABASE_PROD_ANON_KEY / SUPABASE_PROD_SERVICE_KEY
-//   SUPABASE_DEV_URL  / SUPABASE_DEV_ANON_KEY  / SUPABASE_DEV_SERVICE_KEY
-//   SUPABASE_QA_URL   / SUPABASE_QA_ANON_KEY   / SUPABASE_QA_SERVICE_KEY
+//   SUPABASE_PROD_URL  / SUPABASE_PROD_ANON_KEY  / SUPABASE_PROD_SERVICE_KEY
+//   SUPABASE_DEV_URL   / SUPABASE_DEV_ANON_KEY   / SUPABASE_DEV_SERVICE_KEY
+//   SUPABASE_QA_URL    / SUPABASE_QA_ANON_KEY    / SUPABASE_QA_SERVICE_KEY
+//   SUPABASE_LOCAL_URL / SUPABASE_LOCAL_ANON_KEY / SUPABASE_LOCAL_SERVICE_KEY
+//
+// local, dev, qa, and prod are four DISTINCT Supabase projects — none of them
+// share a database. 'local' (developer machines) used to fall through to the
+// same SUPABASE_DEV_URL bucket as the deployed 'dev' branch; that's exactly
+// the gap that let local testing write into what was effectively production
+// data. Each NEXT_PUBLIC_ENV value now resolves to its own project.
 //
 // The app code uses the generic names (NEXT_PUBLIC_SUPABASE_URL etc.).
 // This block resolves the generic names from the env-specific ones at build
 // time so both conventions work — no duplicate vars needed in Amplify.
 // ---------------------------------------------------------------------------
 const _ampEnv = process.env.NEXT_PUBLIC_ENV
-function _pickByEnv(prod, qa, dev) {
+function _pickByEnv(prod, qa, dev, local) {
   if (_ampEnv === 'production') return prod
   if (_ampEnv === 'test')       return qa
-  return dev  // 'dev' or 'local'
+  if (_ampEnv === 'local')      return local
+  return dev  // deployed 'dev' branch only
 }
 
 const _supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  _pickByEnv(process.env.SUPABASE_PROD_URL, process.env.SUPABASE_QA_URL, process.env.SUPABASE_DEV_URL)
+  _pickByEnv(process.env.SUPABASE_PROD_URL, process.env.SUPABASE_QA_URL, process.env.SUPABASE_DEV_URL, process.env.SUPABASE_LOCAL_URL)
 
 const _supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  _pickByEnv(process.env.SUPABASE_PROD_ANON_KEY, process.env.SUPABASE_QA_ANON_KEY, process.env.SUPABASE_DEV_ANON_KEY)
+  _pickByEnv(process.env.SUPABASE_PROD_ANON_KEY, process.env.SUPABASE_QA_ANON_KEY, process.env.SUPABASE_DEV_ANON_KEY, process.env.SUPABASE_LOCAL_ANON_KEY)
 
 const _supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ??
-  _pickByEnv(process.env.SUPABASE_PROD_SERVICE_KEY, process.env.SUPABASE_QA_SERVICE_KEY, process.env.SUPABASE_DEV_SERVICE_KEY)
+  _pickByEnv(process.env.SUPABASE_PROD_SERVICE_KEY, process.env.SUPABASE_QA_SERVICE_KEY, process.env.SUPABASE_DEV_SERVICE_KEY, process.env.SUPABASE_LOCAL_SERVICE_KEY)
 
 // ---------------------------------------------------------------------------
 // Security headers — applied to every route.
