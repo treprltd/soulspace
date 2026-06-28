@@ -158,6 +158,12 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
   const [recommend, setRecommend]         = useState<FeedbackRecommend | null>(null)
   const [comments, setComments]           = useState('')
 
+  // Quick-feedback fields (Reddit beta campaign) — composed into `comments`
+  // at submit time rather than new DB columns, so no schema/migration risk.
+  const [personalOrGeneric, setPersonalOrGeneric] = useState<'Personal' | 'Mixed' | 'Generic' | null>(null)
+  const [confused, setConfused]           = useState('')
+  const [showMore, setShowMore]           = useState(false)
+
   // Load existing feedback on open (authenticated users only)
   useEffect(() => {
     if (!open || isGuest) return
@@ -209,6 +215,13 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
         'Content-Type': 'application/json',
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       }
+      // Quick-feedback questions have no dedicated DB columns — compose them
+      // into `comments` as clearly labeled sections instead of a migration.
+      const composedComments = [
+        personalOrGeneric ? `Personal or generic: ${personalOrGeneric}` : null,
+        confused.trim()   ? `What confused them: ${confused.trim()}`    : null,
+        comments.trim()   ? `Would use again: ${comments.trim()}`      : null,
+      ].filter(Boolean).join('\n\n')
       const payload: Record<string, unknown> = {
         overall_rating:  rating,
         use_frequency:   frequency,
@@ -216,7 +229,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
         ease_of_use:     ease,
         improvements,
         would_recommend: recommend,
-        comments,
+        comments:        composedComments,
       }
       if (isGuest) {
         payload.guest_email = guestEmail.toLowerCase().trim()
@@ -240,7 +253,10 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
     setSubmitted(false)
   }
 
-  const hasAnyAnswer = !!(rating || frequency || valuable.length || ease || improvements.length || recommend || comments.trim())
+  const hasAnyAnswer = !!(
+    rating || frequency || valuable.length || ease || improvements.length || recommend ||
+    comments.trim() || personalOrGeneric || confused.trim()
+  )
   // Guests need a valid email AND at least one answer
   const canSubmit = isGuest
     ? hasAnyAnswer && isValidEmail(guestEmail)
@@ -445,103 +461,59 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                 </div>
               )}
 
-              {/* Q1 — Star rating */}
+              {/* Star rating — optional */}
               <div className="mb-5">
-                <SectionLabel>1 · Overall experience</SectionLabel>
+                <SectionLabel>Overall experience (optional)</SectionLabel>
                 <p className="text-[14px] text-sand mb-2.5">How would you rate Soul Space so far?</p>
                 <StarRating value={rating} onChange={setRating} />
               </div>
 
-              {/* Q2 — Frequency */}
+              {/* Q1 — Personal or generic */}
               <div className="mb-5">
-                <SectionLabel>2 · Usage</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">How often have you used it?</p>
+                <SectionLabel>Did the Mirror feel personal?</SectionLabel>
+                <p className="text-[14px] text-sand mb-2.5">Did the Mirror feel personal or generic?</p>
                 <div className="flex flex-wrap">
-                  {FREQUENCY_OPTIONS.map(o => (
+                  {(['Personal', 'Mixed', 'Generic'] as const).map(opt => (
                     <ChoiceChip
-                      key={o.value}
-                      label={o.label}
-                      selected={frequency === o.value}
-                      onClick={() => setFrequency(o.value)}
+                      key={opt}
+                      label={opt}
+                      selected={personalOrGeneric === opt}
+                      onClick={() => setPersonalOrGeneric(opt)}
                     />
                   ))}
                 </div>
               </div>
 
-              {/* Q3 — Most valuable */}
+              {/* Q2 — What confused you */}
               <div className="mb-5">
-                <SectionLabel>3 · Most valuable</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">What felt most valuable? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
-                <div className="flex flex-wrap">
-                  {VALUABLE_OPTIONS.map(o => (
-                    <ChoiceChip
-                      key={o.value}
-                      label={o.label}
-                      selected={valuable.includes(o.value)}
-                      onClick={() => toggleMulti(valuable, o.value, setValuable)}
-                    />
-                  ))}
-                </div>
+                <SectionLabel>Anything confusing?</SectionLabel>
+                <p className="text-[14px] text-sand mb-2.5">What confused you, if anything?</p>
+                <textarea
+                  value={confused}
+                  onChange={e => setConfused(e.target.value)}
+                  maxLength={500}
+                  rows={2}
+                  placeholder="Anything, or leave blank"
+                  className="w-full rounded-xl px-3.5 py-3 text-[14px] leading-relaxed resize-none focus:outline-none transition-all"
+                  style={{
+                    background: 'rgba(15,30,46,.6)',
+                    border: confused ? '1px solid rgba(201,168,76,.25)' : '1px solid rgba(245,237,216,.08)',
+                    color: 'var(--sand)',
+                    caretColor: 'var(--gold)',
+                  }}
+                />
               </div>
 
-              {/* Q4 — Ease of use */}
-              <div className="mb-5">
-                <SectionLabel>4 · Ease of use</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">How easy was it to navigate?</p>
-                <div className="flex flex-wrap">
-                  {EASE_OPTIONS.map(o => (
-                    <ChoiceChip
-                      key={o.value}
-                      label={o.label}
-                      selected={ease === o.value}
-                      onClick={() => setEase(o.value)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Q5 — Improvements */}
-              <div className="mb-5">
-                <SectionLabel>5 · What would improve it</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">What would make it better? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
-                <div className="flex flex-wrap">
-                  {IMPROVEMENT_OPTIONS.map(o => (
-                    <ChoiceChip
-                      key={o.value}
-                      label={o.label}
-                      selected={improvements.includes(o.value)}
-                      onClick={() => toggleMulti(improvements, o.value, setImprovements)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Q6 — Recommend */}
-              <div className="mb-5">
-                <SectionLabel>6 · Recommendation</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">Would you recommend Soul Space to someone you care about?</p>
-                <div className="flex flex-wrap">
-                  {RECOMMEND_OPTIONS.map(o => (
-                    <ChoiceChip
-                      key={o.value}
-                      label={o.label}
-                      selected={recommend === o.value}
-                      onClick={() => setRecommend(o.value)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Q7 — Free text */}
+              {/* Q3 — Would use again */}
               <div className="mb-6">
-                <SectionLabel>7 · Anything else</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">Anything else you&apos;d like us to know?</p>
+                <SectionLabel>Would you return?</SectionLabel>
+                <p className="text-[14px] text-sand mb-2.5">Would you use this again? Why or why not?</p>
                 <textarea
                   value={comments}
                   onChange={e => setComments(e.target.value)}
                   maxLength={2000}
-                  rows={4}
-                  placeholder="Your honest thoughts — what worked, what felt off, what surprised you…"
+                  rows={3}
+                  placeholder="A sentence or two is plenty"
                   className="w-full rounded-xl px-3.5 py-3 text-[14px] leading-relaxed resize-none focus:outline-none transition-all"
                   style={{
                     background: 'rgba(15,30,46,.6)',
@@ -550,9 +522,96 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                     caretColor: 'var(--gold)',
                   }}
                 />
-                {comments.length > 0 && (
-                  <div className="text-right text-[12px] mt-1" style={{ color: 'rgba(213,226,235,.60)' }}>
-                    {comments.length}/2000
+              </div>
+
+              {/* Optional extra questions — collapsed by default so the form
+                  doesn't feel long. Same fields as before, just de-emphasized. */}
+              <div className="mb-6">
+                <button
+                  type="button"
+                  onClick={() => setShowMore(v => !v)}
+                  className="text-[13px] underline underline-offset-2 cursor-pointer"
+                  style={{ color: 'rgba(213,226,235,.6)', background: 'none', border: 'none' }}
+                >
+                  {showMore ? '− Fewer questions' : '+ A few more questions (optional)'}
+                </button>
+
+                {showMore && (
+                  <div className="mt-4 animate-fade-in">
+                    <div className="mb-5">
+                      <SectionLabel>Usage</SectionLabel>
+                      <p className="text-[14px] text-sand mb-2.5">How often have you used it?</p>
+                      <div className="flex flex-wrap">
+                        {FREQUENCY_OPTIONS.map(o => (
+                          <ChoiceChip
+                            key={o.value}
+                            label={o.label}
+                            selected={frequency === o.value}
+                            onClick={() => setFrequency(o.value)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mb-5">
+                      <SectionLabel>Most valuable</SectionLabel>
+                      <p className="text-[14px] text-sand mb-2.5">What felt most valuable? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
+                      <div className="flex flex-wrap">
+                        {VALUABLE_OPTIONS.map(o => (
+                          <ChoiceChip
+                            key={o.value}
+                            label={o.label}
+                            selected={valuable.includes(o.value)}
+                            onClick={() => toggleMulti(valuable, o.value, setValuable)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mb-5">
+                      <SectionLabel>Ease of use</SectionLabel>
+                      <p className="text-[14px] text-sand mb-2.5">How easy was it to navigate?</p>
+                      <div className="flex flex-wrap">
+                        {EASE_OPTIONS.map(o => (
+                          <ChoiceChip
+                            key={o.value}
+                            label={o.label}
+                            selected={ease === o.value}
+                            onClick={() => setEase(o.value)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mb-5">
+                      <SectionLabel>What would improve it</SectionLabel>
+                      <p className="text-[14px] text-sand mb-2.5">What would make it better? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
+                      <div className="flex flex-wrap">
+                        {IMPROVEMENT_OPTIONS.map(o => (
+                          <ChoiceChip
+                            key={o.value}
+                            label={o.label}
+                            selected={improvements.includes(o.value)}
+                            onClick={() => toggleMulti(improvements, o.value, setImprovements)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <SectionLabel>Recommendation</SectionLabel>
+                      <p className="text-[14px] text-sand mb-2.5">Would you recommend Soul Space to someone you care about?</p>
+                      <div className="flex flex-wrap">
+                        {RECOMMEND_OPTIONS.map(o => (
+                          <ChoiceChip
+                            key={o.value}
+                            label={o.label}
+                            selected={recommend === o.value}
+                            onClick={() => setRecommend(o.value)}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

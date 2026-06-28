@@ -39,7 +39,7 @@ const STEPS = [
     color: '#8AAAC8',
     glow: 'rgba(138,170,200,.16)',
     title: 'Something real comes back',
-    body: 'The Mirror names what seems to be underneath — specific to what you shared — and leaves you with one question, not an answer.',
+    body: 'The Mirror reflects the tension it hears in your words — specific to what you shared — and leaves you with one question, not an answer.',
     Icon: ReflectIcon,
   },
 ] as const

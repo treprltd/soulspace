@@ -33,8 +33,8 @@ const EMOTIONAL_STATES = [
 
 const SCOPE_IS = [
   'The pause before the decision that changes things',
-  'Specific to your emotional state when you arrive',
-  'Seasonal emotional language — clinically reviewed, non-diagnostic',
+  'Based on what you choose and share',
+  'Seasonal emotional language — reviewed for emotional safety, non-diagnostic',
   'Something real back from what you share — not generic',
 ]
 
@@ -75,10 +75,10 @@ export default function Home() {
       <NavBar />
 
       {/* ── Hero ──
-          Layout note: the primary CTAs ("Begin your session →",
-          "Sign in / Create account →", and the "Free to start · No account
-          required · 3–5 minutes" line) must be visible in the viewport on
-          initial load without scrolling. They previously sat BELOW the
+          Layout note: the primary CTAs ("Try one free reflection →",
+          "Sign in / Create account →", and the "Free · No account required ·
+          3–5 minutes · Feedback requested" line) must be visible in the
+          viewport on initial load without scrolling. They previously sat BELOW the
           LoopPreview animation, which — combined with generous top/bottom
           padding and margins — pushed them off-screen on common laptop/phone
           viewport heights. Fix: render the CTA block immediately after the
@@ -87,23 +87,31 @@ export default function Home() {
           (padding/margins) so the whole block fits comfortably above the fold. */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-8 pb-10">
         <div className="eyebrow mb-3 justify-center">
-          <span>Phase 1 · Behavior validation · April 2026</span>
+          <span>Early beta · Feedback wanted</span>
         </div>
 
         <h1
           className="hero-heading font-serif font-light leading-tight mb-3 max-w-3xl"
           style={{ fontSize: 'clamp(24px, 4.5vw, 56px)', color: 'var(--sand2)' }}
         >
-          The structured pause between<br />
-          <em className="text-gold2">emotional overload</em> and consequential action.
+          Try one private reflection.<br />
+          <em className="text-gold2">Help shape Soul Space.</em>
         </h1>
 
-        <p className="text-sm text-mist max-w-md mb-2 leading-loose">
-          Not therapy. Not meditation. Not a budgeting app.<br />
-          The pause before the decision that changes things.
+        <p className="text-base text-sand max-w-md mb-3 leading-relaxed">
+          Soul Space is a 3–5 minute reflection for the moment before an emotionally heavy decision.
         </p>
-        <p className="font-serif italic mb-5" style={{ fontSize: '15px', color: 'rgba(213,226,235,.74)' }}>
-          Whatever brought you here — you do not need to have it figured out yet.
+        <p className="text-sm text-mist max-w-md mb-3 leading-relaxed">
+          You choose what feels closest, answer a few gentle questions, and get one short
+          &ldquo;Mirror&rdquo; back — not advice, not diagnosis, just a clearer reflection of
+          what may be pulling on you.
+        </p>
+        <p className="font-serif italic mb-2" style={{ fontSize: '15px', color: 'rgba(232,201,122,.85)' }}>
+          We&apos;re looking for 30 beta testers by next Friday.
+        </p>
+        <p className="text-sm text-mist max-w-md mb-5 leading-relaxed">
+          Free to try. No account required. At the end, we&apos;ll ask for quick feedback so we
+          can make Soul Space clearer, safer, and more useful.
         </p>
 
         {/* ── Auth-aware CTAs — kept directly under the affirmation copy so
@@ -120,30 +128,30 @@ export default function Home() {
               Go to your dashboard →
             </Link>
             <Link href="/age-gate" className="btn-outline text-sm px-8 py-3 w-full text-center">
-              Begin a new session →
+              Try another reflection →
             </Link>
           </div>
         ) : isAuthenticated === false ? (
           /* New / signed-out visitor */
           <div className="flex flex-col items-center gap-3 w-full max-w-xs">
             <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
-              Begin your session →
+              Try one free reflection →
             </Link>
             <Link href="/auth/signin" className="btn-outline text-sm px-8 py-3 w-full text-center">
               Sign in / Create account →
             </Link>
             <p className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.66)' }}>
-              Free to start · No account required · 3–5 minutes
+              Free · No account required · 3–5 minutes · Feedback requested
             </p>
           </div>
         ) : (
           /* Loading state — neutral placeholder */
           <div className="flex flex-col items-center gap-3 w-full max-w-xs">
             <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
-              Begin your session →
+              Try one free reflection →
             </Link>
             <p className="text-[12px] mt-1" style={{ color: 'rgba(213,226,235,.62)' }}>
-              Free to start · No account required · 3–5 minutes
+              Free · No account required · 3–5 minutes · Feedback requested
             </p>
           </div>
         )}
@@ -215,6 +223,32 @@ export default function Home() {
         </p>
       </section>
 
+      {/* ── Beta tester call-out ── */}
+      <section className="px-6 py-16 max-w-2xl mx-auto text-center">
+        <div
+          className="rounded-2xl px-6 py-8"
+          style={{ background: 'rgba(201,168,76,.05)', border: '1px solid rgba(201,168,76,.18)' }}
+        >
+          <h2 className="font-serif font-light text-sand2 text-2xl mb-3 leading-tight">
+            We&apos;re looking for <em className="text-gold2">30 beta testers</em>
+          </h2>
+          <p className="text-sm text-mist mb-4 leading-relaxed">
+            Try one private reflection and tell us:
+          </p>
+          <ul className="text-sm text-sand mb-4 leading-relaxed" style={{ listStyle: 'none' }}>
+            <li className="mb-1.5">Did it feel personal or generic?</li>
+            <li className="mb-1.5">Was anything confusing?</li>
+            <li>Would you use it again?</li>
+          </ul>
+          <p className="text-sm mb-6 leading-relaxed" style={{ color: 'rgba(213,226,235,.7)' }}>
+            Your feedback will directly shape the next version of Soul Space.
+          </p>
+          <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 inline-block">
+            Try one reflection and give feedback →
+          </Link>
+        </div>
+      </section>
+
       {/* ── How it works — illustrated walkthrough ──
             A slower, more legible companion to the looping hero preview —
             see src/components/ui/HowItWorks.tsx for the full rationale. */}
@@ -246,7 +280,7 @@ export default function Home() {
             <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>{MIRROR_EXAMPLE.question}</p>
           </div>
           <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.66)' }}>
-            Descriptive only — not diagnostic. Clinically reviewed. Not therapy.
+            Descriptive only. Reviewed for emotional safety. Not therapy, diagnosis, or crisis care.
           </p>
         </div>
       </section>
@@ -287,7 +321,7 @@ export default function Home() {
               ['Encrypted at rest', 'Session content is AES-256 encrypted before it reaches our database.'],
               ['Never sold or shared', 'We do not sell, rent, or share your data. Ever.'],
               ['No third-party tracking', 'No Google Analytics. No Meta Pixel. No ad networks.'],
-              ['AI inference, not storage', 'Anthropic processes your session for the Mirror — they do not retain your content.'],
+              ['AI processing, not AI training', 'Your reflection is processed only to generate your Mirror. We do not sell your data, use it for ads, or use third-party tracking.'],
             ] as [string, string][]).map(([title, detail]) => (
               <div key={title} className="flex items-start gap-2">
                 <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>◈</span>
@@ -309,14 +343,14 @@ export default function Home() {
       {/* ── Bottom CTA ── */}
       <section className="px-6 py-20 text-center">
         <h2 className="font-serif font-light text-sand2 text-3xl mb-3 leading-tight">
-          Does the first session<br /><em className="text-gold2">earn the second?</em>
+          Did one reflection feel useful<br /><em className="text-gold2">enough to try again?</em>
         </h2>
         <p className="text-sm text-mist mb-8 max-w-sm mx-auto leading-relaxed">
-          Phase 1 goal: prove that one session creates enough value and trust to earn a return visit.
+          Our beta goal is simple: learn whether one short reflection feels clear, safe, and useful enough for someone to return.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5">
-            Begin →
+            Try one reflection →
           </Link>
           {isAuthenticated === false && (
             <Link href="/auth/signin" className="btn-outline text-sm px-8 py-3.5">
