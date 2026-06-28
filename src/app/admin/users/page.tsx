@@ -213,7 +213,7 @@ function UsersInner() {
                         )}
                       </td>
                       {/* Email */}
-                      <td style={{ padding: '10px 12px', color: 'var(--sand)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--sand)', whiteSpace: 'nowrap' }}>
                         {u.email}
                       </td>
                       {/* Phone */}
