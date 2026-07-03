@@ -474,15 +474,24 @@ async function testSubscriptionAPI() {
     }
   })
 
-  await run('Session count is accurate (≥1 after creation)', true, async () => {
+  await run('Session count reflects Mirror-rendered sessions only', true, async () => {
     if (!testSessionId) {
       // Session creation failed upstream — this test is meaningless without a session
       return { pass: null, detail: 'skipped — no session was created (see session creation failure above)' }
     }
-    const { json } = await api('GET', '/api/subscription', { token: accessToken })
+    // Usage is counted only for sessions where a Mirror actually rendered
+    // (season_assigned set) — matching the gate in /api/mirror. The bare session
+    // created above (POST /api/sessions, no Mirror yet) must therefore NOT count.
+    // Assign a season directly to simulate a rendered Mirror, then confirm the
+    // count picks it up — proving both halves of the season_assigned filter.
+    const before = await api('GET', '/api/subscription', { token: accessToken })
+    const countBefore = before.json.sessionsThisMonth ?? 0
+    await adminClient.from('sessions').update({ season_assigned: 'W' }).eq('id', testSessionId)
+    const after = await api('GET', '/api/subscription', { token: accessToken })
+    const countAfter = after.json.sessionsThisMonth ?? 0
     return {
-      pass: (json.sessionsThisMonth ?? 0) >= 1,
-      detail: `count=${json.sessionsThisMonth}`,
+      pass: countAfter === countBefore + 1,
+      detail: `count ${countBefore} → ${countAfter} after season assigned (bare session correctly excluded until a Mirror renders)`,
     }
   })
 
@@ -1547,13 +1556,14 @@ async function testUserProfileAPI() {
     return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
   })
 
-  // Gender validation
-  await run('POST /api/user/profile missing gender → 400', false, async () => {
+  // Gender validation — gender is OPTIONAL (see applyProfile / ProfileFields).
+  // Omitting it must succeed; only an explicitly invalid value is rejected (below).
+  await run('POST /api/user/profile missing gender → 200 (gender optional)', false, async () => {
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
       body: { firstName: 'E2E', lastName: 'Test', dob: '1990-01-01', phone: '+15559999003' },
     })
-    return { pass: status === 400, detail: `status=${status} error="${json.error ?? ''}"` }
+    return { pass: status === 200, detail: `status=${status} error="${json.error ?? ''}"` }
   })
 
   await run('POST /api/user/profile invalid gender value → 400', false, async () => {
@@ -1600,12 +1610,15 @@ async function testUserProfileAPI() {
     }
   })
 
-  // POST — accepts all four gender values (spot-check: non_binary)
+  // POST — accepts all four gender values (spot-check: non_binary).
+  // Reuse testPhone (not a throwaway number) so the phone persisted on this user
+  // stays consistent for the check-phone "taken number" assertion below — phone
+  // is optional now, so a phone-less update would null it out and a different
+  // number would move it, both of which would break that check.
   await run('POST /api/user/profile accepts non_binary gender → 200', false, async () => {
-    const altPhone = `+1556${Date.now().toString().slice(-7)}`
     const { status, json } = await api('POST', '/api/user/profile', {
       token: accessToken,
-      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: altPhone, gender: 'non_binary' },
+      body: { firstName: 'E2E', lastName: 'Test', dob: '1990-06-15', phone: testPhone, gender: 'non_binary' },
     })
     return { pass: status === 200 && json.ok === true, detail: `status=${status}` }
   })
