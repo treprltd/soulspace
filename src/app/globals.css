@@ -435,7 +435,7 @@ select,
 @media (max-width: 380px) {
   /* Headings — clamp already handles this, but ensure serif headers don't overflow */
   h1.font-serif, h2.font-serif {
-    font-size: clamp(26px, 7vw, 34px) !important;
+    font-size: clamp(30px, 9vw, 40px) !important;
   }
 
   /* Situation cards — tighter padding on SE but label stays readable */

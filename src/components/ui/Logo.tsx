@@ -8,7 +8,7 @@ interface LogoProps {
 }
 
 export function Logo({ size = 'md', className = '' }: LogoProps) {
-  const sizes = { sm: 'text-sm', md: 'text-lg', lg: 'text-2xl' }
+  const sizes = { sm: 'text-lg', md: 'text-2xl', lg: 'text-4xl' }
   return (
     <Link
       href="/"

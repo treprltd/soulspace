@@ -47,8 +47,11 @@ export function FeedbackWrapper() {
       .catch(() => setToken(null))
   }, [pathname]) // re-run on every route change (catches login/logout)
 
-  // Don't render on admin pages or before mount (prevents hydration mismatch)
-  if (!mounted || pathname.startsWith('/admin')) return null
+  // Don't render on admin pages, the public landing page, or before mount.
+  // The landing page (/) is the professor/student-facing entry point — a
+  // pinned "BETA FEEDBACK" tab there adds clutter and overlaps hero copy on
+  // mobile; feedback belongs inside the app experience, not the front door.
+  if (!mounted || pathname === '/' || pathname.startsWith('/admin')) return null
 
   return <FeedbackPanel authToken={token} defaultOpen={defaultOpen} />
 }
