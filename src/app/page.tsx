@@ -3,15 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
-import { LoopPreview } from '@/components/ui/LoopPreview'
-import { HowItWorks } from '@/components/ui/HowItWorks'
 import { createClient } from '@/lib/supabase/client'
 
-// Each state pairs the existing resonance phrase with a short, affirming
-// response — descriptive only, never diagnostic or prescriptive (CLAUDE.md
-// rule #1). Tapping one is a low-stakes way for a first-time visitor to feel
-// "seen" before committing to a full session — a small mirror of the same
-// Affirm → Ask shape the product itself uses.
 const EMOTIONAL_STATES = [
   {
     phrase: "Something keeps pulling you back to a decision you thought you'd made.",
@@ -29,20 +22,6 @@ const EMOTIONAL_STATES = [
     phrase: "You've been carrying this alone for a while.",
     response: 'Carrying something alone for a while is its own particular weight. Naming that, even quietly, is a start.',
   },
-]
-
-const SCOPE_IS = [
-  'The pause before the decision that changes things',
-  'Based on what you choose and share',
-  'Seasonal emotional language — reviewed for emotional safety, non-diagnostic',
-  'Something real back from what you share — not generic',
-]
-
-const SCOPE_ISNOT = [
-  'Therapy or a therapy substitute',
-  'A crisis service — call 988 for immediate danger',
-  'Diagnostic — no clinical conclusions or labels',
-  'A chatbot, journaling tool, or meditation app',
 ]
 
 const MIRROR_EXAMPLE = {
@@ -74,109 +53,30 @@ export default function Home() {
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
 
-      {/* ── Hero ──
-          Layout note: the primary CTAs ("Try one free reflection →",
-          "Sign in / Create account →", and the "Free · No account required ·
-          3–5 minutes · Feedback requested" line) must be visible in the
-          viewport on initial load without scrolling. They previously sat BELOW the
-          LoopPreview animation, which — combined with generous top/bottom
-          padding and margins — pushed them off-screen on common laptop/phone
-          viewport heights. Fix: render the CTA block immediately after the
-          affirmation copy (right where a visitor's eye lands first) and move
-          the LoopPreview below it, plus trim the section's vertical rhythm
-          (padding/margins) so the whole block fits comfortably above the fold. */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-8 pb-10">
-        <div className="eyebrow mb-3 justify-center">
+      {/* ── Hero + Resonance — one unified above-fold section ── */}
+      <section className="flex flex-col items-center text-center px-6 pt-12 pb-16 max-w-2xl mx-auto">
+        <div className="eyebrow mb-4 justify-center">
           <span>Early beta · Feedback wanted</span>
         </div>
 
         <h1
-          className="hero-heading font-serif font-light leading-tight mb-3 max-w-3xl"
-          style={{ fontSize: 'clamp(24px, 4.5vw, 56px)', color: 'var(--sand2)' }}
+          className="font-serif font-light leading-tight mb-4 max-w-xl"
+          style={{ fontSize: 'clamp(26px, 4.5vw, 52px)', color: 'var(--sand2)' }}
         >
           Try one private reflection.<br />
           <em className="text-gold2">Help shape Soul Space.</em>
         </h1>
 
-        <p className="text-base text-sand max-w-md mb-3 leading-relaxed">
-          Soul Space is a 3–5 minute reflection for the moment before an emotionally heavy decision.
-        </p>
-        <p className="text-sm text-mist max-w-md mb-3 leading-relaxed">
-          You choose what feels closest, answer a few gentle questions, and get one short
-          &ldquo;Mirror&rdquo; back — not advice, not diagnosis, just a clearer reflection of
-          what may be pulling on you.
-        </p>
-        <p className="font-serif italic mb-2" style={{ fontSize: '15px', color: 'rgba(232,201,122,.85)' }}>
-          We&apos;re looking for 30 beta testers by next Friday.
-        </p>
-        <p className="text-sm text-mist max-w-md mb-5 leading-relaxed">
-          Free to try. No account required. At the end, we&apos;ll ask for quick feedback so we
-          can make Soul Space clearer, safer, and more useful.
+        <p className="text-base text-sand max-w-md mb-10 leading-relaxed">
+          A 3–5 minute reflection for the moment before an emotionally heavy decision.
         </p>
 
-        {/* ── Auth-aware CTAs — kept directly under the affirmation copy so
-              they land above the fold on first paint ── */}
-        {isAuthenticated ? (
-          /* Returning signed-in user */
-          <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-            {emailPrefix && (
-              <p className="text-xs text-mist mb-1">
-                Welcome back, <span className="text-sand">{emailPrefix}</span>.
-              </p>
-            )}
-            <Link href="/dashboard" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
-              Go to your dashboard →
-            </Link>
-            <Link href="/age-gate" className="btn-outline text-sm px-8 py-3 w-full text-center">
-              Try another reflection →
-            </Link>
-          </div>
-        ) : isAuthenticated === false ? (
-          /* New / signed-out visitor */
-          <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-            <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
-              Try one free reflection →
-            </Link>
-            <Link href="/auth/signin" className="btn-outline text-sm px-8 py-3 w-full text-center">
-              Sign in / Create account →
-            </Link>
-            <p className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.66)' }}>
-              Free · No account required · 3–5 minutes · Feedback requested
-            </p>
-          </div>
-        ) : (
-          /* Loading state — neutral placeholder */
-          <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-            <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
-              Try one free reflection →
-            </Link>
-            <p className="text-[12px] mt-1" style={{ color: 'rgba(213,226,235,.62)' }}>
-              Free · No account required · 3–5 minutes · Feedback requested
-            </p>
-          </div>
-        )}
-
-        {/* ── How it works — looping Affirm/Ask/Reflect preview ──
-              Moved below the CTAs: still the first thing visible on scroll,
-              but no longer competing with the CTAs for above-the-fold space. */}
-        <div className="mt-8 w-full">
-          <LoopPreview />
-        </div>
-      </section>
-
-      {/* ── What you arrive with — now tappable ──
-            Lets a first-time visitor try a miniature version of the Affirm →
-            Ask shape before committing to a full session: tap the phrase that
-            feels closest, and a short, non-diagnostic response appears beneath
-            it (see EMOTIONAL_STATES — every response is descriptive, never
-            prescriptive, per CLAUDE.md rule #1). This is presentational only;
-            it does not feed into or alter the actual session flow. */}
-      <section className="px-6 py-16 max-w-3xl mx-auto">
-        <div className="eyebrow mb-2">Right now, something feels like this</div>
-        <p className="text-sm mb-5 leading-relaxed" style={{ color: 'rgba(213,226,235,.62)' }}>
-          Tap whichever feels closest. No wrong answer — this isn&apos;t being saved or scored.
+        {/* ── Resonance cards — the experience starts here ── */}
+        <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(213,226,235,.4)' }}>
+          Does any of this feel familiar?
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mb-4">
           {EMOTIONAL_STATES.map((state, i) => {
             const isSelected = selectedState === i
             return (
@@ -199,143 +99,72 @@ export default function Home() {
           })}
         </div>
 
-        {/* Response — appears only after a tap; affirming, not diagnostic */}
+        {/* Response — appears after a card is tapped */}
         {selectedState !== null && (
           <div
-            className="mt-4 rounded-xl px-5 py-4 animate-fade-in"
+            className="w-full mb-6 rounded-xl px-5 py-4 animate-fade-in text-left"
             style={{ border: '1px solid rgba(42,140,122,.22)', background: 'rgba(42,140,122,.06)' }}
           >
-            <p className="font-serif italic leading-relaxed mb-3" style={{ fontSize: '14px', color: 'var(--sand2)' }}>
+            <p className="font-serif italic leading-relaxed" style={{ fontSize: '14px', color: 'var(--sand2)' }}>
               {EMOTIONAL_STATES[selectedState].response}
             </p>
-            <Link
-              href="/age-gate"
-              className="inline-flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-              style={{ color: 'var(--teal2)' }}
-            >
-              See where this leads — begin a session →
-            </Link>
           </div>
         )}
 
-        <p className="text-sm mt-4 text-center" style={{ color: 'rgba(213,226,235,.6)' }}>
-          Tap one. Everything that follows in a real session adapts to your selection.
-        </p>
+        {/* ── Auth-aware CTA ── */}
+        {isAuthenticated ? (
+          <div className="flex flex-col items-center gap-3 w-full max-w-xs mt-2">
+            {emailPrefix && (
+              <p className="text-xs text-mist">
+                Welcome back, <span className="text-sand">{emailPrefix}</span>.
+              </p>
+            )}
+            <Link href="/dashboard" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
+              Go to your dashboard →
+            </Link>
+            <Link href="/age-gate" className="btn-outline text-sm px-8 py-3 w-full text-center">
+              Try another reflection →
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 w-full max-w-xs mt-2">
+            <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 w-full text-center">
+              {selectedState !== null ? 'See where this leads →' : 'Try one free reflection →'}
+            </Link>
+            <p className="text-xs mt-1" style={{ color: 'rgba(213,226,235,.45)' }}>
+              Free · No account required · 3–5 minutes
+            </p>
+          </div>
+        )}
       </section>
 
-      {/* ── Beta tester call-out ── */}
-      <section className="px-6 py-16 max-w-2xl mx-auto text-center">
-        <div
-          className="rounded-2xl px-6 py-8"
-          style={{ background: 'rgba(201,168,76,.05)', border: '1px solid rgba(201,168,76,.18)' }}
-        >
-          <h2 className="font-serif font-light text-sand2 text-2xl mb-3 leading-tight">
-            We&apos;re looking for <em className="text-gold2">30 beta testers</em>
-          </h2>
-          <p className="text-sm text-mist mb-4 leading-relaxed">
-            Try one private reflection and tell us:
-          </p>
-          <ul className="text-sm text-sand mb-4 leading-relaxed" style={{ listStyle: 'none' }}>
-            <li className="mb-1.5">Did it feel personal or generic?</li>
-            <li className="mb-1.5">Was anything confusing?</li>
-            <li>Would you use it again?</li>
-          </ul>
-          <p className="text-sm mb-6 leading-relaxed" style={{ color: 'rgba(213,226,235,.7)' }}>
-            Your feedback will directly shape the next version of Soul Space.
-          </p>
-          <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5 inline-block">
-            Try one reflection and give feedback →
-          </Link>
-        </div>
-      </section>
-
-      {/* ── How it works — illustrated walkthrough ──
-            A slower, more legible companion to the looping hero preview —
-            see src/components/ui/HowItWorks.tsx for the full rationale. */}
-      <section className="px-6 py-16 max-w-4xl mx-auto">
-        <div className="eyebrow mb-2 justify-center">How a session unfolds</div>
-        <p className="text-sm mb-10 text-center max-w-md mx-auto leading-relaxed" style={{ color: 'rgba(213,226,235,.64)' }}>
-          Three short movements. No account needed to try the first one.
-        </p>
-        <HowItWorks />
-      </section>
-
-      {/* ── Mirror example ── */}
+      {/* ── Mirror example — show the product, don't explain it ── */}
       <section className="px-6 py-16" style={{ background: 'rgba(15,30,46,.5)' }}>
         <div className="max-w-2xl mx-auto">
-          <div className="eyebrow mb-2">The Mirror — what it gives back</div>
+          <div className="eyebrow mb-2">What you get back</div>
           <p className="text-sm text-mist mb-6 leading-relaxed">
             Three short paragraphs. Specific to what you shared. Not generic. Not diagnostic.
           </p>
           <div className="mirror-card">
             <div className="mirror-label text-gold mb-2">What you&apos;re carrying</div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>{MIRROR_EXAMPLE.carrying}</p>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+              {MIRROR_EXAMPLE.carrying}
+            </p>
           </div>
           <div className="mirror-card">
             <div className="mirror-label text-gold mb-2">What appears underneath</div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>{MIRROR_EXAMPLE.underneath}</p>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+              {MIRROR_EXAMPLE.underneath}
+            </p>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
             <div className="mirror-label mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
-            <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>{MIRROR_EXAMPLE.question}</p>
+            <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>
+              {MIRROR_EXAMPLE.question}
+            </p>
           </div>
-          <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.66)' }}>
+          <p className="text-xs mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.5)' }}>
             Descriptive only. Reviewed for emotional safety. Not therapy, diagnosis, or crisis care.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Is / Is not ── */}
-      <section className="px-6 py-16 max-w-3xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <div className="eyebrow mb-4" style={{ color: 'var(--teal2)' }}>Soul Space is</div>
-            {SCOPE_IS.map((item, i) => (
-              <div key={i} className="flex items-start gap-2 mb-2.5">
-                <span className="text-sm flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>✓</span>
-                <span className="text-sm text-sand leading-relaxed">{item}</span>
-              </div>
-            ))}
-          </div>
-          <div>
-            <div className="eyebrow mb-4" style={{ color: 'rgba(212,64,64,.7)' }}>Soul Space is not</div>
-            {SCOPE_ISNOT.map((item, i) => (
-              <div key={i} className="flex items-start gap-2 mb-2.5">
-                <span className="text-sm flex-shrink-0 mt-0.5" style={{ color: 'rgba(212,64,64,.6)' }}>✕</span>
-                <span className="text-sm text-sand leading-relaxed">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Privacy & trust ── */}
-      <section className="px-6 pb-8 max-w-3xl mx-auto">
-        <div
-          className="rounded-xl px-5 py-5"
-          style={{ background: 'rgba(15,30,46,.5)', border: '1px solid rgba(245,237,216,.05)' }}
-        >
-          <div className="eyebrow mb-4 justify-center">Your data, your privacy</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
-            {([
-              ['Encrypted at rest', 'Session content is AES-256 encrypted before it reaches our database.'],
-              ['Never sold or shared', 'We do not sell, rent, or share your data. Ever.'],
-              ['No third-party tracking', 'No Google Analytics. No Meta Pixel. No ad networks.'],
-              ['AI processing, not AI training', 'Your reflection is processed only to generate your Mirror. We do not sell your data, use it for ads, or use third-party tracking.'],
-            ] as [string, string][]).map(([title, detail]) => (
-              <div key={title} className="flex items-start gap-2">
-                <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: 'var(--teal2)' }}>◈</span>
-                <div>
-                  <span className="text-sm text-sand">{title}</span>
-                  <p className="text-xs leading-relaxed mt-0.5" style={{ color: 'rgba(213,226,235,.58)' }}>{detail}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-center mt-4" style={{ color: 'rgba(213,226,235,.50)' }}>
-            <Link href="/privacy" className="underline underline-offset-2 hover:text-mist transition-colors">
-              Full privacy policy →
-            </Link>
           </p>
         </div>
       </section>
@@ -343,10 +172,11 @@ export default function Home() {
       {/* ── Bottom CTA ── */}
       <section className="px-6 py-20 text-center">
         <h2 className="font-serif font-light text-sand2 text-3xl mb-3 leading-tight">
-          Did one reflection feel useful<br /><em className="text-gold2">enough to try again?</em>
+          Did one reflection feel useful<br />
+          <em className="text-gold2">enough to try again?</em>
         </h2>
         <p className="text-sm text-mist mb-8 max-w-sm mx-auto leading-relaxed">
-          Our beta goal is simple: learn whether one short reflection feels clear, safe, and useful enough for someone to return.
+          Our beta goal: learn whether one short reflection feels clear, safe, and useful enough to return.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Link href="/age-gate" className="btn-primary text-sm px-8 py-3.5">
@@ -373,8 +203,9 @@ export default function Home() {
         <p className="font-serif font-light text-sand2 text-sm mb-1">
           Soul <em className="not-italic text-gold font-normal">Space</em>
         </p>
-        <p className="text-xs mt-2 leading-relaxed" style={{ color: 'rgba(213,226,235,.62)' }}>
+        <p className="text-xs mt-2 leading-relaxed" style={{ color: 'rgba(213,226,235,.48)' }}>
           Affirm. Ask. Reflect. · Non-clinical · Non-diagnostic · Not a crisis service<br />
+          Encrypted at rest · No third-party tracking · AI processing, not AI training<br />
           If you are in immediate danger, call or text 988.
         </p>
         <div className="flex flex-wrap gap-4 justify-center mt-4">
