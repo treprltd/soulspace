@@ -38,7 +38,7 @@ export function LegalLayout({ title, subtitle, lastUpdated, sections }: LegalLay
           <div className="mb-10">
             <h1
               className="font-serif font-light text-sand2 mb-2"
-              style={{ fontSize: '28px', lineHeight: 1.25 }}
+              style={{ fontSize: '34px', lineHeight: 1.25 }}
             >
               {title}
             </h1>
@@ -57,7 +57,7 @@ export function LegalLayout({ title, subtitle, lastUpdated, sections }: LegalLay
               <div key={i}>
                 <h2
                   className="font-medium text-sand mb-3"
-                  style={{ fontSize: '13px', letterSpacing: '0.04em' }}
+                  style={{ fontSize: '18px', letterSpacing: '0.04em' }}
                 >
                   {s.heading}
                 </h2>

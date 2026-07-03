@@ -266,7 +266,7 @@ export default function Settings() {
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
             <div
-              className="text-[12px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              className="text-[17px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
               style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
             >
               Profile
@@ -305,7 +305,7 @@ export default function Settings() {
             style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
           >
             <div
-              className="text-[12px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+              className="text-[17px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
               style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
             >
               Profile
@@ -338,7 +338,7 @@ export default function Settings() {
             )}
 
             <div className="flex items-center justify-between mb-3 pb-1.5" style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
-              <div className="text-[12px] tracking-[.11em] uppercase text-mist">Personal info</div>
+              <div className="text-[17px] tracking-[.11em] uppercase text-mist">Personal info</div>
               {!profileEditing ? (
                 <button
                   onClick={startEditing}
@@ -533,7 +533,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[12px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[17px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Subscription
@@ -610,7 +610,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[12px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
+            className="text-[17px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Phase 1 — what is stored
@@ -641,7 +641,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[12px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
+            className="text-[17px] tracking-[.11em] uppercase text-mist mb-2 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             {SETTINGS_MEMORY_SECTION.heading}
@@ -685,7 +685,7 @@ export default function Settings() {
           style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
         >
           <div
-            className="text-[12px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            className="text-[17px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
             style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
           >
             Delete your data

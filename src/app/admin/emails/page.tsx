@@ -76,7 +76,7 @@ function StatusBadge({ events }: { events: BrevoEvent[] }) {
   const meta = EVENT_META[key] ?? EVENT_META.requests
   return (
     <span style={{
-      fontSize: '10px', padding: '2px 7px', borderRadius: '4px', fontWeight: 500,
+      fontSize: '16px', padding: '2px 7px', borderRadius: '4px', fontWeight: 500,
       color: meta.color, background: meta.bg, border: `1px solid ${meta.border}`,
       whiteSpace: 'nowrap',
     }}>
@@ -100,7 +100,7 @@ function QuotaBar({ quota }: { quota: Quota }) {
         <div style={{ fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)' }}>
           Daily Sending Quota — Free Plan
         </div>
-        <div style={{ fontSize: '12px', color: crit ? '#D44040' : warn ? '#C9A84C' : 'var(--mist)' }}>
+        <div style={{ fontSize: '17px', color: crit ? '#D44040' : warn ? '#C9A84C' : 'var(--mist)' }}>
           {quota.usedToday} / {quota.daily} sent today · {quota.remaining} remaining
         </div>
       </div>
@@ -113,16 +113,16 @@ function QuotaBar({ quota }: { quota: Quota }) {
         }} />
       </div>
       {crit && (
-        <div style={{ marginTop: '8px', fontSize: '11px', color: '#D44040' }}>
+        <div style={{ marginTop: '8px', fontSize: '16px', color: '#D44040' }}>
           ⚠ Near daily limit — emails may be blocked until midnight UTC
         </div>
       )}
       {warn && !crit && (
-        <div style={{ marginTop: '8px', fontSize: '11px', color: '#C9A84C' }}>
+        <div style={{ marginTop: '8px', fontSize: '16px', color: '#C9A84C' }}>
           Approaching daily limit. Resets at midnight UTC.
         </div>
       )}
-      <div style={{ marginTop: '8px', fontSize: '10px', color: 'rgba(213,226,235,.40)' }}>
+      <div style={{ marginTop: '8px', fontSize: '16px', color: 'rgba(213,226,235,.40)' }}>
         Free plan: 300 emails/day · 30-day log retention · Shared across all environments
       </div>
     </div>
@@ -141,7 +141,7 @@ function StatCard({ label, value, sub, accent }: {
       <div style={{ fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '6px' }}>
         {label}
       </div>
-      <div style={{ fontSize: '26px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: accent ?? 'var(--sand2)', lineHeight: 1 }}>
+      <div style={{ fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: accent ?? 'var(--sand2)', lineHeight: 1 }}>
         {value}
       </div>
       {sub && <div style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist)', marginTop: '4px' }}>{sub}</div>}
@@ -303,7 +303,7 @@ function EmailsInner() {
               key={f.value}
               onClick={() => setStatusFilter(f.value)}
               style={{
-                padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 500,
+                padding: '4px 10px', borderRadius: '4px', fontSize: '16px', fontWeight: 500,
                 border: statusFilter === f.value ? '1px solid rgba(201,168,76,.5)' : '1px solid var(--hairline)',
                 background: statusFilter === f.value ? 'rgba(201,168,76,.12)' : 'transparent',
                 color: statusFilter === f.value ? 'var(--gold)' : 'var(--mist)',
@@ -325,7 +325,7 @@ function EmailsInner() {
           placeholder="Filter by recipient email…"
           style={{
             background: 'rgba(245,237,216,.04)', border: '1px solid var(--hairline)',
-            borderRadius: '6px', padding: '5px 10px', fontSize: '12px',
+            borderRadius: '6px', padding: '5px 10px', fontSize: '17px',
             color: 'var(--sand)', fontFamily: 'var(--font-sans)', minWidth: '220px',
           }}
         />
@@ -338,18 +338,18 @@ function EmailsInner() {
             onChange={e => setStartDate(e.target.value)}
             style={{
               background: 'rgba(245,237,216,.04)', border: '1px solid var(--hairline)',
-              borderRadius: '6px', padding: '4px 8px', fontSize: '11px',
+              borderRadius: '6px', padding: '4px 8px', fontSize: '16px',
               color: 'var(--sand)', fontFamily: 'var(--font-sans)',
             }}
           />
-          <span style={{ fontSize: '11px', color: 'var(--mist)' }}>→</span>
+          <span style={{ fontSize: '16px', color: 'var(--mist)' }}>→</span>
           <input
             type="date"
             value={endDate}
             onChange={e => setEndDate(e.target.value)}
             style={{
               background: 'rgba(245,237,216,.04)', border: '1px solid var(--hairline)',
-              borderRadius: '6px', padding: '4px 8px', fontSize: '11px',
+              borderRadius: '6px', padding: '4px 8px', fontSize: '16px',
               color: 'var(--sand)', fontFamily: 'var(--font-sans)',
             }}
           />
@@ -358,7 +358,7 @@ function EmailsInner() {
         <button
           onClick={() => load(0)}
           style={{
-            padding: '5px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 500,
+            padding: '5px 14px', borderRadius: '6px', fontSize: '16px', fontWeight: 500,
             border: '1px solid rgba(201,168,76,.35)', background: 'rgba(201,168,76,.08)',
             color: 'var(--gold)', cursor: 'pointer', fontFamily: 'var(--font-sans)',
           }}
@@ -375,7 +375,7 @@ function EmailsInner() {
               setStatusFilter('all')
             }}
             style={{
-              padding: '5px 10px', borderRadius: '6px', fontSize: '11px',
+              padding: '5px 10px', borderRadius: '6px', fontSize: '16px',
               border: '1px solid var(--hairline)', background: 'transparent',
               color: 'var(--mist)', cursor: 'pointer', fontFamily: 'var(--font-sans)',
             }}
@@ -396,7 +396,7 @@ function EmailsInner() {
           gridTemplateColumns: '140px 1fr 1fr 90px',
           padding: '10px 16px',
           borderBottom: '1px solid var(--hairline)',
-          fontSize: '10px', letterSpacing: '0.10em', textTransform: 'uppercase',
+          fontSize: '16px', letterSpacing: '0.10em', textTransform: 'uppercase',
           color: 'var(--mist)',
         }}>
           <div>Date / Time</div>
@@ -444,20 +444,20 @@ function EmailsInner() {
             onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(245,237,216,.025)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
           >
-            <div style={{ fontSize: '11px', color: 'var(--mist)', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '16px', color: 'var(--mist)', whiteSpace: 'nowrap' }}>
               {email.date ? fmtDate(email.date) : '—'}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--sand)', overflow: 'hidden' }}>
+            <div style={{ fontSize: '17px', color: 'var(--sand)', overflow: 'hidden' }}>
               <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {email.email}
               </div>
               {email.from && (
-                <div style={{ fontSize: '10px', color: 'var(--mist)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '16px', color: 'var(--mist)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   from: {email.from}
                 </div>
               )}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--mist)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '17px', color: 'var(--mist)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {email.subject ? truncate(email.subject, 60) : <span style={{ opacity: 0.4 }}>—</span>}
             </div>
             <div>
@@ -470,7 +470,7 @@ function EmailsInner() {
       {/* Pagination */}
       {data && (data.emails.length === LIMIT || offset > 0) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px' }}>
-          <div style={{ fontSize: '11px', color: 'var(--mist)' }}>
+          <div style={{ fontSize: '16px', color: 'var(--mist)' }}>
             Showing {offset + 1}–{offset + data.emails.length}
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -478,7 +478,7 @@ function EmailsInner() {
               onClick={() => load(Math.max(0, offset - LIMIT))}
               disabled={offset === 0}
               style={{
-                padding: '5px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 500,
+                padding: '5px 14px', borderRadius: '6px', fontSize: '16px', fontWeight: 500,
                 border: '1px solid var(--hairline)', background: 'transparent',
                 color: offset === 0 ? 'rgba(213,226,235,.25)' : 'var(--mist)',
                 cursor: offset === 0 ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)',
@@ -490,7 +490,7 @@ function EmailsInner() {
               onClick={() => load(offset + LIMIT)}
               disabled={data.emails.length < LIMIT}
               style={{
-                padding: '5px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 500,
+                padding: '5px 14px', borderRadius: '6px', fontSize: '16px', fontWeight: 500,
                 border: '1px solid var(--hairline)', background: 'transparent',
                 color: data.emails.length < LIMIT ? 'rgba(213,226,235,.25)' : 'var(--mist)',
                 cursor: data.emails.length < LIMIT ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)',
@@ -503,7 +503,7 @@ function EmailsInner() {
       )}
 
       {/* Brevo retention note */}
-      <div style={{ marginTop: '20px', fontSize: '10px', color: 'rgba(213,226,235,.35)', textAlign: 'center' }}>
+      <div style={{ marginTop: '20px', fontSize: '16px', color: 'rgba(213,226,235,.35)', textAlign: 'center' }}>
         Brevo free plan retains transactional email logs for 30 days · API rate limit: 20 req/s ·
         Data refreshes every 60 s
       </div>

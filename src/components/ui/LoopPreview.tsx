@@ -95,7 +95,7 @@ export function LoopPreview() {
       <p
         data-testid="loop-preview-copy"
         className="text-center font-serif italic leading-relaxed transition-opacity duration-500"
-        style={{ fontSize: '14px', color: 'rgba(232,201,122,.82)', minHeight: '2.6em' }}
+        style={{ fontSize: '19px', color: 'rgba(232,201,122,.82)', minHeight: '2.6em' }}
       >
         {STEPS[active].copy}
       </p>

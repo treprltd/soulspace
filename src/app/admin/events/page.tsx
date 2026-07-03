@@ -199,7 +199,7 @@ function EventsInner() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                     {/* Event name badge */}
                     <span style={{
-                      fontSize: '10px', padding: '2px 8px', borderRadius: '4px',
+                      fontSize: '16px', padding: '2px 8px', borderRadius: '4px',
                       color, background: `${color}18`, fontWeight: 600,
                       letterSpacing: '0.06em', whiteSpace: 'nowrap',
                     }}>
@@ -207,26 +207,26 @@ function EventsInner() {
                     </span>
 
                     {/* Timestamp */}
-                    <span style={{ fontSize: '11px', color: 'var(--mist)', fontFamily: 'monospace' }}>
+                    <span style={{ fontSize: '16px', color: 'var(--mist)', fontFamily: 'monospace' }}>
                       {new Date(ev.timestamp).toLocaleString()}
                     </span>
 
                     {/* Session */}
                     {ev.session_id && (
-                      <span style={{ fontSize: '11px', color: 'var(--mist)', fontFamily: 'monospace' }}>
+                      <span style={{ fontSize: '16px', color: 'var(--mist)', fontFamily: 'monospace' }}>
                         session:{ev.session_id.slice(0, 8)}
                       </span>
                     )}
 
                     {/* User hash */}
                     {ev.user_hash && (
-                      <span style={{ fontSize: '11px', color: 'var(--mist)' }}>
+                      <span style={{ fontSize: '16px', color: 'var(--mist)' }}>
                         user:{ev.user_hash}
                       </span>
                     )}
 
                     {hasProps && (
-                      <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--mist)' }}>
+                      <span style={{ marginLeft: 'auto', fontSize: '16px', color: 'var(--mist)' }}>
                         {expanded ? '▲' : '▼'} props
                       </span>
                     )}
@@ -237,7 +237,7 @@ function EventsInner() {
                     <pre style={{
                       marginTop: '10px', padding: '10px 12px',
                       background: 'rgba(245,237,216,.03)', borderRadius: 'var(--r-md)',
-                      fontSize: '11px', color: 'var(--sand)', fontFamily: 'monospace',
+                      fontSize: '16px', color: 'var(--sand)', fontFamily: 'monospace',
                       overflow: 'auto', lineHeight: 1.6, whiteSpace: 'pre-wrap',
                     }}>
                       {JSON.stringify(ev.properties, null, 2)}
@@ -263,7 +263,7 @@ function EventsInner() {
 }
 
 const chipStyle = (active: boolean, color: string): React.CSSProperties => ({
-  padding: '4px 10px', fontSize: '11px', fontFamily: 'var(--font-sans)',
+  padding: '4px 10px', fontSize: '16px', fontFamily: 'var(--font-sans)',
   background: active ? `${color}18` : 'var(--ink2)',
   border: `1px solid ${active ? `${color}50` : 'var(--hairline)'}`,
   borderRadius: 'var(--r-pill)', color: active ? color : 'var(--mist)',

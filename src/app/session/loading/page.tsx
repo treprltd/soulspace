@@ -101,7 +101,7 @@ export default function MirrorLoading() {
               width: '44px', height: '44px', borderRadius: '50%',
               border: '1px solid rgba(201,168,76,.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'rgba(201,168,76,.5)', fontSize: '18px',
+              color: 'rgba(201,168,76,.5)', fontSize: '23px',
             }}
           >
             {isOverloaded ? '◎' : '◇'}
@@ -109,7 +109,7 @@ export default function MirrorLoading() {
 
           <h2
             className="font-serif font-light mb-3 leading-snug"
-            style={{ fontSize: '18px', color: 'var(--sand2)' }}
+            style={{ fontSize: '23px', color: 'var(--sand2)' }}
           >
             {isOverloaded
               ? 'One moment — we\'re busy right now.'
@@ -120,7 +120,7 @@ export default function MirrorLoading() {
 
           <p
             className="mb-7 leading-relaxed"
-            style={{ fontSize: '15px', color: 'var(--mist)' }}
+            style={{ fontSize: '20px', color: 'var(--mist)' }}
           >
             {isOverloaded
               ? 'The reflection service is momentarily at capacity. Your session is intact — try again in a few seconds.'
@@ -149,7 +149,7 @@ export default function MirrorLoading() {
           {errorState.retryCount > 1 && (
             <p
               className="mt-5"
-              style={{ fontSize: '13px', color: 'rgba(213,226,235,.65)' }}
+              style={{ fontSize: '18px', color: 'rgba(213,226,235,.65)' }}
             >
               Still not working? Try refreshing the page.
             </p>
@@ -182,7 +182,7 @@ export default function MirrorLoading() {
         </h2>
         {/* AFFIRMATION MOMENT 3 — frozen copy */}
         {!retrying && (
-          <p className="font-serif leading-loose" style={{ fontSize: '15px', color: 'rgba(213,226,235,.85)' }}>
+          <p className="font-serif leading-loose" style={{ fontSize: '20px', color: 'rgba(213,226,235,.85)' }}>
             Not judging. Just trying to find<br />what sits underneath it.
           </p>
         )}

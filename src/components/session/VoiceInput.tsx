@@ -204,7 +204,7 @@ export function VoiceInput({ onTranscript, isAuthenticated, isPaid, disabled = f
               background: '#0F1E2E',
               border: '1px solid rgba(245,237,216,.08)',
               color: 'rgba(245,247,240,.6)',
-              fontSize: '13px',
+              fontSize: '18px',
               lineHeight: '1.5',
             }}
           >
@@ -260,7 +260,7 @@ export function VoiceInput({ onTranscript, isAuthenticated, isPaid, disabled = f
       {(isRecording || isProcessing) && (
         <span
           className="absolute -bottom-5 right-0 whitespace-nowrap"
-          style={{ fontSize: '12px', color: isRecording ? 'rgba(212,64,64,.7)' : 'rgba(213,226,235,.72)' }}
+          style={{ fontSize: '17px', color: isRecording ? 'rgba(212,64,64,.7)' : 'rgba(213,226,235,.72)' }}
         >
           {isRecording ? '● Listening…' : 'Done'}
         </span>

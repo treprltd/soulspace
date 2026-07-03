@@ -112,10 +112,10 @@ function SafetyInner() {
                 padding: '8px 14px', borderRadius: 'var(--r-lg)',
                 background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.25)',
               }}>
-                <div style={{ fontSize: '10px', letterSpacing: '0.10em', textTransform: 'uppercase', color: meta.color, marginBottom: '2px' }}>
+                <div style={{ fontSize: '16px', letterSpacing: '0.10em', textTransform: 'uppercase', color: meta.color, marginBottom: '2px' }}>
                   {meta.label}
                 </div>
-                <div style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)' }}>
+                <div style={{ fontSize: '25px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)' }}>
                   {count}
                 </div>
               </div>
@@ -181,23 +181,23 @@ function SafetyInner() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
                     <span style={{
-                      fontSize: '10px', padding: '2px 8px', borderRadius: '4px', fontWeight: 700,
+                      fontSize: '16px', padding: '2px 8px', borderRadius: '4px', fontWeight: 700,
                       color: meta.color, background: `${meta.color}18`, letterSpacing: '0.06em',
                     }}>
                       ⚑ {meta.label}
                     </span>
                     {ev.branch && (
-                      <span style={{ fontSize: '10px', color: 'var(--gold)', background: 'rgba(201,168,76,.12)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '16px', color: 'var(--gold)', background: 'rgba(201,168,76,.12)', padding: '2px 8px', borderRadius: '4px' }}>
                         Branch {ev.branch}
                       </span>
                     )}
                     {ev.season_suppressed && (
-                      <span style={{ fontSize: '10px', color: 'var(--mist)', background: 'rgba(213,226,235,.52)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '16px', color: 'var(--mist)', background: 'rgba(213,226,235,.52)', padding: '2px 8px', borderRadius: '4px' }}>
                         Season suppressed
                       </span>
                     )}
                     {ev.reviewed && (
-                      <span style={{ fontSize: '10px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '16px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', padding: '2px 8px', borderRadius: '4px' }}>
                         ✓ Reviewed
                       </span>
                     )}
@@ -205,12 +205,12 @@ function SafetyInner() {
 
                   <div style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist)', lineHeight: 1.7 }}>
                     <span style={{ color: 'var(--sand)', marginRight: '4px' }}>ID:</span>
-                    <code style={{ fontFamily: 'monospace', fontSize: '11px' }}>{ev.id.slice(0, 12)}…</code>
+                    <code style={{ fontFamily: 'monospace', fontSize: '16px' }}>{ev.id.slice(0, 12)}…</code>
                     {ev.session_id && (
                       <>
                         <span style={{ margin: '0 8px', opacity: 0.4 }}>·</span>
                         <span style={{ color: 'var(--sand)', marginRight: '4px' }}>Session:</span>
-                        <code style={{ fontFamily: 'monospace', fontSize: '11px' }}>{ev.session_id.slice(0, 12)}…</code>
+                        <code style={{ fontFamily: 'monospace', fontSize: '16px' }}>{ev.session_id.slice(0, 12)}…</code>
                       </>
                     )}
                     <span style={{ margin: '0 8px', opacity: 0.4 }}>·</span>
@@ -235,7 +235,7 @@ function SafetyInner() {
                     onClick={() => markReviewed(ev.id)}
                     disabled={reviewing === ev.id}
                     style={{
-                      flexShrink: 0, padding: '8px 14px', fontSize: '12px',
+                      flexShrink: 0, padding: '8px 14px', fontSize: '17px',
                       fontFamily: 'var(--font-sans)', fontWeight: 500,
                       background: 'rgba(42,140,122,.12)', border: '1px solid rgba(42,140,122,.35)',
                       borderRadius: 'var(--r-md)', color: '#3DAF96',

@@ -98,7 +98,7 @@ export default function Contact() {
 
   const inputStyle = (hasErr: boolean): React.CSSProperties => ({
     background: 'rgba(15,30,46,.7)', border: `1px solid ${hasErr ? 'rgba(212,64,64,.6)' : 'rgba(245,237,216,.08)'}`,
-    borderRadius: '10px', color: 'var(--sand2)', fontSize: '14px', padding: '12px 14px',
+    borderRadius: '10px', color: 'var(--sand2)', fontSize: '19px', padding: '12px 14px',
     outline: 'none', width: '100%', transition: 'border-color .15s', fontFamily: 'inherit', boxSizing: 'border-box' as const,
   })
 
@@ -114,8 +114,8 @@ export default function Contact() {
     return (
       <div className="flex flex-col gap-1" style={{ marginBottom: '6px' }}>
         <label htmlFor={id} className="text-xs tracking-wide" style={{ color: 'rgba(213,226,235,.72)' }}>{label}</label>
-        {hint && <p className="text-[13px]" style={{ color: 'rgba(139,167,184,.6)' }}>{hint}</p>}
-        {errors[id] && <p className="text-[13px]" style={{ color: 'var(--danger)' }} role="alert">{errors[id]}</p>}
+        {hint && <p className="text-[18px]" style={{ color: 'rgba(139,167,184,.6)' }}>{hint}</p>}
+        {errors[id] && <p className="text-[18px]" style={{ color: 'var(--danger)' }} role="alert">{errors[id]}</p>}
       </div>
     )
   }
@@ -126,7 +126,7 @@ export default function Contact() {
       <div ref={topRef} className="max-w-xl mx-auto px-6 pt-14 pb-24">
 
         <div className="eyebrow mb-3">Get in touch</div>
-        <h1 className="font-serif font-light leading-tight mb-3" style={{ fontSize: 'clamp(26px, 5vw, 42px)', color: 'var(--sand2)' }}>
+        <h1 className="font-serif font-light leading-tight mb-3" style={{ fontSize: 'clamp(30px, 6vw, 50px)', color: 'var(--sand2)' }}>
           We&rsquo;re here if<br /><em className="text-gold2">something comes up.</em>
         </h1>
         <p className="text-sm mb-10 leading-relaxed" style={{ color: 'rgba(213,226,235,.62)', maxWidth: '380px' }}>
@@ -216,7 +216,7 @@ export default function Contact() {
               className={focusCls}
               style={{ ...inputStyle(!!errors.message), resize: 'vertical', minHeight: '140px', lineHeight: '1.7' }}
               placeholder="What would you like to share or ask?" />
-            <p className="text-[13px] mt-1 text-right" style={{ color: 'rgba(139,167,184,.45)' }}>{form.message.length} / 4,000</p>
+            <p className="text-[18px] mt-1 text-right" style={{ color: 'rgba(139,167,184,.45)' }}>{form.message.length} / 4,000</p>
           </div>
 
           {serverErr && (
@@ -231,7 +231,7 @@ export default function Contact() {
             {submitting ? 'Sending…' : 'Send message →'}
           </button>
 
-          <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
+          <p className="text-[18px] leading-relaxed" style={{ color: 'rgba(139,167,184,.5)' }}>
             By submitting this form you agree to our{' '}
             <Link href="/privacy" style={{ color: 'rgba(139,167,184,.75)', textDecoration: 'underline' }}>Privacy Policy</Link>.
             We do not sell or share your information.

@@ -155,7 +155,7 @@ export default function MirrorOutputPage() {
                 What you&apos;re carrying
               </div>
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '21px', lineHeight: '1.85' }}>
               {mirror.carrying}
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function MirrorOutputPage() {
                 What appears underneath
               </div>
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '16px', lineHeight: '1.85' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '21px', lineHeight: '1.85' }}>
               {mirror.underneath}
             </p>
           </div>
@@ -195,7 +195,7 @@ export default function MirrorOutputPage() {
               </div>
             </div>
             {/* Question stays italic — the contemplative moment */}
-            <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '16px' }}>
+            <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '21px' }}>
               {mirror.question}
             </p>
           </div>

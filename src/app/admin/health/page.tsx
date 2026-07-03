@@ -48,7 +48,7 @@ const sectionLabel: React.CSSProperties = {
   textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '14px',
 }
 const metaText: React.CSSProperties = {
-  fontSize: '11px', color: 'var(--mist)', lineHeight: 1.6,
+  fontSize: '16px', color: 'var(--mist)', lineHeight: 1.6,
 }
 
 const STATUS_COLORS: Record<StatusType, string> = {
@@ -97,13 +97,13 @@ function MetricRow({ label, value, unit, color, note }: {
       display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
       padding: '8px 0', borderBottom: '1px solid rgba(245,237,216,.04)',
     }}>
-      <span style={{ fontSize: '12px', color: 'var(--mist)' }}>{label}</span>
+      <span style={{ fontSize: '17px', color: 'var(--mist)' }}>{label}</span>
       <div style={{ textAlign: 'right' }}>
         <span style={{
-          fontSize: '18px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+          fontSize: '23px', fontFamily: 'var(--font-serif)', fontWeight: 300,
           color: color ?? 'var(--sand2)',
         }}>
-          {value === null ? '—' : value}{unit && value !== null ? <span style={{ fontSize: '11px', color: 'var(--mist)', marginLeft: '3px' }}>{unit}</span> : null}
+          {value === null ? '—' : value}{unit && value !== null ? <span style={{ fontSize: '16px', color: 'var(--mist)', marginLeft: '3px' }}>{unit}</span> : null}
         </span>
         {note && <div style={{ ...metaText, marginTop: '1px' }}>{note}</div>}
       </div>
@@ -200,7 +200,7 @@ function HealthInner() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {data && <StatusBadge status={data.overallStatus} large />}
           <button onClick={load} style={{
-            padding: '7px 14px', fontSize: '12px', fontFamily: 'var(--font-sans)',
+            padding: '7px 14px', fontSize: '17px', fontFamily: 'var(--font-sans)',
             background: 'var(--ink2)', border: '1px solid var(--hairline)',
             borderRadius: 'var(--r-md)', color: 'var(--mist)', cursor: 'pointer',
           }}>
@@ -261,7 +261,7 @@ function HealthInner() {
                 background: STATUS_BG[status],
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ fontSize: '13px', color: 'var(--sand)', fontWeight: 500 }}>{name}</div>
+                  <div style={{ fontSize: '18px', color: 'var(--sand)', fontWeight: 500 }}>{name}</div>
                   <StatusBadge status={status} />
                 </div>
                 <div style={{ ...metaText, marginTop: '8px' }}>{detail}</div>
@@ -319,7 +319,7 @@ function HealthInner() {
               <HourBar data={data.sessions.hourlySessions} />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
                 {[0, 6, 12, 18, 23].map(h => (
-                  <span key={h} style={{ fontSize: '9px', color: 'rgba(213,226,235,.65)' }}>{h}:00</span>
+                  <span key={h} style={{ fontSize: '16px', color: 'rgba(213,226,235,.65)' }}>{h}:00</span>
                 ))}
               </div>
               <div style={{ ...metaText, marginTop: '8px' }}>
@@ -349,14 +349,14 @@ function HealthInner() {
             <div style={card}>
               <div style={sectionLabel}>Application Errors (24h)</div>
               {data.errors.last24hCount === 0 ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3DAF96', fontSize: '13px' }}>
-                  <span style={{ fontSize: '18px' }}>✓</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3DAF96', fontSize: '18px' }}>
+                  <span style={{ fontSize: '23px' }}>✓</span>
                   No errors in the last 24 hours
                 </div>
               ) : (
                 <>
                   <div style={{
-                    fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+                    fontSize: '39px', fontFamily: 'var(--font-serif)', fontWeight: 300,
                     color: '#D44040', lineHeight: 1, marginBottom: '12px',
                   }}>
                     {data.errors.last24hCount}
@@ -368,10 +368,10 @@ function HealthInner() {
                           padding: '6px 10px', background: 'rgba(212,64,64,.06)',
                           borderRadius: 'var(--r-md)', borderLeft: '2px solid rgba(212,64,64,.3)',
                         }}>
-                          <div style={{ fontSize: '10px', color: 'var(--mist)' }}>
+                          <div style={{ fontSize: '16px', color: 'var(--mist)' }}>
                             {new Date(e.timestamp).toLocaleTimeString()}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#D44040', marginTop: '2px' }}>
+                          <div style={{ fontSize: '16px', color: '#D44040', marginTop: '2px' }}>
                             {String(e.detail).slice(0, 80)}
                           </div>
                         </div>

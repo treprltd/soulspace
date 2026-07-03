@@ -230,11 +230,11 @@ export default function NextStep() {
               <IconBadge background="rgba(201,168,76,.1)">
                 <CarryingIcon color="var(--gold)" />
               </IconBadge>
-              <div className="text-[13px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+              <div className="text-[18px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
                 What you&apos;re carrying
               </div>
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '20px', lineHeight: '1.8' }}>
               {carrying}
             </p>
           </div>
@@ -253,11 +253,11 @@ export default function NextStep() {
               <IconBadge background="rgba(61,175,150,.1)">
                 <MattersIcon color="var(--teal2)" />
               </IconBadge>
-              <div className="text-[13px] tracking-[.1em] uppercase" style={{ color: 'rgba(42,140,122,.7)' }}>
+              <div className="text-[18px] tracking-[.1em] uppercase" style={{ color: 'rgba(42,140,122,.7)' }}>
                 What seems to matter most
               </div>
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '20px', lineHeight: '1.8' }}>
               {reframe}
             </p>
           </div>
@@ -275,11 +275,11 @@ export default function NextStep() {
               <IconBadge background="rgba(201,168,76,.1)">
                 <ConsiderWeekIcon color="var(--gold)" />
               </IconBadge>
-              <div className="text-[13px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+              <div className="text-[18px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
                 One thing to consider this week
               </div>
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '20px', lineHeight: '1.8' }}>
               {considerThisWeek}
             </p>
           </div>
@@ -290,7 +290,7 @@ export default function NextStep() {
           <IconBadge background="rgba(201,168,76,.1)" size={22}>
             <TodayIcon color="var(--gold)" />
           </IconBadge>
-          <div className="text-[13px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
+          <div className="text-[18px] tracking-[.1em] uppercase" style={{ color: 'var(--gold)' }}>
             One action for today
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function NextStep() {
               background: custom ? 'rgba(201,168,76,.03)' : 'transparent',
             }}
           >
-            <div className="text-[13px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+            <div className="text-[18px] tracking-[.1em] uppercase mb-1.5" style={{ color: 'rgba(213,226,235,.65)' }}>
               Or write your own
             </div>
             <input
@@ -376,7 +376,7 @@ export default function NextStep() {
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.15)' }}
           >
-            <div className="text-[11px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
+            <div className="text-[16px] tracking-[.13em] uppercase text-gold mb-1.5">Upgrade</div>
             <p className="text-xs text-sand leading-relaxed mb-3">
               {(subStatus?.sessionsThisMonth ?? 0) >= FREE_SESSIONS_PER_MONTH
                 ? FREE_SESSIONS_PER_MONTH === 1
@@ -397,7 +397,7 @@ export default function NextStep() {
             className="mt-5 rounded-xl p-4"
             style={{ background: 'rgba(15,30,46,.7)', border: '1px solid rgba(245,237,216,.06)' }}
           >
-            <div className="text-[11px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
+            <div className="text-[16px] tracking-[.13em] uppercase text-mist mb-1.5">Save your sessions</div>
             <p className="text-xs text-mist leading-relaxed mb-3">
               Create a free account to save this session and track your return over time.
             </p>

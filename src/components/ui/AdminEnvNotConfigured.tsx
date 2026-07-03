@@ -50,7 +50,7 @@ export function AdminEnvNotConfigured({ env }: { env: AdminEnv }) {
         borderRadius: 'var(--r-md)',
         border: '1px solid rgba(245,237,216,.07)',
         fontFamily: 'monospace',
-        fontSize: '12px',
+        fontSize: '17px',
         color: 'var(--sand)',
         lineHeight: 2,
       }}>
@@ -64,7 +64,7 @@ export function AdminEnvNotConfigured({ env }: { env: AdminEnv }) {
         <div>{vars.key}=your_service_role_key</div>
       </div>
 
-      <p style={{ marginTop: '14px', fontSize: '11px', color: 'rgba(213,226,235,.72)', lineHeight: 1.6 }}>
+      <p style={{ marginTop: '14px', fontSize: '16px', color: 'rgba(213,226,235,.72)', lineHeight: 1.6 }}>
         Copy both values from the Supabase dashboard:{' '}
         <strong style={{ color: 'rgba(139,167,184,.7)' }}>Project Settings → API</strong>.
         Redeploy after saving.

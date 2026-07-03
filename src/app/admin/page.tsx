@@ -64,7 +64,7 @@ function StatCard({ label, value, sub, accent }: {
       <div style={{ fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px' }}>
         {label}
       </div>
-      <div style={{ fontSize: '28px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: accent ?? 'var(--sand2)', lineHeight: 1 }}>
+      <div style={{ fontSize: '34px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: accent ?? 'var(--sand2)', lineHeight: 1 }}>
         {value}
       </div>
       {sub && (
@@ -87,7 +87,7 @@ function ResonanceMeter({ rate, target = 60 }: { rate: number | null; target?: n
       <div style={{ fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
         Mirror Resonance Rate
         <span style={{
-          fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+          fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
           background: 'rgba(201,168,76,.14)', border: '1px solid rgba(201,168,76,.4)',
           color: 'var(--gold2)',
         }}>
@@ -96,7 +96,7 @@ function ResonanceMeter({ rate, target = 60 }: { rate: number | null; target?: n
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '12px' }}>
-        <div style={{ fontSize: '40px', fontFamily: 'var(--font-serif)', fontWeight: 300, color, lineHeight: 1 }}>
+        <div style={{ fontSize: '48px', fontFamily: 'var(--font-serif)', fontWeight: 300, color, lineHeight: 1 }}>
           {rate !== null ? `${rate}%` : '—'}
         </div>
         <div style={{ fontSize: 'var(--fs-3xs)', color: 'var(--mist)', paddingBottom: '4px' }}>
@@ -118,7 +118,7 @@ function ResonanceMeter({ rate, target = 60 }: { rate: number | null; target?: n
           background: 'rgba(245,237,216,.3)',
         }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--mist)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: 'var(--mist)' }}>
         <span>0%</span>
         <span style={{ color: 'rgba(245,237,216,.76)' }}>{target}% target</span>
         <span>100%</span>
@@ -208,7 +208,7 @@ function DashboardInner() {
             background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.3)',
             display: 'flex', alignItems: 'center', gap: '12px',
           }}>
-            <span style={{ fontSize: '18px' }}>⚑</span>
+            <span style={{ fontSize: '23px' }}>⚑</span>
             <div>
               <div style={{ fontSize: 'var(--fs-sm)', color: '#D44040', fontWeight: 600 }}>
                 {safety.unreviewed} unreviewed safety event{safety.unreviewed !== 1 ? 's' : ''}
@@ -244,9 +244,9 @@ function DashboardInner() {
         background: 'var(--ink2)', border: '1px solid rgba(245,237,216,.07)',
         borderRadius: '12px', padding: '18px 20px', marginBottom: '16px',
       }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Session Funnel — last 7 days</span>
-          <Link href={`/admin/analytics?env=${env}`} style={{ color: 'rgba(201,168,76,.5)', textDecoration: 'none', fontSize: '10px' }}>Full analytics →</Link>
+          <Link href={`/admin/analytics?env=${env}`} style={{ color: 'rgba(201,168,76,.5)', textDecoration: 'none', fontSize: '16px' }}>Full analytics →</Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'stretch', gap: '0' }}>
           {[
@@ -266,21 +266,21 @@ function DashboardInner() {
                   background: pct !== null && pct < 40 ? 'rgba(212,64,64,.05)' : 'rgba(245,237,216,.025)',
                   border: `1px solid ${pct !== null && pct < 40 ? 'rgba(212,64,64,.15)' : 'rgba(245,237,216,.05)'}`,
                 }}>
-                  <div style={{ fontSize: '18px', fontFamily: 'var(--font-cormorant, Georgia)', fontWeight: 300, color: '#FAF7F0', lineHeight: 1, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '23px', fontFamily: 'var(--font-cormorant, Georgia)', fontWeight: 300, color: '#FAF7F0', lineHeight: 1, marginBottom: '4px' }}>
                     {step.n}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#8BA7B8', marginBottom: '2px' }}>{step.label}</div>
-                  <div style={{ fontSize: '10px', color: pct !== null && pct < 40 ? '#D44040' : '#3DAF96' }}>
+                  <div style={{ fontSize: '16px', color: '#8BA7B8', marginBottom: '2px' }}>{step.label}</div>
+                  <div style={{ fontSize: '16px', color: pct !== null && pct < 40 ? '#D44040' : '#3DAF96' }}>
                     {pct !== null ? `${pct}% through` : '—'}
                   </div>
                 </div>
                 {/* Drop-off arrow between steps */}
                 {i < arr.length - 1 && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '28px', flexShrink: 0 }}>
-                    <div style={{ fontSize: '10px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.65)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '16px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.65)', textAlign: 'center' }}>
                       {drop !== null ? `−${drop}%` : '→'}
                     </div>
-                    <div style={{ fontSize: '14px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.56)' }}>›</div>
+                    <div style={{ fontSize: '19px', color: isBottleneck ? '#D44040' : 'rgba(213,226,235,.56)' }}>›</div>
                   </div>
                 )}
               </div>
@@ -295,15 +295,15 @@ function DashboardInner() {
         borderRadius: '12px', padding: '14px 20px', marginBottom: '20px',
         display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap',
       }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', flexShrink: 0 }}>
+        <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A84C', flexShrink: 0 }}>
           System Health
         </div>
 
         {/* Last session */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: system.lastSessionAt ? '#3DAF96' : '#8BA7B8', flexShrink: 0 }} />
-          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Last session:</span>
-          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>{relativeTime(system.lastSessionAt)}</span>
+          <span style={{ fontSize: '17px', color: '#8BA7B8' }}>Last session:</span>
+          <span style={{ fontSize: '17px', color: '#FAF7F0' }}>{relativeTime(system.lastSessionAt)}</span>
         </div>
 
         {/* Mirror avg response */}
@@ -315,15 +315,15 @@ function DashboardInner() {
               : system.avgMirrorMs < 8000 ? '#C9A84C'
               : '#D44040',
           }} />
-          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Mirror avg:</span>
-          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>
+          <span style={{ fontSize: '17px', color: '#8BA7B8' }}>Mirror avg:</span>
+          <span style={{ fontSize: '17px', color: '#FAF7F0' }}>
             {system.avgMirrorMs !== null
               ? `${(system.avgMirrorMs / 1000).toFixed(1)}s`
               : '—'
             }
           </span>
           {system.mirrorSampleSize > 0 && (
-            <span style={{ fontSize: '10px', color: 'rgba(213,226,235,.65)' }}>
+            <span style={{ fontSize: '16px', color: 'rgba(213,226,235,.65)' }}>
               ({system.mirrorSampleSize} samples)
             </span>
           )}
@@ -338,8 +338,8 @@ function DashboardInner() {
               : sessions.completionRate >= 40 ? '#C9A84C'
               : '#D44040',
           }} />
-          <span style={{ fontSize: '12px', color: '#8BA7B8' }}>Completion:</span>
-          <span style={{ fontSize: '12px', color: '#FAF7F0' }}>
+          <span style={{ fontSize: '17px', color: '#8BA7B8' }}>Completion:</span>
+          <span style={{ fontSize: '17px', color: '#FAF7F0' }}>
             {sessions.completionRate !== null ? `${sessions.completionRate}%` : '—'}
           </span>
         </div>

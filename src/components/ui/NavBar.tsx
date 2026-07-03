@@ -61,12 +61,12 @@ export function NavBar({ right }: NavBarProps) {
           /* ── Authenticated: avatar + dropdown ── */
           <div className="flex items-center gap-3">
           {right && (
-            <div className="text-[13px]" style={{ color: 'rgba(213,226,235,.72)' }}>{right}</div>
+            <div className="text-[18px]" style={{ color: 'rgba(213,226,235,.72)' }}>{right}</div>
           )}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-opacity hover:opacity-80"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[17px] font-medium transition-opacity hover:opacity-80"
               style={{
                 background: 'rgba(201,168,76,.15)',
                 border: '1px solid rgba(201,168,76,.3)',
@@ -88,27 +88,27 @@ export function NavBar({ right }: NavBarProps) {
                 }}
               >
                 <div className="px-3.5 py-2.5" style={{ borderBottom: '1px solid rgba(245,237,216,.05)' }}>
-                  <div className="text-[12px] text-mist truncate">{user.email}</div>
+                  <div className="text-[17px] text-mist truncate">{user.email}</div>
                 </div>
                 <Link href="/dashboard" onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[14px] text-sand hover:text-sand2 transition-colors">
+                  className="flex items-center px-3.5 py-2.5 text-[19px] text-sand hover:text-sand2 transition-colors">
                   Dashboard
                 </Link>
                 <Link href="/settings" onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[14px] text-sand hover:text-sand2 transition-colors">
+                  className="flex items-center px-3.5 py-2.5 text-[19px] text-sand hover:text-sand2 transition-colors">
                   Account &amp; settings
                 </Link>
                 <Link href="/age-gate" onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[14px] text-sand hover:text-sand2 transition-colors">
+                  className="flex items-center px-3.5 py-2.5 text-[19px] text-sand hover:text-sand2 transition-colors">
                   Begin a session
                 </Link>
                 <Link href="/contact" onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3.5 py-2.5 text-[14px] text-sand hover:text-sand2 transition-colors">
+                  className="flex items-center px-3.5 py-2.5 text-[19px] text-sand hover:text-sand2 transition-colors">
                   Contact
                 </Link>
                 <div style={{ borderTop: '1px solid rgba(245,237,216,.05)', margin: '4px 0' }} />
                 <button onClick={handleSignOut}
-                  className="w-full text-left flex items-center px-3.5 py-2.5 text-[14px] hover:opacity-80 transition-opacity"
+                  className="w-full text-left flex items-center px-3.5 py-2.5 text-[19px] hover:opacity-80 transition-opacity"
                   style={{ color: 'rgba(212,64,64,.75)' }}>
                   Sign out
                 </button>
@@ -122,7 +122,7 @@ export function NavBar({ right }: NavBarProps) {
           /* ── Not authenticated ── */
           <div className="flex items-center gap-2">
             {/* Page context label (shown only during session flow) */}
-            {right && <div className="text-[13px] text-mist mr-1">{right}</div>}
+            {right && <div className="text-[18px] text-mist mr-1">{right}</div>}
 
             {/* Always-visible sign-in button */}
             <Link

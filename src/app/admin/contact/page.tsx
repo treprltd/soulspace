@@ -44,7 +44,7 @@ function CategoryBadge({ cat, sub }: { cat: string; sub?: string }) {
   const s = catStyle(cat)
   return (
     <span style={{
-      fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+      fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
       color: s.color, background: s.bg, border: `1px solid ${s.border}`,
       fontWeight: 500, letterSpacing: '0.03em',
     }}>
@@ -159,12 +159,12 @@ function ContactInner() {
             Contact · {env.toUpperCase()}
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-            <h1 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', margin: 0 }}>
+            <h1 style={{ fontSize: '25px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', margin: 0 }}>
               Inbox
             </h1>
             {(data?.unreplied ?? 0) > 0 && (
               <span style={{
-                fontSize: '11px', fontWeight: 700, padding: '1px 7px', borderRadius: '999px',
+                fontSize: '16px', fontWeight: 700, padding: '1px 7px', borderRadius: '999px',
                 background: 'rgba(201,168,76,.18)', border: '1px solid rgba(201,168,76,.35)', color: '#C9A84C',
               }}>
                 {data!.unreplied} unreplied
@@ -177,7 +177,7 @@ function ContactInner() {
             {(['all', 'unreplied'] as const).map(f => (
               <button key={f} onClick={() => setParam('filter', f === 'all' ? '' : f)}
                 style={{
-                  fontSize: '12px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
+                  fontSize: '17px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer',
                   fontFamily: 'var(--font-sans)', fontWeight: filter === f ? 600 : 400,
                   border: filter === f ? '1px solid rgba(245,237,216,.2)' : '1px solid transparent',
                   background: filter === f ? 'rgba(245,237,216,.06)' : 'transparent',
@@ -200,7 +200,7 @@ function ContactInner() {
               }}
               style={{
                 width: '100%', background: 'rgba(245,237,216,.04)', border: '1px solid var(--hairline)',
-                borderRadius: '8px', padding: '8px 12px', fontSize: '12px', color: 'var(--sand)',
+                borderRadius: '8px', padding: '8px 12px', fontSize: '17px', color: 'var(--sand)',
                 fontFamily: 'var(--font-sans)', outline: 'none', boxSizing: 'border-box',
               }}
             />
@@ -228,17 +228,17 @@ function ContactInner() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--sand2)' }}>{sub.name}</span>
+                  <span style={{ fontSize: '18px', fontWeight: 500, color: 'var(--sand2)' }}>{sub.name}</span>
                   {sub.replied ? (
-                    <span style={{ fontSize: '10px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', border: '1px solid rgba(42,140,122,.2)', borderRadius: '4px', padding: '1px 6px' }}>Replied</span>
+                    <span style={{ fontSize: '16px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', border: '1px solid rgba(42,140,122,.2)', borderRadius: '4px', padding: '1px 6px' }}>Replied</span>
                   ) : (
-                    <span style={{ fontSize: '10px', color: '#C9A84C', background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.2)', borderRadius: '4px', padding: '1px 6px' }}>Unreplied</span>
+                    <span style={{ fontSize: '16px', color: '#C9A84C', background: 'rgba(201,168,76,.1)', border: '1px solid rgba(201,168,76,.2)', borderRadius: '4px', padding: '1px 6px' }}>Unreplied</span>
                   )}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--mist)', marginBottom: '6px' }}>{sub.email}</div>
+                <div style={{ fontSize: '16px', color: 'var(--mist)', marginBottom: '6px' }}>{sub.email}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   <CategoryBadge cat={sub.category} />
-                  <span style={{ fontSize: '10px', color: 'rgba(213,226,235,.4)' }}>
+                  <span style={{ fontSize: '16px', color: 'rgba(213,226,235,.4)' }}>
                     {new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
@@ -251,14 +251,14 @@ function ContactInner() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '16px' }}>
               {page > 1 && (
                 <button onClick={() => setParam('page', String(page - 1))}
-                  style={{ fontSize: '12px', color: 'var(--mist)', background: 'transparent', border: '1px solid var(--hairline)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+                  style={{ fontSize: '17px', color: 'var(--mist)', background: 'transparent', border: '1px solid var(--hairline)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                   ← Prev
                 </button>
               )}
-              <span style={{ fontSize: '12px', color: 'var(--mist)', alignSelf: 'center' }}>{page} / {data?.pages}</span>
+              <span style={{ fontSize: '17px', color: 'var(--mist)', alignSelf: 'center' }}>{page} / {data?.pages}</span>
               {page < (data?.pages ?? 1) && (
                 <button onClick={() => setParam('page', String(page + 1))}
-                  style={{ fontSize: '12px', color: 'var(--mist)', background: 'transparent', border: '1px solid var(--hairline)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+                  style={{ fontSize: '17px', color: 'var(--mist)', background: 'transparent', border: '1px solid var(--hairline)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
                   Next →
                 </button>
               )}
@@ -272,7 +272,7 @@ function ContactInner() {
         {!selected ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '28px', opacity: 0.2, marginBottom: '12px' }}>✉</div>
+              <div style={{ fontSize: '34px', opacity: 0.2, marginBottom: '12px' }}>✉</div>
               <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--mist)' }}>Select a submission to view details.</p>
             </div>
           </div>
@@ -283,19 +283,19 @@ function ContactInner() {
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '8px' }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '22px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)' }}>
+                  <h2 style={{ margin: 0, fontSize: '28px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)' }}>
                     {selected.name}
                   </h2>
-                  <a href={`mailto:${selected.email}`} style={{ fontSize: '13px', color: 'var(--gold2)', textDecoration: 'none' }}>
+                  <a href={`mailto:${selected.email}`} style={{ fontSize: '18px', color: 'var(--gold2)', textDecoration: 'none' }}>
                     {selected.email}
                   </a>
                 </div>
                 {selected.replied ? (
-                  <span style={{ fontSize: '12px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', border: '1px solid rgba(42,140,122,.25)', borderRadius: '6px', padding: '4px 10px', flexShrink: 0 }}>
+                  <span style={{ fontSize: '17px', color: '#3DAF96', background: 'rgba(42,140,122,.1)', border: '1px solid rgba(42,140,122,.25)', borderRadius: '6px', padding: '4px 10px', flexShrink: 0 }}>
                     ✓ Replied
                   </span>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#C9A84C', background: 'rgba(201,168,76,.08)', border: '1px solid rgba(201,168,76,.2)', borderRadius: '6px', padding: '4px 10px', flexShrink: 0 }}>
+                  <span style={{ fontSize: '17px', color: '#C9A84C', background: 'rgba(201,168,76,.08)', border: '1px solid rgba(201,168,76,.2)', borderRadius: '6px', padding: '4px 10px', flexShrink: 0 }}>
                     Awaiting reply
                   </span>
                 )}
@@ -304,7 +304,7 @@ function ContactInner() {
               {/* Meta row */}
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '10px' }}>
                 <CategoryBadge cat={selected.category} sub={selected.sub_option || undefined} />
-                <span style={{ fontSize: '11px', color: 'rgba(213,226,235,.5)' }}>{formatDate(selected.created_at)}</span>
+                <span style={{ fontSize: '16px', color: 'rgba(213,226,235,.5)' }}>{formatDate(selected.created_at)}</span>
               </div>
             </div>
 
@@ -313,10 +313,10 @@ function ContactInner() {
               background: 'rgba(245,237,216,.03)', border: '1px solid var(--hairline)',
               borderRadius: '10px', padding: '20px', marginBottom: '28px',
             }}>
-              <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '10px' }}>
+              <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '10px' }}>
                 Message
               </div>
-              <p style={{ fontSize: '14px', color: 'var(--sand)', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              <p style={{ fontSize: '19px', color: 'var(--sand)', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {selected.message}
               </p>
             </div>
@@ -328,14 +328,14 @@ function ContactInner() {
                 borderRadius: '10px', padding: '20px', marginBottom: '28px',
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#3DAF96' }}>
+                  <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#3DAF96' }}>
                     Reply sent
                   </div>
                   {selected.replied_at && (
-                    <div style={{ fontSize: '10px', color: 'rgba(213,226,235,.45)' }}>{formatDate(selected.replied_at)}</div>
+                    <div style={{ fontSize: '16px', color: 'rgba(213,226,235,.45)' }}>{formatDate(selected.replied_at)}</div>
                   )}
                 </div>
-                <p style={{ fontSize: '14px', color: 'var(--sand)', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                <p style={{ fontSize: '19px', color: 'var(--sand)', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                   {selected.reply_body}
                 </p>
               </div>
@@ -346,11 +346,11 @@ function ContactInner() {
               background: 'rgba(245,237,216,.02)', border: '1px solid var(--hairline)',
               borderRadius: '10px', padding: '20px',
             }}>
-              <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '12px' }}>
+              <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '12px' }}>
                 {selected.replied ? 'Send another reply' : 'Reply to user'}
               </div>
 
-              <div style={{ fontSize: '12px', color: 'rgba(213,226,235,.5)', marginBottom: '10px' }}>
+              <div style={{ fontSize: '17px', color: 'rgba(213,226,235,.5)', marginBottom: '10px' }}>
                 To: <span style={{ color: 'var(--sand)' }}>{selected.name}</span> &lt;{selected.email}&gt;
               </div>
 
@@ -361,20 +361,20 @@ function ContactInner() {
                 rows={8}
                 style={{
                   width: '100%', background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.1)',
-                  borderRadius: '8px', color: 'var(--sand2)', fontSize: '13px', padding: '12px 14px',
+                  borderRadius: '8px', color: 'var(--sand2)', fontSize: '18px', padding: '12px 14px',
                   fontFamily: 'var(--font-sans)', lineHeight: 1.7, resize: 'vertical', outline: 'none',
                   minHeight: '140px', boxSizing: 'border-box',
                 }}
               />
 
-              <div style={{ fontSize: '11px', color: 'rgba(213,226,235,.4)', marginTop: '6px', marginBottom: '14px' }}>
+              <div style={{ fontSize: '16px', color: 'rgba(213,226,235,.4)', marginTop: '6px', marginBottom: '14px' }}>
                 Sent via the Soul Space reply email template. The user will receive a branded email with your message.
               </div>
 
               {sendErr && (
                 <div style={{
                   marginBottom: '12px', padding: '10px 14px', borderRadius: '8px',
-                  background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.25)', color: '#D44040', fontSize: '13px',
+                  background: 'rgba(212,64,64,.08)', border: '1px solid rgba(212,64,64,.25)', color: '#D44040', fontSize: '18px',
                 }}>
                   {sendErr}
                 </div>
@@ -383,7 +383,7 @@ function ContactInner() {
               {sendOk && (
                 <div style={{
                   marginBottom: '12px', padding: '10px 14px', borderRadius: '8px',
-                  background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.25)', color: '#3DAF96', fontSize: '13px',
+                  background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.25)', color: '#3DAF96', fontSize: '18px',
                 }}>
                   ✓ Reply sent to {selected.email}
                 </div>
@@ -393,7 +393,7 @@ function ContactInner() {
                 onClick={sendReply}
                 disabled={sending || !reply.trim()}
                 style={{
-                  padding: '10px 24px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                  padding: '10px 24px', borderRadius: '8px', fontSize: '18px', fontWeight: 600,
                   fontFamily: 'var(--font-sans)', cursor: sending || !reply.trim() ? 'not-allowed' : 'pointer',
                   background: sending || !reply.trim() ? 'rgba(201,168,76,.25)' : 'var(--gold)',
                   color: sending || !reply.trim() ? 'rgba(8,17,28,.5)' : '#08111C',

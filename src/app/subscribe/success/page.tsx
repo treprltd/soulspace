@@ -78,7 +78,7 @@ function SuccessContent() {
                 border: '1px solid rgba(201,168,76,.3)',
               }}
             >
-              <span style={{ color: 'var(--gold2)', fontSize: '22px' }}>✓</span>
+              <span style={{ color: 'var(--gold2)', fontSize: '28px' }}>✓</span>
             </div>
           </div>
 
@@ -99,13 +99,13 @@ function SuccessContent() {
               border: '1px solid rgba(201,168,76,.12)',
             }}
           >
-            <div className="text-[11px] tracking-[.14em] uppercase mb-3" style={{ color: 'var(--gold)' }}>
+            <div className="text-[16px] tracking-[.14em] uppercase mb-3" style={{ color: 'var(--gold)' }}>
               What&apos;s now available
             </div>
             <ul className="space-y-2.5">
               {perks.map(p => (
-                <li key={p} className="flex items-center gap-2.5 text-[14px] text-sand leading-relaxed">
-                  <span style={{ color: 'var(--teal2)', fontSize: '14px', flexShrink: 0 }}>✓</span>
+                <li key={p} className="flex items-center gap-2.5 text-[19px] text-sand leading-relaxed">
+                  <span style={{ color: 'var(--teal2)', fontSize: '19px', flexShrink: 0 }}>✓</span>
                   {p}
                 </li>
               ))}

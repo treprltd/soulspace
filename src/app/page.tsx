@@ -61,7 +61,7 @@ export default function Home() {
 
         <h1
           className="font-serif font-light leading-tight mb-4 max-w-xl"
-          style={{ fontSize: 'clamp(26px, 4.5vw, 52px)', color: 'var(--sand2)' }}
+          style={{ fontSize: 'clamp(30px, 6vw, 62px)', color: 'var(--sand2)' }}
         >
           Try one private reflection.<br />
           <em className="text-gold2">Help shape Soul Space.</em>
@@ -89,7 +89,7 @@ export default function Home() {
                 style={{
                   border: `1px solid ${isSelected ? 'var(--gold)' : 'rgba(201,168,76,.16)'}`,
                   color: isSelected ? 'var(--gold3)' : 'var(--sand)',
-                  fontSize: '14px',
+                  fontSize: '19px',
                   background: isSelected ? 'rgba(201,168,76,.07)' : 'rgba(201,168,76,.02)',
                 }}
               >
@@ -105,7 +105,7 @@ export default function Home() {
             className="w-full mb-6 rounded-xl px-5 py-4 animate-fade-in text-left"
             style={{ border: '1px solid rgba(42,140,122,.22)', background: 'rgba(42,140,122,.06)' }}
           >
-            <p className="font-serif italic leading-relaxed" style={{ fontSize: '14px', color: 'var(--sand2)' }}>
+            <p className="font-serif italic leading-relaxed" style={{ fontSize: '19px', color: 'var(--sand2)' }}>
               {EMOTIONAL_STATES[selectedState].response}
             </p>
           </div>
@@ -147,19 +147,19 @@ export default function Home() {
           </p>
           <div className="mirror-card">
             <div className="mirror-label text-gold mb-2">What you&apos;re carrying</div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '20px', lineHeight: '1.8' }}>
               {MIRROR_EXAMPLE.carrying}
             </p>
           </div>
           <div className="mirror-card">
             <div className="mirror-label text-gold mb-2">What appears underneath</div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '20px', lineHeight: '1.8' }}>
               {MIRROR_EXAMPLE.underneath}
             </p>
           </div>
           <div className="rounded-xl p-4" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
             <div className="mirror-label mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
-            <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '15px' }}>
+            <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '20px' }}>
               {MIRROR_EXAMPLE.question}
             </p>
           </div>

@@ -32,6 +32,24 @@ const config: Config = {
         serif: ['var(--font-cormorant)', '"Cormorant Garamond"', 'Georgia', 'serif'],
         sans:  ['var(--font-dm-sans)',   '"DM Sans"',            'system-ui', 'sans-serif'],
       },
+      // ── Extra-large type scale ────────────────────────────────────────────
+      // Every named text-* utility is bumped up (rem-based, so it still scales
+      // with the root font size and stays responsive). Kept in lockstep with
+      // the hardcoded-px sizes elsewhere in the app: text-base = 21px matches
+      // an inline 16px→21px bump, text-sm = 19px matches 14px→19px, etc.
+      // Root is 16px, so 1rem = 16px for the conversions below.
+      fontSize: {
+        xs:   ['1.0625rem', { lineHeight: '1.5'  }], // 17px  (was 12)
+        sm:   ['1.1875rem', { lineHeight: '1.55' }], // 19px  (was 14)
+        base: ['1.3125rem', { lineHeight: '1.7'  }], // 21px  (was 16)
+        lg:   ['1.4375rem', { lineHeight: '1.6'  }], // 23px  (was 18)
+        xl:   ['1.5625rem', { lineHeight: '1.5'  }], // 25px  (was 20)
+        '2xl':['1.875rem',  { lineHeight: '1.35' }], // 30px  (was 24)
+        '3xl':['2.3125rem', { lineHeight: '1.25' }], // 37px  (was 30)
+        '4xl':['2.75rem',   { lineHeight: '1.2'  }], // 44px  (was 36)
+        '5xl':['3.5rem',    { lineHeight: '1.1'  }], // 56px  (was 48)
+        '6xl':['4rem',      { lineHeight: '1.05' }], // 64px  (was 60)
+      },
     },
   },
   plugins: [],

@@ -53,7 +53,7 @@ const sectionLabel: React.CSSProperties = {
   textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '14px',
 }
 const metaText: React.CSSProperties = {
-  fontSize: '11px', color: 'var(--mist)', lineHeight: 1.6,
+  fontSize: '16px', color: 'var(--mist)', lineHeight: 1.6,
 }
 
 // ── Mini sparkline ─────────────────────────────────────────────────────────────
@@ -92,13 +92,13 @@ function StatCard({
         <div style={sectionLabel}>{label}</div>
         {pill && (
           <span style={{
-            fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px',
+            fontSize: '16px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px',
             color: pill.color, background: pill.bg, border: `1px solid ${pill.color}40`,
           }}>{pill.text}</span>
         )}
       </div>
       <div style={{
-        fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+        fontSize: '39px', fontFamily: 'var(--font-serif)', fontWeight: 300,
         color: color ?? 'var(--sand2)', lineHeight: 1,
       }}>
         {value}
@@ -115,8 +115,8 @@ function HBar({ value, max, color, label, sub }: {
   return (
     <div style={{ marginBottom: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-        <span style={{ fontSize: '12px', color: 'var(--sand)' }}>{label}</span>
-        <span style={{ fontSize: '11px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
+        <span style={{ fontSize: '17px', color: 'var(--sand)' }}>{label}</span>
+        <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
       </div>
       <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(245,237,216,.05)' }}>
         <div style={{ height: '100%', borderRadius: '3px', width: `${pct}%`, background: color, transition: 'width .4s ease' }} />
@@ -253,10 +253,10 @@ function RevenueInner() {
               ].map(({ label, count, color, price }) => (
                 <div key={label} style={{ marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '13px', color: 'var(--sand)' }}>{label}</span>
+                    <span style={{ fontSize: '18px', color: 'var(--sand)' }}>{label}</span>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '11px', color: 'var(--mist)' }}>{price}</span>
-                      <span style={{ fontSize: '15px', fontFamily: 'var(--font-serif)', color }}>
+                      <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{price}</span>
+                      <span style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', color }}>
                         {count}
                       </span>
                     </div>
@@ -278,7 +278,7 @@ function RevenueInner() {
               <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '12px', marginTop: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={metaText}>Total MRR</span>
-                  <span style={{ fontSize: '18px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#3DAF96' }}>
+                  <span style={{ fontSize: '23px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#3DAF96' }}>
                     {fmt(data.mrr)}
                   </span>
                 </div>
@@ -355,13 +355,13 @@ function RevenueInner() {
               <div style={metaText}>No subscriptions yet.</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '17px' }}>
                   <thead>
                     <tr>
                       {['Plan', 'Status', 'Created', 'Renews', 'Customer'].map(h => (
                         <th key={h} style={{
                           textAlign: 'left', padding: '6px 10px',
-                          fontSize: '10px', letterSpacing: '0.10em', textTransform: 'uppercase',
+                          fontSize: '16px', letterSpacing: '0.10em', textTransform: 'uppercase',
                           color: 'var(--mist)', borderBottom: '1px solid var(--hairline)',
                           fontWeight: 500,
                         }}>{h}</th>
@@ -376,7 +376,7 @@ function RevenueInner() {
                         <tr key={s.id} style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
                           <td style={{ padding: '8px 10px' }}>
                             <span style={{
-                              fontSize: '11px', fontWeight: 600, padding: '2px 7px',
+                              fontSize: '16px', fontWeight: 600, padding: '2px 7px',
                               borderRadius: '4px', color: planColor,
                               background: `${planColor}18`,
                               border: `1px solid ${planColor}30`,
@@ -387,9 +387,9 @@ function RevenueInner() {
                           </td>
                           <td style={{ padding: '8px 10px' }}>
                             {isCancelling ? (
-                              <span style={{ fontSize: '11px', color: '#D44040' }}>Cancelling</span>
+                              <span style={{ fontSize: '16px', color: '#D44040' }}>Cancelling</span>
                             ) : (
-                              <span style={{ fontSize: '11px', color: '#3DAF96' }}>Active</span>
+                              <span style={{ fontSize: '16px', color: '#3DAF96' }}>Active</span>
                             )}
                           </td>
                           <td style={{ padding: '8px 10px', color: 'var(--mist)' }}>
@@ -398,7 +398,7 @@ function RevenueInner() {
                           <td style={{ padding: '8px 10px', color: 'var(--mist)' }}>
                             {s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : '—'}
                           </td>
-                          <td style={{ padding: '8px 10px', color: 'rgba(213,226,235,.72)', fontFamily: 'monospace', fontSize: '11px' }}>
+                          <td style={{ padding: '8px 10px', color: 'rgba(213,226,235,.72)', fontFamily: 'monospace', fontSize: '16px' }}>
                             {s.customerId}
                           </td>
                         </tr>

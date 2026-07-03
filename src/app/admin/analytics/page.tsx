@@ -46,7 +46,7 @@ const sectionLabel: React.CSSProperties = {
   textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '14px',
 }
 const metaText: React.CSSProperties = {
-  fontSize: '11px', color: 'var(--mist)', lineHeight: 1.6,
+  fontSize: '16px', color: 'var(--mist)', lineHeight: 1.6,
 }
 const sel: React.CSSProperties = {
   padding: '7px 12px', fontSize: 'var(--fs-3xs)', fontFamily: 'var(--font-sans)',
@@ -124,8 +124,8 @@ function HBar({
   return (
     <div style={{ marginBottom: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-        <span style={{ fontSize: '12px', color: 'var(--sand)' }}>{label}</span>
-        <span style={{ fontSize: '11px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
+        <span style={{ fontSize: '17px', color: 'var(--sand)' }}>{label}</span>
+        <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
       </div>
       <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(245,237,216,.05)' }}>
         <div style={{ height: '100%', borderRadius: '3px', width: `${pct}%`, background: color, transition: 'width .4s ease' }} />
@@ -146,7 +146,7 @@ function StatBox({
     <div style={{ ...card }}>
       <div style={sectionLabel}>{label}</div>
       <div style={{
-        fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+        fontSize: '39px', fontFamily: 'var(--font-serif)', fontWeight: 300,
         color: met === false ? '#D44040' : met === true ? '#3DAF96' : (color ?? 'var(--sand2)'),
         lineHeight: 1,
       }}>
@@ -154,7 +154,7 @@ function StatBox({
       </div>
       {sub && <div style={{ ...metaText, marginTop: '6px' }}>{sub}</div>}
       {target !== undefined && met !== undefined && (
-        <div style={{ fontSize: '10px', marginTop: '4px', color: met ? '#3DAF96' : '#D44040' }}>
+        <div style={{ fontSize: '16px', marginTop: '4px', color: met ? '#3DAF96' : '#D44040' }}>
           {met ? `✓ Above ${targetLabel ?? target}% target` : `✕ Below ${targetLabel ?? target}% target`}
         </div>
       )}
@@ -176,7 +176,7 @@ function FunnelChart({ steps }: { steps: Array<{ step: string; count: number }> 
         return (
           <div key={s.step}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '3px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--sand)', minWidth: '140px' }}>
+              <span style={{ fontSize: '16px', color: 'var(--sand)', minWidth: '140px' }}>
                 {FUNNEL_LABELS[s.step] ?? s.step}
               </span>
               <div style={{ flex: 1, height: '20px', background: 'rgba(245,237,216,.04)', borderRadius: '3px', position: 'relative' }}>
@@ -186,14 +186,14 @@ function FunnelChart({ steps }: { steps: Array<{ step: string; count: number }> 
                   opacity: 0.7, transition: 'width .5s ease',
                 }} />
               </div>
-              <span style={{ fontSize: '11px', color: 'var(--sand2)', minWidth: '36px', textAlign: 'right' }}>
+              <span style={{ fontSize: '16px', color: 'var(--sand2)', minWidth: '36px', textAlign: 'right' }}>
                 {s.count.toLocaleString()}
               </span>
-              <span style={{ fontSize: '10px', color, minWidth: '36px', textAlign: 'right' }}>
+              <span style={{ fontSize: '16px', color, minWidth: '36px', textAlign: 'right' }}>
                 {pct}%
               </span>
               {i > 0 && dropPct > 0 && (
-                <span style={{ fontSize: '10px', color: 'rgba(212,64,64,.6)', minWidth: '50px' }}>
+                <span style={{ fontSize: '16px', color: 'rgba(212,64,64,.6)', minWidth: '50px' }}>
                   −{dropPct}% drop
                 </span>
               )}
@@ -218,7 +218,7 @@ function HourHeatmap({ data }: { data: Array<{ hour: number; count: number }> })
     <div>
       {periods.map(p => (
         <div key={p.label} style={{ marginBottom: '10px' }}>
-          <div style={{ fontSize: '10px', color: p.color, marginBottom: '5px', letterSpacing: '0.08em' }}>
+          <div style={{ fontSize: '16px', color: p.color, marginBottom: '5px', letterSpacing: '0.08em' }}>
             {p.label}
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -236,7 +236,7 @@ function HourHeatmap({ data }: { data: Array<{ hour: number; count: number }> })
                     }}
                     title={`${h}:00 — ${item?.count ?? 0} sessions`}
                   />
-                  <span style={{ fontSize: '9px', color: 'rgba(213,226,235,.72)' }}>{h}</span>
+                  <span style={{ fontSize: '16px', color: 'rgba(213,226,235,.72)' }}>{h}</span>
                 </div>
               )
             })}
@@ -276,9 +276,9 @@ function IntensityHistogram({ data }: { data: Array<{ intensity: number; count: 
       <div style={{ display: 'flex', gap: '4px' }}>
         {data.map(d => (
           <div key={d.intensity} style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '9px', color: 'rgba(213,226,235,.72)' }}>{d.intensity}</div>
+            <div style={{ fontSize: '16px', color: 'rgba(213,226,235,.72)' }}>{d.intensity}</div>
             {total > 0 && (
-              <div style={{ fontSize: '8px', color: 'rgba(213,226,235,.60)' }}>
+              <div style={{ fontSize: '16px', color: 'rgba(213,226,235,.60)' }}>
                 {Math.round((d.count / total) * 100)}%
               </div>
             )}
@@ -289,7 +289,7 @@ function IntensityHistogram({ data }: { data: Array<{ intensity: number; count: 
         {[['Low (1–3)', '#6B8CAE'], ['Mid (4–6)', '#C9A84C'], ['High (7–10)', '#D44040']].map(([l, c]) => (
           <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: c as string, opacity: 0.75 }} />
-            <span style={{ fontSize: '10px', color: 'var(--mist)' }}>{l}</span>
+            <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{l}</span>
           </div>
         ))}
       </div>
@@ -506,12 +506,12 @@ function AnalyticsInner() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ fontSize: '11px', color, letterSpacing: '0.10em', textTransform: 'uppercase', fontWeight: 600 }}>
+                      <div style={{ fontSize: '16px', color, letterSpacing: '0.10em', textTransform: 'uppercase', fontWeight: 600 }}>
                         Branch {b.branch}
                       </div>
                       {rate !== null && (
                         <div style={{
-                          fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+                          fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
                           background: rate >= 60 ? 'rgba(42,140,122,.12)' : 'rgba(212,64,64,.1)',
                           color: rate >= 60 ? '#3DAF96' : '#D44040',
                           border: `1px solid ${rate >= 60 ? 'rgba(42,140,122,.3)' : 'rgba(212,64,64,.25)'}`,
@@ -520,7 +520,7 @@ function AnalyticsInner() {
                         </div>
                       )}
                     </div>
-                    <div style={{ fontSize: '26px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', marginBottom: '4px' }}>
                       {b.total.toLocaleString()}
                     </div>
                     <div style={metaText}>
@@ -595,8 +595,8 @@ function AnalyticsInner() {
                   return (
                     <div key={key} style={{ marginBottom: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '12px', color: 'var(--sand)' }}>{label}</span>
-                        <span style={{ fontSize: '11px', color: 'var(--mist)' }}>{count} users ({pct}%)</span>
+                        <span style={{ fontSize: '17px', color: 'var(--sand)' }}>{label}</span>
+                        <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{count} users ({pct}%)</span>
                       </div>
                       <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(245,237,216,.05)' }}>
                         <div style={{ height: '100%', borderRadius: '3px', width: `${pct}%`, background: color }} />
@@ -610,13 +610,13 @@ function AnalyticsInner() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ padding: '12px 14px', background: 'rgba(245,237,216,.02)', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)' }}>
                   <div style={metaText}>Overall conversion</div>
-                  <div style={{ fontSize: '28px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#C9A84C' }}>
+                  <div style={{ fontSize: '34px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#C9A84C' }}>
                     {t!.conversionRate !== null ? `${t!.conversionRate}%` : '—'}
                   </div>
                 </div>
                 <div style={{ padding: '12px 14px', background: 'rgba(245,237,216,.02)', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)' }}>
                   <div style={metaText}>New paid in {days}d</div>
-                  <div style={{ fontSize: '28px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#3DAF96' }}>
+                  <div style={{ fontSize: '34px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: '#3DAF96' }}>
                     {t!.newConversions}
                   </div>
                 </div>
@@ -654,7 +654,7 @@ function AnalyticsInner() {
               ].map(item => (
                 <div key={item.label} style={{ padding: '14px 16px', background: 'rgba(245,237,216,.02)', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)' }}>
                   <div style={metaText}>{item.label}</div>
-                  <div style={{ fontSize: '26px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: item.color, marginTop: '4px' }}>
+                  <div style={{ fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: item.color, marginTop: '4px' }}>
                     {item.value}
                   </div>
                 </div>

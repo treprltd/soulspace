@@ -61,7 +61,7 @@ export default function SeasonCard() {
           <h2 className="font-serif font-light text-center text-3xl mb-2 leading-tight" style={{ color: season.textColor }}>
             This may feel like <em>{season.name}.</em>
           </h2>
-          <p className="text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ fontSize: '15px', color: season.secondaryColor }}>
+          <p className="text-center font-light leading-loose max-w-md mx-auto mb-4" style={{ fontSize: '20px', color: season.secondaryColor }}>
             {season.description}
           </p>
 
@@ -83,7 +83,7 @@ export default function SeasonCard() {
                   <IconBadge background={`${season.color}1A`} size={22}>
                     <Icon color={season.color} />
                   </IconBadge>
-                  <div className="season-tile-label text-[13px] tracking-[.1em] uppercase" style={{ color: season.color }}>
+                  <div className="season-tile-label text-[18px] tracking-[.1em] uppercase" style={{ color: season.color }}>
                     {label}
                   </div>
                 </div>

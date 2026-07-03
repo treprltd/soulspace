@@ -128,23 +128,23 @@ export function NotificationBanner({ type, detail, onDismiss }: NotificationBann
       }}
     >
       {/* Icon */}
-      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px', color: cfg.border.replace('rgba(', 'rgb(').replace(', .', ', ').replace(/,[^,)]+\)$/, ')') }}>
+      <span style={{ fontSize: '21px', flexShrink: 0, marginTop: '1px', color: cfg.border.replace('rgba(', 'rgb(').replace(', .', ', ').replace(/,[^,)]+\)$/, ')') }}>
         {cfg.icon}
       </span>
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sand)', marginBottom: '3px' }}>
+        <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--sand)', marginBottom: '3px' }}>
           {cfg.title}
         </div>
-        <div style={{ fontSize: '12px', color: 'var(--mist)', lineHeight: 1.6 }}>
+        <div style={{ fontSize: '17px', color: 'var(--mist)', lineHeight: 1.6 }}>
           {cfg.message(detail)}
         </div>
         {cfg.action && (
           <Link
             href={cfg.action.href}
             style={{
-              display: 'inline-block', marginTop: '8px', fontSize: '12px',
+              display: 'inline-block', marginTop: '8px', fontSize: '17px',
               fontWeight: 600, color: 'var(--gold2)', textDecoration: 'none',
             }}
           >
@@ -160,7 +160,7 @@ export function NotificationBanner({ type, detail, onDismiss }: NotificationBann
           aria-label="Dismiss"
           style={{
             flexShrink: 0, background: 'transparent', border: 'none',
-            color: 'var(--mist)', cursor: 'pointer', fontSize: '14px',
+            color: 'var(--mist)', cursor: 'pointer', fontSize: '19px',
             padding: '0 2px', lineHeight: 1,
           }}
         >

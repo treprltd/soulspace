@@ -221,7 +221,7 @@ export default function Register() {
               className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
               style={{ background: 'rgba(201,168,76,.07)', border: '1px solid rgba(201,168,76,.2)' }}
             >
-              <span style={{ fontSize: '22px' }}>✉</span>
+              <span style={{ fontSize: '28px' }}>✉</span>
             </div>
 
             <h2 className="font-serif font-light text-sand2 text-xl mb-2">Check your inbox.</h2>

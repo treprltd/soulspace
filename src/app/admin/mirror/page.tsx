@@ -38,9 +38,9 @@ function RateBar({ rate, total, label, color = 'var(--teal2)' }: {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', alignItems: 'center' }}>
         <span style={{ fontSize: 'var(--fs-3xs)', color: 'var(--sand)' }}>{label}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', color: 'var(--mist)' }}>{total} tapped</span>
+          <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{total} tapped</span>
           <span style={{
-            fontSize: '12px', fontWeight: 700, color: rate !== null ? (metTarget ? '#3DAF96' : '#D44040') : 'var(--mist)',
+            fontSize: '17px', fontWeight: 700, color: rate !== null ? (metTarget ? '#3DAF96' : '#D44040') : 'var(--mist)',
           }}>
             {rate !== null ? `${rate}%` : '—'}
           </span>
@@ -87,14 +87,14 @@ function MiniTrend({ daily }: { daily: MirrorData['daily'] }) {
                 borderRadius: '2px 2px 0 0', cursor: 'default',
                 minHeight: '2px',
               }} />
-              <div style={{ fontSize: '8px', color: 'var(--mist)', marginTop: '3px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: '18px' }}>
+              <div style={{ fontSize: '16px', color: 'var(--mist)', marginTop: '3px', writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: '18px' }}>
                 {d.date.slice(5)}
               </div>
             </div>
           )
         })}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--mist)', marginTop: '4px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: 'var(--mist)', marginTop: '4px' }}>
         <span>0%</span>
         <span style={{ color: 'rgba(245,237,216,.70)' }}>— 60% target —</span>
         <span>100%</span>
@@ -151,7 +151,7 @@ function MirrorInner() {
               key={d}
               onClick={() => setDays(d)}
               style={{
-                padding: '6px 12px', fontSize: '12px', fontFamily: 'var(--font-sans)',
+                padding: '6px 12px', fontSize: '17px', fontFamily: 'var(--font-sans)',
                 background: days === d ? 'rgba(201,168,76,.15)' : 'var(--ink2)',
                 border: `1px solid ${days === d ? 'rgba(201,168,76,.5)' : 'var(--hairline)'}`,
                 borderRadius: 'var(--r-md)', color: days === d ? 'var(--gold2)' : 'var(--mist)',
@@ -181,7 +181,7 @@ function MirrorInner() {
                 Overall Resonance Rate — last {days}d
               </div>
               <span style={{
-                fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+                fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
                 background: 'rgba(201,168,76,.14)', border: '1px solid rgba(201,168,76,.4)',
                 color: 'var(--gold2)', fontWeight: 600,
               }}>
@@ -191,7 +191,7 @@ function MirrorInner() {
 
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap' }}>
               <div style={{
-                fontSize: '56px', fontFamily: 'var(--font-serif)', fontWeight: 300, lineHeight: 1,
+                fontSize: '64px', fontFamily: 'var(--font-serif)', fontWeight: 300, lineHeight: 1,
                 color: data.overall.rate !== null
                   ? (data.overall.targetMet ? '#3DAF96' : '#D44040')
                   : 'var(--mist)',
@@ -289,9 +289,9 @@ function MirrorInner() {
                         borderRadius: '2px 2px 0 0', cursor: 'default',
                       }}
                     />
-                    <div style={{ fontSize: '9px', color: 'var(--mist)', marginTop: '4px' }}>{intensity}</div>
+                    <div style={{ fontSize: '16px', color: 'var(--mist)', marginTop: '4px' }}>{intensity}</div>
                     {rate !== null && (
-                      <div style={{ fontSize: '9px', color: met ? '#3DAF96' : '#C9A84C' }}>{rate}%</div>
+                      <div style={{ fontSize: '16px', color: met ? '#3DAF96' : '#C9A84C' }}>{rate}%</div>
                     )}
                   </div>
                 )

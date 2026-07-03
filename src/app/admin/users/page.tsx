@@ -205,11 +205,11 @@ function UsersInner() {
                       {/* Name */}
                       <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                         {u.first_name || u.last_name ? (
-                          <span style={{ color: 'var(--sand)', fontSize: '12px' }}>
+                          <span style={{ color: 'var(--sand)', fontSize: '17px' }}>
                             {[u.first_name, u.last_name].filter(Boolean).join(' ')}
                           </span>
                         ) : (
-                          <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '11px' }}>—</span>
+                          <span style={{ color: 'rgba(213,226,235,.60)', fontSize: '16px' }}>—</span>
                         )}
                       </td>
                       {/* Email */}
@@ -217,17 +217,17 @@ function UsersInner() {
                         {u.email}
                       </td>
                       {/* Phone */}
-                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '17px', whiteSpace: 'nowrap' }}>
                         {u.phone ?? <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                       </td>
                       {/* Age (calculated from DOB) */}
-                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '12px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--mist)', fontSize: '17px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                         {u.dob
                           ? <span style={{ color: 'var(--sand)' }}>{calcAge(u.dob)}</span>
                           : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
                       </td>
                       {/* Gender */}
-                      <td style={{ padding: '10px 12px', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '10px 12px', fontSize: '16px', whiteSpace: 'nowrap' }}>
                         {u.gender
                           ? <span style={{ color: 'var(--mist)' }}>{GENDER_LABELS[u.gender] ?? u.gender}</span>
                           : <span style={{ color: 'rgba(213,226,235,.60)' }}>—</span>}
@@ -242,7 +242,7 @@ function UsersInner() {
                             autoFocus
                             onBlur={() => setEditingUser(null)}
                             style={{
-                              padding: '4px 8px', fontSize: '11px', fontFamily: 'var(--font-sans)',
+                              padding: '4px 8px', fontSize: '16px', fontFamily: 'var(--font-sans)',
                               background: 'var(--ink3)', border: '1px solid var(--gold-25)',
                               borderRadius: 'var(--r-sm)', color: 'var(--sand)', outline: 'none',
                             }}
@@ -253,7 +253,7 @@ function UsersInner() {
                           </select>
                         ) : (
                           <span style={{
-                            fontSize: '10px', padding: '2px 8px', borderRadius: '4px',
+                            fontSize: '16px', padding: '2px 8px', borderRadius: '4px',
                             color: pc.color, background: pc.bg, fontWeight: 600, letterSpacing: '0.06em',
                           }}>
                             {u.plan_tier}
@@ -263,7 +263,7 @@ function UsersInner() {
                       {/* Profile complete */}
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{
-                          fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+                          fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
                           color: u.profile_complete ? '#3DAF96' : 'rgba(213,226,235,.72)',
                           background: u.profile_complete ? 'rgba(42,140,122,.12)' : 'rgba(139,167,184,.07)',
                         }}>
@@ -283,7 +283,7 @@ function UsersInner() {
                           <button
                             onClick={() => setEditingUser(u.id)}
                             style={{
-                              padding: '4px 10px', fontSize: '11px', fontFamily: 'var(--font-sans)',
+                              padding: '4px 10px', fontSize: '16px', fontFamily: 'var(--font-sans)',
                               background: 'transparent', border: '1px solid var(--hairline)',
                               borderRadius: 'var(--r-sm)', color: 'var(--mist)',
                               cursor: 'pointer',

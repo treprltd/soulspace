@@ -30,7 +30,7 @@ export default function Welcome() {
 
           <h1
             className="font-serif font-light text-sand2 leading-tight mb-5"
-            style={{ fontSize: '28px' }}
+            style={{ fontSize: '34px' }}
           >
             A quiet space to hear<br />
             <em className="text-gold2">what you&rsquo;re carrying.</em>
@@ -56,7 +56,7 @@ export default function Welcome() {
                       border: '1px solid rgba(201,168,76,.18)',
                     }}
                   >
-                    <span style={{ color: 'var(--gold2)', fontSize: '14px' }}>{item.icon}</span>
+                    <span style={{ color: 'var(--gold2)', fontSize: '19px' }}>{item.icon}</span>
                   </div>
                   <div className="text-xs tracking-[.08em] uppercase mb-1" style={{ color: 'rgba(201,168,76,.5)' }}>
                     {item.step}

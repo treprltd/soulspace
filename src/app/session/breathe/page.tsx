@@ -26,7 +26,7 @@ export default function Breathe() {
 
       <h2
         className="font-serif font-light text-sand2 mb-4 animate-fade-in"
-        style={{ fontSize: '24px', letterSpacing: '.01em' }}
+        style={{ fontSize: '30px', letterSpacing: '.01em' }}
       >
         Take a moment.
       </h2>
@@ -34,7 +34,7 @@ export default function Breathe() {
       <p
         className="animate-fade-in"
         style={{
-          fontSize: '14px',
+          fontSize: '19px',
           color: 'rgba(213,226,235,.72)',
           letterSpacing: '.05em',
         }}

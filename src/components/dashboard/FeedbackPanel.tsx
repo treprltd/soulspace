@@ -59,7 +59,7 @@ const RECOMMEND_OPTIONS: { value: FeedbackRecommend; label: string }[] = [
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="text-[12px] tracking-[.12em] uppercase mb-2"
+      className="text-[17px] tracking-[.12em] uppercase mb-2"
       style={{ color: 'rgba(213,226,235,.72)' }}
     >
       {children}
@@ -74,7 +74,7 @@ function ChoiceChip({
     <button
       type="button"
       onClick={onClick}
-      className="px-3 py-1.5 rounded-lg text-[13px] transition-all cursor-pointer mr-1.5 mb-1.5"
+      className="px-3 py-1.5 rounded-lg text-[18px] transition-all cursor-pointer mr-1.5 mb-1.5"
       style={{
         border: selected ? '1px solid rgba(201,168,76,.5)' : '1px solid rgba(245,237,216,.1)',
         background: selected ? 'rgba(201,168,76,.1)' : 'transparent',
@@ -113,7 +113,7 @@ function StarRating({
         </button>
       ))}
       {value && (
-        <span className="text-[13px] self-center ml-1" style={{ color: 'rgba(213,226,235,.72)' }}>
+        <span className="text-[18px] self-center ml-1" style={{ color: 'rgba(213,226,235,.72)' }}>
           {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][value]}
         </span>
       )}
@@ -300,7 +300,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
           className="font-medium tracking-[.13em] uppercase"
           style={{
             color: 'var(--gold2)',
-            fontSize: '11px',
+            fontSize: '16px',
             writingMode: 'vertical-rl',
             transform: 'rotate(180deg)',
             letterSpacing: '0.14em',
@@ -351,17 +351,17 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
           <div>
             <div className="flex items-center gap-2">
               <span
-                className="text-[11px] tracking-[.12em] uppercase px-2 py-0.5 rounded-full"
+                className="text-[16px] tracking-[.12em] uppercase px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(201,168,76,.1)', color: 'var(--gold)', border: '1px solid rgba(201,168,76,.2)' }}
               >
                 Beta
               </span>
-              <h2 className="font-serif font-light text-sand2" style={{ fontSize: '18px' }}>
+              <h2 className="font-serif font-light text-sand2" style={{ fontSize: '23px' }}>
                 Share your feedback
               </h2>
             </div>
             {lastSubmitted && !submitted && (
-              <p className="text-[12px] mt-1" style={{ color: 'rgba(213,226,235,.65)' }}>
+              <p className="text-[17px] mt-1" style={{ color: 'rgba(213,226,235,.65)' }}>
                 Last submitted {new Date(lastSubmitted).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · update any time
               </p>
             )}
@@ -385,7 +385,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                 className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
                 style={{ background: 'rgba(42,140,122,.1)', border: '1px solid rgba(42,140,122,.3)' }}
               >
-                <span style={{ color: 'var(--teal2)', fontSize: '24px' }}>✓</span>
+                <span style={{ color: 'var(--teal2)', fontSize: '30px' }}>✓</span>
               </div>
               <h3 className="font-serif font-light text-sand2 text-xl mb-2">Thank you.</h3>
               <p className="text-xs text-mist leading-relaxed mb-6 max-w-xs">
@@ -394,12 +394,12 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               </p>
               {!isGuest && (
                 <>
-                  <p className="text-[13px] mb-6" style={{ color: 'rgba(213,226,235,.72)' }}>
+                  <p className="text-[18px] mb-6" style={{ color: 'rgba(213,226,235,.72)' }}>
                     You can update your feedback any time.
                   </p>
                   <button
                     onClick={resetAndReopen}
-                    className="btn-outline text-[13px] py-2 px-5"
+                    className="btn-outline text-[18px] py-2 px-5"
                   >
                     Update my feedback →
                   </button>
@@ -419,7 +419,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               {isGuest && (
                 <div className="mb-6">
                   <SectionLabel>Your email address</SectionLabel>
-                  <p className="text-[14px] mb-2" style={{ color: 'var(--sand)' }}>
+                  <p className="text-[19px] mb-2" style={{ color: 'var(--sand)' }}>
                     Required so we can follow up if needed.
                     <span className="ml-1" style={{ color: 'rgba(212,64,64,.8)' }}>*</span>
                   </p>
@@ -430,7 +430,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                     onBlur={() => setEmailTouched(true)}
                     placeholder="your@email.com"
                     autoComplete="email"
-                    className="w-full rounded-xl px-3.5 py-3 text-[14px] focus:outline-none transition-all"
+                    className="w-full rounded-xl px-3.5 py-3 text-[19px] focus:outline-none transition-all"
                     style={{
                       background: 'rgba(15,30,46,.6)',
                       border: emailError
@@ -443,17 +443,17 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                     }}
                   />
                   {emailError && (
-                    <p className="text-[13px] mt-1.5" style={{ color: 'rgba(212,64,64,.8)' }}>
+                    <p className="text-[18px] mt-1.5" style={{ color: 'rgba(212,64,64,.8)' }}>
                       {emailError}
                     </p>
                   )}
                   {!emailError && guestEmail && isValidEmail(guestEmail) && (
-                    <p className="text-[13px] mt-1.5" style={{ color: 'rgba(42,140,122,.7)' }}>
+                    <p className="text-[18px] mt-1.5" style={{ color: 'rgba(42,140,122,.7)' }}>
                       ✓ Looks good
                     </p>
                   )}
                   <div
-                    className="mt-3 px-3 py-2.5 rounded-lg text-[13px] leading-relaxed"
+                    className="mt-3 px-3 py-2.5 rounded-lg text-[18px] leading-relaxed"
                     style={{ background: 'rgba(139,167,184,.05)', border: '1px solid rgba(213,226,235,.52)', color: 'rgba(213,226,235,.72)' }}
                   >
                     We use your email only for Soul Space product updates. Never shared.
@@ -464,14 +464,14 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               {/* Star rating — optional */}
               <div className="mb-5">
                 <SectionLabel>Overall experience (optional)</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">How would you rate Soul Space so far?</p>
+                <p className="text-[19px] text-sand mb-2.5">How would you rate Soul Space so far?</p>
                 <StarRating value={rating} onChange={setRating} />
               </div>
 
               {/* Q1 — Personal or generic */}
               <div className="mb-5">
                 <SectionLabel>Did the Mirror feel personal?</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">Did the Mirror feel personal or generic?</p>
+                <p className="text-[19px] text-sand mb-2.5">Did the Mirror feel personal or generic?</p>
                 <div className="flex flex-wrap">
                   {(['Personal', 'Mixed', 'Generic'] as const).map(opt => (
                     <ChoiceChip
@@ -487,14 +487,14 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               {/* Q2 — What confused you */}
               <div className="mb-5">
                 <SectionLabel>Anything confusing?</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">What confused you, if anything?</p>
+                <p className="text-[19px] text-sand mb-2.5">What confused you, if anything?</p>
                 <textarea
                   value={confused}
                   onChange={e => setConfused(e.target.value)}
                   maxLength={500}
                   rows={2}
                   placeholder="Anything, or leave blank"
-                  className="w-full rounded-xl px-3.5 py-3 text-[14px] leading-relaxed resize-none focus:outline-none transition-all"
+                  className="w-full rounded-xl px-3.5 py-3 text-[19px] leading-relaxed resize-none focus:outline-none transition-all"
                   style={{
                     background: 'rgba(15,30,46,.6)',
                     border: confused ? '1px solid rgba(201,168,76,.25)' : '1px solid rgba(245,237,216,.08)',
@@ -507,14 +507,14 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               {/* Q3 — Would use again */}
               <div className="mb-6">
                 <SectionLabel>Would you return?</SectionLabel>
-                <p className="text-[14px] text-sand mb-2.5">Would you use this again? Why or why not?</p>
+                <p className="text-[19px] text-sand mb-2.5">Would you use this again? Why or why not?</p>
                 <textarea
                   value={comments}
                   onChange={e => setComments(e.target.value)}
                   maxLength={2000}
                   rows={3}
                   placeholder="A sentence or two is plenty"
-                  className="w-full rounded-xl px-3.5 py-3 text-[14px] leading-relaxed resize-none focus:outline-none transition-all"
+                  className="w-full rounded-xl px-3.5 py-3 text-[19px] leading-relaxed resize-none focus:outline-none transition-all"
                   style={{
                     background: 'rgba(15,30,46,.6)',
                     border: comments ? '1px solid rgba(201,168,76,.25)' : '1px solid rgba(245,237,216,.08)',
@@ -530,7 +530,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                 <button
                   type="button"
                   onClick={() => setShowMore(v => !v)}
-                  className="text-[13px] underline underline-offset-2 cursor-pointer"
+                  className="text-[18px] underline underline-offset-2 cursor-pointer"
                   style={{ color: 'rgba(213,226,235,.6)', background: 'none', border: 'none' }}
                 >
                   {showMore ? '− Fewer questions' : '+ A few more questions (optional)'}
@@ -540,7 +540,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
                   <div className="mt-4 animate-fade-in">
                     <div className="mb-5">
                       <SectionLabel>Usage</SectionLabel>
-                      <p className="text-[14px] text-sand mb-2.5">How often have you used it?</p>
+                      <p className="text-[19px] text-sand mb-2.5">How often have you used it?</p>
                       <div className="flex flex-wrap">
                         {FREQUENCY_OPTIONS.map(o => (
                           <ChoiceChip
@@ -555,7 +555,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
 
                     <div className="mb-5">
                       <SectionLabel>Most valuable</SectionLabel>
-                      <p className="text-[14px] text-sand mb-2.5">What felt most valuable? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
+                      <p className="text-[19px] text-sand mb-2.5">What felt most valuable? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
                       <div className="flex flex-wrap">
                         {VALUABLE_OPTIONS.map(o => (
                           <ChoiceChip
@@ -570,7 +570,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
 
                     <div className="mb-5">
                       <SectionLabel>Ease of use</SectionLabel>
-                      <p className="text-[14px] text-sand mb-2.5">How easy was it to navigate?</p>
+                      <p className="text-[19px] text-sand mb-2.5">How easy was it to navigate?</p>
                       <div className="flex flex-wrap">
                         {EASE_OPTIONS.map(o => (
                           <ChoiceChip
@@ -585,7 +585,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
 
                     <div className="mb-5">
                       <SectionLabel>What would improve it</SectionLabel>
-                      <p className="text-[14px] text-sand mb-2.5">What would make it better? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
+                      <p className="text-[19px] text-sand mb-2.5">What would make it better? <span style={{ color: 'rgba(213,226,235,.65)' }}>Select all that apply.</span></p>
                       <div className="flex flex-wrap">
                         {IMPROVEMENT_OPTIONS.map(o => (
                           <ChoiceChip
@@ -600,7 +600,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
 
                     <div>
                       <SectionLabel>Recommendation</SectionLabel>
-                      <p className="text-[14px] text-sand mb-2.5">Would you recommend Soul Space to someone you care about?</p>
+                      <p className="text-[19px] text-sand mb-2.5">Would you recommend Soul Space to someone you care about?</p>
                       <div className="flex flex-wrap">
                         {RECOMMEND_OPTIONS.map(o => (
                           <ChoiceChip
@@ -626,12 +626,12 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
               </button>
 
               {isGuest && (
-                <p className="text-[12px] text-center mt-2 leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
+                <p className="text-[17px] text-center mt-2 leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
                   Email required · never shared · used only to improve Soul Space.
                 </p>
               )}
               {!isGuest && (
-                <p className="text-[12px] text-center mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
+                <p className="text-[17px] text-center mt-3 leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
                   Your responses are private and used only to improve Soul Space.
                 </p>
               )}

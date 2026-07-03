@@ -39,7 +39,7 @@ const SEASON_LABELS: Record<string, string> = {
 function badge(text: string, color: string, bg: string) {
   return (
     <span style={{
-      fontSize: '10px', padding: '2px 7px', borderRadius: '4px',
+      fontSize: '16px', padding: '2px 7px', borderRadius: '4px',
       color, background: bg, fontWeight: 600, letterSpacing: '0.06em',
     }}>
       {text}
@@ -162,13 +162,13 @@ function SessionsInner() {
                 background: 'var(--ink2)', border: '1px solid var(--hairline)',
                 borderRadius: 'var(--r-lg)', padding: '14px 16px',
               }}>
-                <div style={{ fontSize: '10px', color: colors[i], letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <div style={{ fontSize: '16px', color: colors[i], letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Branch {b}
                 </div>
-                <div style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', marginBottom: '4px' }}>
+                <div style={{ fontSize: '28px', fontFamily: 'var(--font-serif)', fontWeight: 300, color: 'var(--sand2)', marginBottom: '4px' }}>
                   {bv.total}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--mist)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '16px', color: 'var(--mist)', lineHeight: 1.6 }}>
                   {rate !== null ? `${rate}% resonance` : 'No resonance data'}<br />
                   Avg intensity: {bv.avgIntensity || '—'}<br />
                   Avg chars: {bv.avgChars || '—'}
@@ -204,7 +204,7 @@ function SessionsInner() {
               <tbody>
                 {data.sessions.map(s => (
                   <tr key={s.id} style={{ borderBottom: '1px solid var(--hairline)', transition: 'background .1s' }}>
-                    <td style={{ padding: '9px 10px', color: 'var(--mist)', fontFamily: 'monospace', fontSize: '11px' }}>
+                    <td style={{ padding: '9px 10px', color: 'var(--mist)', fontFamily: 'monospace', fontSize: '16px' }}>
                       {s.id.slice(0, 8)}…
                     </td>
                     <td style={{ padding: '9px 10px' }}>

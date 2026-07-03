@@ -114,7 +114,7 @@ export default function CheckoutPage() {
         <Logo size="md" />
         <Link
           href="/pricing"
-          className="text-[13px] hover:text-sand transition-colors"
+          className="text-[18px] hover:text-sand transition-colors"
           style={{ color: 'rgba(213,226,235,.72)', textDecoration: 'none' }}
         >
           ← Back to plans
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
             <div className="flex items-start justify-between mb-5">
               <div>
                 <div
-                  className="text-[11px] tracking-[.16em] uppercase mb-1.5"
+                  className="text-[16px] tracking-[.16em] uppercase mb-1.5"
                   style={{ color: 'var(--gold)' }}
                 >
                   Soul Space
@@ -156,7 +156,7 @@ export default function CheckoutPage() {
                   {planData.name}
                 </div>
                 <div
-                  className="text-[13px] leading-relaxed mt-1 max-w-[220px]"
+                  className="text-[18px] leading-relaxed mt-1 max-w-[220px]"
                   style={{ color: 'rgba(139,167,184,.7)' }}
                 >
                   {meta.tagline}
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                 <div className="font-serif font-light text-sand2 text-2xl">
                   {planData.priceDisplay}
                 </div>
-                <div className="text-[12px] text-mist">per month</div>
+                <div className="text-[17px] text-mist">per month</div>
               </div>
             </div>
 
@@ -175,8 +175,8 @@ export default function CheckoutPage() {
             {/* Features */}
             <ul className="space-y-2.5 mb-5">
               {planData.features.map(f => (
-                <li key={f} className="flex items-center gap-2.5 text-[14px] text-sand leading-relaxed">
-                  <span style={{ color: 'var(--teal2)', fontSize: '14px', flexShrink: 0 }}>✓</span>
+                <li key={f} className="flex items-center gap-2.5 text-[19px] text-sand leading-relaxed">
+                  <span style={{ color: 'var(--teal2)', fontSize: '19px', flexShrink: 0 }}>✓</span>
                   {f}
                 </li>
               ))}
@@ -186,10 +186,10 @@ export default function CheckoutPage() {
 
             {/* Total */}
             <div className="flex items-center justify-between">
-              <span className="text-[13px] text-mist">Total due today</span>
-              <span className="text-sand2 text-[16px] font-medium">{planData.priceDisplay}</span>
+              <span className="text-[18px] text-mist">Total due today</span>
+              <span className="text-sand2 text-[21px] font-medium">{planData.priceDisplay}</span>
             </div>
-            <div className="text-[12px] text-right mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+            <div className="text-[17px] text-right mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
               Billed monthly · Cancel any time
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
           {/* Error */}
           {error && (
             <div
-              className="rounded-xl px-4 py-3 mb-4 text-[14px] text-center"
+              className="rounded-xl px-4 py-3 mb-4 text-[19px] text-center"
               style={{
                 background: 'rgba(212,64,64,.07)',
                 border: '1px solid rgba(212,64,64,.18)',
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
           </button>
 
           {/* Stripe badge */}
-          <p className="text-[12px] text-center mt-2.5" style={{ color: 'rgba(213,226,235,.60)' }}>
+          <p className="text-[17px] text-center mt-2.5" style={{ color: 'rgba(213,226,235,.60)' }}>
             Payments secured by Stripe · PCI DSS Level 1
           </p>
 
@@ -241,14 +241,14 @@ export default function CheckoutPage() {
             {TRUST_SIGNALS.map(s => (
               <div key={s.label} className="flex items-start gap-3">
                 <span
-                  className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[13px]"
+                  className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[18px]"
                   style={{ background: 'rgba(201,168,76,.06)', border: '1px solid rgba(201,168,76,.1)' }}
                 >
                   {s.icon}
                 </span>
                 <div>
-                  <div className="text-[13px] text-sand leading-tight">{s.label}</div>
-                  <div className="text-[12px] leading-relaxed mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
+                  <div className="text-[18px] text-sand leading-tight">{s.label}</div>
+                  <div className="text-[17px] leading-relaxed mt-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>
                     {s.desc}
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Footer note */}
-          <p className="text-[12px] text-center mt-8 leading-relaxed" style={{ color: 'rgba(213,226,235,.56)' }}>
+          <p className="text-[17px] text-center mt-8 leading-relaxed" style={{ color: 'rgba(213,226,235,.56)' }}>
             Soul Space is not a medical service. Sessions are a private pause,<br />
             not treatment or advice.
           </p>
@@ -308,12 +308,12 @@ function Step({
   return (
     <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
       <div
-        className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-medium"
+        className="w-7 h-7 rounded-full flex items-center justify-center text-[16px] font-medium"
         style={{ background: bg, border, color: textColor }}
       >
         {done ? '✓' : n}
       </div>
-      <span className="text-[11px] tracking-[.04em] whitespace-nowrap" style={{ color: labelColor }}>
+      <span className="text-[16px] tracking-[.04em] whitespace-nowrap" style={{ color: labelColor }}>
         {label}
       </span>
     </div>

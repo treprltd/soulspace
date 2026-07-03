@@ -45,7 +45,7 @@ const sectionLabel: React.CSSProperties = {
   textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '14px',
 }
 const metaText: React.CSSProperties = {
-  fontSize: '11px', color: 'var(--mist)', lineHeight: 1.6,
+  fontSize: '16px', color: 'var(--mist)', lineHeight: 1.6,
 }
 
 // ── DAU Sparkline ──────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ function StatCard({ label, value, sub, color }: {
     <div style={card}>
       <div style={sectionLabel}>{label}</div>
       <div style={{
-        fontSize: '32px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+        fontSize: '39px', fontFamily: 'var(--font-serif)', fontWeight: 300,
         color: color ?? 'var(--sand2)', lineHeight: 1,
       }}>
         {value}
@@ -88,8 +88,8 @@ function HBar({ value, max, color, label, sub }: {
   return (
     <div style={{ marginBottom: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-        <span style={{ fontSize: '12px', color: 'var(--sand)' }}>{label}</span>
-        <span style={{ fontSize: '11px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
+        <span style={{ fontSize: '17px', color: 'var(--sand)' }}>{label}</span>
+        <span style={{ fontSize: '16px', color: 'var(--mist)' }}>{sub ?? value.toLocaleString()}</span>
       </div>
       <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(245,237,216,.05)' }}>
         <div style={{ height: '100%', borderRadius: '3px', width: `${pct}%`, background: color, transition: 'width .4s ease' }} />
@@ -104,7 +104,7 @@ function CohortCell({ rate, label }: { rate: number | null; label?: string }) {
     return (
       <td style={{
         padding: '6px 10px', textAlign: 'center',
-        fontSize: '11px', color: 'rgba(213,226,235,.60)',
+        fontSize: '16px', color: 'rgba(213,226,235,.60)',
       }}>
         {label ?? '—'}
       </td>
@@ -116,7 +116,7 @@ function CohortCell({ rate, label }: { rate: number | null; label?: string }) {
     <td style={{ padding: '6px 8px', textAlign: 'center' }}>
       <span style={{
         display: 'inline-block', padding: '3px 8px', borderRadius: '4px',
-        background: bg, color, fontSize: '12px', fontWeight: 600, minWidth: '40px',
+        background: bg, color, fontSize: '17px', fontWeight: 600, minWidth: '40px',
       }}>
         {rate}%
       </span>
@@ -258,14 +258,14 @@ function RetentionInner() {
               <div style={metaText}>Not enough signup data to build cohort table yet.</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '17px' }}>
                   <thead>
                     <tr>
                       {['Signup week', 'Cohort size', 'Week 1 return', 'Week 2 return'].map(h => (
                         <th key={h} style={{
                           textAlign: h === 'Signup week' ? 'left' : 'center',
                           padding: '6px 10px',
-                          fontSize: '10px', letterSpacing: '0.10em', textTransform: 'uppercase',
+                          fontSize: '16px', letterSpacing: '0.10em', textTransform: 'uppercase',
                           color: 'var(--mist)', borderBottom: '1px solid var(--hairline)',
                           fontWeight: 500,
                         }}>{h}</th>
@@ -275,10 +275,10 @@ function RetentionInner() {
                   <tbody>
                     {data.cohorts.map(c => (
                       <tr key={c.week} style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}>
-                        <td style={{ padding: '8px 10px', color: 'var(--sand)', fontSize: '12px' }}>
+                        <td style={{ padding: '8px 10px', color: 'var(--sand)', fontSize: '17px' }}>
                           {c.week}
                         </td>
-                        <td style={{ padding: '8px 10px', textAlign: 'center', color: 'var(--mist)', fontSize: '13px' }}>
+                        <td style={{ padding: '8px 10px', textAlign: 'center', color: 'var(--mist)', fontSize: '18px' }}>
                           {c.cohortSize === 0 ? '—' : c.cohortSize}
                         </td>
                         <CohortCell rate={c.cohortSize === 0 ? null : c.week1Rate} />
@@ -309,9 +309,9 @@ function RetentionInner() {
                   padding: '14px 16px', background: 'rgba(245,237,216,.02)',
                   borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)',
                 }}>
-                  <div style={{ fontSize: '12px', color: 'var(--mist)', marginBottom: '8px' }}>{label}</div>
+                  <div style={{ fontSize: '17px', color: 'var(--mist)', marginBottom: '8px' }}>{label}</div>
                   <div style={{
-                    fontSize: '36px', fontFamily: 'var(--font-serif)', fontWeight: 300,
+                    fontSize: '44px', fontFamily: 'var(--font-serif)', fontWeight: 300,
                     color: rd.rate !== null && rd.rate >= 60 ? '#3DAF96' : rd.rate !== null && rd.rate >= 50 ? '#C9A84C' : color,
                     lineHeight: 1,
                   }}>
@@ -322,7 +322,7 @@ function RetentionInner() {
                   </div>
                   {rd.rate !== null && (
                     <div style={{
-                      fontSize: '10px', marginTop: '6px',
+                      fontSize: '16px', marginTop: '6px',
                       color: rd.rate >= 60 ? '#3DAF96' : '#D44040',
                     }}>
                       {rd.rate >= 60 ? '✓ Above 60% target' : '✕ Below 60% target'}

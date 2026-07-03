@@ -32,7 +32,7 @@ function EnvBadge({ env }: { env: AdminEnv }) {
   const meta = ENV_META[env]
   return (
     <span style={{
-      fontSize: '11px', fontWeight: 600, letterSpacing: '0.10em',
+      fontSize: '16px', fontWeight: 600, letterSpacing: '0.10em',
       textTransform: 'uppercase', padding: '3px 9px', borderRadius: '4px',
       color: meta.color, background: meta.bg, border: `1px solid ${meta.color}40`,
     }}>
@@ -72,7 +72,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         <div style={{ padding: '20px 18px 16px', borderBottom: '1px solid var(--hairline)' }}>
           <Logo size="sm" />
           <div style={{
-            marginTop: '4px', fontSize: '10px', letterSpacing: '0.14em',
+            marginTop: '4px', fontSize: '16px', letterSpacing: '0.14em',
             textTransform: 'uppercase', color: 'var(--gold)', opacity: 0.6,
           }}>
             Admin Panel
@@ -81,7 +81,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
         {/* Env switcher */}
         <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--hairline)' }}>
-          <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '8px' }}>
+          <div style={{ fontSize: '16px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '8px' }}>
             Environment
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -98,7 +98,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     border: active ? `1px solid ${meta.color}50` : '1px solid transparent',
                     background: active ? meta.bg : 'transparent',
                     color: active ? meta.color : 'var(--mist)',
-                    fontSize: '13px', fontFamily: 'var(--font-sans)',
+                    fontSize: '18px', fontFamily: 'var(--font-sans)',
                     fontWeight: active ? 600 : 400, cursor: 'pointer',
                     textAlign: 'left', transition: 'all .12s',
                   }}
@@ -131,22 +131,22 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                   marginBottom: '2px', textDecoration: 'none',
                   color: active ? 'var(--sand2)' : 'var(--mist)',
                   background: active ? 'rgba(245,237,216,.06)' : 'transparent',
-                  fontSize: '14px', fontFamily: 'var(--font-sans)',
+                  fontSize: '19px', fontFamily: 'var(--font-sans)',
                   fontWeight: active ? 500 : 400, transition: 'all .12s',
                 }}
               >
-                <span style={{ fontSize: '16px', opacity: 0.8 }}>{link.icon}</span>
+                <span style={{ fontSize: '21px', opacity: 0.8 }}>{link.icon}</span>
                 {link.label}
                 {link.label === 'Safety' && (
                   <span style={{
-                    marginLeft: 'auto', fontSize: '10px', padding: '1px 6px',
+                    marginLeft: 'auto', fontSize: '16px', padding: '1px 6px',
                     borderRadius: '999px', background: 'rgba(212,64,64,.2)',
                     color: '#D44040', fontWeight: 700,
                   }} id="safety-badge" />
                 )}
                 {link.label === 'Contact' && (
                   <span style={{
-                    marginLeft: 'auto', fontSize: '10px', padding: '1px 6px',
+                    marginLeft: 'auto', fontSize: '16px', padding: '1px 6px',
                     borderRadius: '999px', background: 'rgba(201,168,76,.18)',
                     color: '#C9A84C', fontWeight: 700,
                   }} id="contact-badge" />
@@ -165,7 +165,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
               marginTop: '10px', width: '100%', padding: '8px',
               background: 'transparent', border: '1px solid var(--hairline)',
               borderRadius: 'var(--r-md)', color: 'var(--mist)',
-              fontSize: '12px', fontFamily: 'var(--font-sans)',
+              fontSize: '17px', fontFamily: 'var(--font-sans)',
               cursor: 'pointer', transition: 'border-color .12s',
             }}
           >

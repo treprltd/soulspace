@@ -147,7 +147,7 @@ export default function ContextField() {
               color:       'var(--sand2)',
               fontFamily:  'var(--font-cormorant), Georgia, serif',
               fontStyle:   'italic',
-              fontSize:    '16px',
+              fontSize: '21px',
               lineHeight:  '1.75',
               paddingBottom: '3rem', // room for the mic button
             }}

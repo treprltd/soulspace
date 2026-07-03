@@ -111,10 +111,10 @@ export function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[12px] tracking-[.08em] uppercase text-mist pl-0.5">{label}</label>
+      <label className="text-[17px] tracking-[.08em] uppercase text-mist pl-0.5">{label}</label>
       {children}
       {hint && !error && (
-        <p className="text-[12px] pl-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>{hint}</p>
+        <p className="text-[17px] pl-0.5" style={{ color: 'rgba(213,226,235,.65)' }}>{hint}</p>
       )}
       {error && (
         <p className="text-xs leading-relaxed" style={{ color: 'var(--danger)' }}>{error}</p>

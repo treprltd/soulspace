@@ -131,10 +131,10 @@ export default function SituationEntry() {
   if (blocked) {
     return (
       <main style={{ background: '#060E18', minHeight: '100vh' }}>
-        <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '13px' }}>Your session</span>} />
+        <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '18px' }}>Your session</span>} />
         <div className="flex items-center justify-center px-4 sm:px-5 py-8 sm:py-10">
           <div className="w-full max-w-sm animate-fade-in text-center">
-            <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '24px' }}>
+            <h1 className="font-serif font-light text-sand2 leading-tight mb-3" style={{ fontSize: '30px' }}>
               You&rsquo;ve used your free session{FREE_SESSIONS_PER_MONTH === 1 ? '' : 's'} this month.
             </h1>
             <p className="text-sm text-mist mb-6 leading-relaxed">
@@ -156,7 +156,7 @@ export default function SituationEntry() {
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
-      <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '13px' }}>Your session</span>} />
+      <NavBar right={<span style={{ color: 'rgba(213,226,235,.65)', fontSize: '18px' }}>Your session</span>} />
       <div className="flex items-center justify-center px-4 sm:px-5 py-8 sm:py-10">
         <div className="w-full max-w-lg animate-fade-in">
 
@@ -168,7 +168,7 @@ export default function SituationEntry() {
             </div>
             <h1
               className="font-serif font-light text-sand2 leading-tight mb-2"
-              style={{ fontSize: '26px' }}
+              style={{ fontSize: '32px' }}
             >
               What is this <em className="text-gold2">mostly about?</em>
             </h1>
