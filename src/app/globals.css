@@ -327,6 +327,14 @@ select,
 /* ── Mobile (≤ 640px) ──────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
 
+  /* ── Session content — extra right clearance for the fixed BETA FEEDBACK
+       tab docked on the right edge. Without this, full-width buttons/inputs
+       on session/context, /emotions, /intensity, /next-step, /reflection,
+       and /season sit partly underneath the tab (confirmed: the Continue
+       button on /session/intensity was ~14px behind it, hittable as the
+       tab instead of the button). Left padding is untouched. ────────────── */
+  .session-outer-pad { padding-right: 40px !important; }
+
   /* ── Buttons — minimum 44 px touch target ──────────────────────────────── */
   .btn-primary {
     min-height: 44px !important;
@@ -455,6 +463,8 @@ select,
   /* Context textarea — must not zoom on iOS (min 16px) */
   textarea { font-size: 21px !important; }
 
-  /* Reduce outer px padding from px-6 (24 px) to px-4 (16 px) */
-  .session-outer-pad { padding-left: 16px !important; padding-right: 16px !important; }
+  /* Reduce outer left padding from px-6 (24 px) to px-4 (16 px). Right
+     padding is intentionally left to the ≤640px rule above (40px) — it
+     clears the fixed feedback tab and must not be reset back down here. */
+  .session-outer-pad { padding-left: 16px !important; }
 }

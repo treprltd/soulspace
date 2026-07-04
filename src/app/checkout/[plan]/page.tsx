@@ -15,7 +15,7 @@ const CHECKOUT_META: Record<PaidPlan, { tagline: string }> = {
 
 const TRUST_SIGNALS = [
   {
-    icon: '⚿',
+    icon: '🔒',
     label: 'AES-256-GCM encrypted',
     desc: 'Session content is encrypted before storage. Soul Space cannot read it.',
   },

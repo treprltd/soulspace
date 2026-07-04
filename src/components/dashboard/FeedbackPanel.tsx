@@ -300,7 +300,7 @@ export function FeedbackPanel({ authToken, defaultOpen = false }: FeedbackPanelP
           className="font-medium tracking-[.13em] uppercase"
           style={{
             color: 'var(--gold2)',
-            fontSize: '16px',
+            fontSize: '13px',
             writingMode: 'vertical-rl',
             transform: 'rotate(180deg)',
             letterSpacing: '0.14em',

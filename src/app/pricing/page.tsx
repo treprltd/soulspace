@@ -143,7 +143,7 @@ export default function Pricing() {
 
           {/* Essentials */}
           <div
-            className="rounded-xl p-5 flex flex-col relative"
+            className="rounded-xl pt-9 px-5 pb-5 flex flex-col relative"
             style={{
               background: isCurrentPlan('essentials') ? 'rgba(201,168,76,.06)' : 'rgba(15,30,46,.7)',
               border: isCurrentPlan('essentials')
@@ -153,8 +153,8 @@ export default function Pricing() {
           >
             {!isCurrentPlan('essentials') && (
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs tracking-[.1em] uppercase"
-                style={{ background: 'var(--gold)', color: 'var(--ink)' }}
+                className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full whitespace-nowrap tracking-[.1em] uppercase"
+                style={{ background: 'var(--gold)', color: 'var(--ink)', fontSize: '13px' }}
               >
                 Most popular
               </div>

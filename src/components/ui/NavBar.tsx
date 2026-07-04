@@ -66,7 +66,7 @@ export function NavBar({ right }: NavBarProps) {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-[17px] font-medium transition-opacity hover:opacity-80"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-[17px] leading-none font-medium transition-opacity hover:opacity-80"
               style={{
                 background: 'rgba(201,168,76,.15)',
                 border: '1px solid rgba(201,168,76,.3)',

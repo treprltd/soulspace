@@ -177,8 +177,11 @@ export default function SituationEntry() {
             </p>
           </div>
 
-          {/* 3-column grid — 12 situations incl. escape hatch */}
-          <div className="grid grid-cols-3 gap-2.5 mb-6">
+          {/* 3-column grid — 12 situations incl. escape hatch.
+              Extra right padding on narrow screens only, clearing the fixed
+              beta-feedback tab docked on the right edge (rightmost column
+              would otherwise sit partly underneath it). */}
+          <div className="grid grid-cols-3 gap-2.5 mb-6 pr-9 sm:pr-0">
             {SITUATIONS.map((s) => (
               <button
                 key={s.id}

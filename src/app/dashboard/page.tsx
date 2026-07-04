@@ -623,11 +623,12 @@ export default function Dashboard() {
                     {patternData.seasonJourney.map((s, i) => (
                       <span key={i} className="flex items-center gap-1">
                         <span
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-[17px] font-medium"
+                          className="w-7 h-7 rounded-full flex items-center justify-center leading-none font-medium"
                           style={{
                             background: `${SEASON_COLORS[s] ?? 'var(--mist)'}18`,
                             color: SEASON_COLORS[s] ?? 'var(--mist)',
                             border: `1px solid ${SEASON_COLORS[s] ?? 'var(--mist)'}35`,
+                            fontSize: s.length > 1 ? '12px' : '17px',
                           }}
                         >
                           {s}

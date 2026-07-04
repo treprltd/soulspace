@@ -205,7 +205,7 @@ export default function Register() {
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center px-5 py-10"
+      className="min-h-screen flex items-center justify-center pl-5 pr-9 sm:px-5 py-10"
       style={{ background: '#060E18' }}
     >
       <div className="w-full max-w-sm animate-fade-in">

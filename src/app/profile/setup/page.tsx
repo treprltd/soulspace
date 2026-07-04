@@ -101,7 +101,7 @@ export default function ProfileSetup() {
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar />
-      <div className="px-5 py-8 max-w-sm mx-auto animate-fade-in">
+      <div className="pl-5 pr-9 sm:px-5 py-8 max-w-sm mx-auto animate-fade-in">
 
         <div className="text-center mb-6">
           <Logo size="sm" />
