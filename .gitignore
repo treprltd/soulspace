@@ -45,3 +45,8 @@ prod-screenshots/
 scripts/.prod-snapshot.json
 scripts/.prod-secret.tmp
 scripts/.prod-contact.json
+scripts/.feedback-export*
+soulspace-feedback-export.xlsx
+
+# Generated E2E test reports (written by scripts/e2e-test.js)
+e2e-report*.md
