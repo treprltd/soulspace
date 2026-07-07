@@ -63,14 +63,31 @@ html, body {
   }
 
   .btn-primary {
-    @apply px-6 py-3 bg-gold text-ink text-base font-semibold rounded-lg border-none cursor-pointer transition-opacity hover:opacity-90 active:opacity-80;
+    @apply px-6 py-3 bg-gold text-ink text-base font-semibold rounded-lg border-none cursor-pointer;
+    transition: opacity .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+  .btn-primary:hover {
+    opacity: .92;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,168,76,.22);
+  }
+  .btn-primary:active {
+    opacity: .85;
+    transform: translateY(0) scale(.985);
+    box-shadow: none;
   }
   .btn-outline {
-    @apply px-4 py-2.5 bg-transparent text-gold text-base rounded-lg cursor-pointer transition-colors;
+    @apply px-4 py-2.5 bg-transparent text-gold text-base rounded-lg cursor-pointer;
     border: 1px solid rgba(201,168,76,0.25);
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
   }
   .btn-outline:hover {
     border-color: rgba(201,168,76,0.5);
+    background: rgba(201,168,76,0.05);
+    transform: translateY(-1px);
+  }
+  .btn-outline:active {
+    transform: translateY(0) scale(.985);
   }
 
   .mirror-card {
@@ -467,4 +484,68 @@ select,
      padding is intentionally left to the ≤640px rule above (40px) — it
      clears the fixed feedback tab and must not be reset back down here. */
   .session-outer-pad { padding-left: 16px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Interaction design layer
+   Professional UX mechanisms applied site-wide: visible keyboard focus,
+   staged entrances, tactile card feedback, calm loading states, and full
+   reduced-motion support. Motion here is quiet on purpose — Soul Space is a
+   pause, so every animation settles rather than bounces.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Keyboard focus — WCAG-visible ring, mouse clicks stay clean ──────────── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid rgba(201,168,76,.65);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── Text selection in brand tone ─────────────────────────────────────────── */
+::selection { background: rgba(201,168,76,.28); color: var(--sand2); }
+
+/* ── Staged entrance — hero and card sequences settle in one after another ── */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise-in   { opacity: 0; animation: riseIn .6s cubic-bezier(.22,.61,.36,1) forwards; }
+.rise-in-1 { opacity: 0; animation: riseIn .6s cubic-bezier(.22,.61,.36,1) .08s forwards; }
+.rise-in-2 { opacity: 0; animation: riseIn .6s cubic-bezier(.22,.61,.36,1) .18s forwards; }
+.rise-in-3 { opacity: 0; animation: riseIn .6s cubic-bezier(.22,.61,.36,1) .30s forwards; }
+.rise-in-4 { opacity: 0; animation: riseIn .6s cubic-bezier(.22,.61,.36,1) .44s forwards; }
+
+/* ── Tactile cards — subtle lift + border brighten on hover ───────────────── */
+.card-lift {
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(201,168,76,.32) !important;
+  box-shadow: 0 10px 32px rgba(0,0,0,.35);
+}
+
+/* ── Calm skeleton shimmer for loading states ─────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg,
+    rgba(245,237,216,.04) 25%, rgba(245,237,216,.09) 50%, rgba(245,237,216,.04) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Reduced motion — respect the user's system preference completely ─────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .rise-in, .rise-in-1, .rise-in-2, .rise-in-3, .rise-in-4 { opacity: 1; }
 }

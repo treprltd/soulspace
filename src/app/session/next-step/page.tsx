@@ -71,6 +71,10 @@ export default function NextStep() {
   const [patternInsight, setPatternInsight] = useState<string | null>(null)
   const [carrying, setCarrying] = useState<string | null>(null)
   const [considerThisWeek, setConsiderThisWeek] = useState<string | null>(null)
+  // True when this is the user's first-ever session (no past completed
+  // sessions in history; anonymous users have no history, so also true).
+  // Drives the one-time "come back in 3–4 days" return invitation below.
+  const [isFirstSession, setIsFirstSession] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -123,6 +127,8 @@ export default function NextStep() {
       const pastSessions: Array<{ situation?: string | null; emotion_tags?: string[] | null; completed_at: string | null }> =
         ((histData as { sessions?: Array<{ id: string; situation?: string | null; emotion_tags?: string[] | null; completed_at: string | null }> })?.sessions ?? [])
           .filter((s: { id: string; completed_at: string | null }) => s.completed_at && s.id !== currentSessionId)
+
+      setIsFirstSession(pastSessions.length === 0)
 
       if (pastSessions.length >= 2) {
         // Top situation across past completed sessions
@@ -361,14 +367,38 @@ export default function NextStep() {
           {done ? 'Saving…' : "I'm done for now →"}
         </button>
 
-        {/* ── Continuity line — the thread that connects sessions ── */}
-        <p
-          className="text-center font-serif mt-5 mb-1 leading-relaxed text-sm"
-          style={{ color: 'rgba(213,226,235,.8)' }}
-        >
-          Come back in a few days.<br />
-          Your season may already be shifting.
-        </p>
+        {/* ── Continuity — the thread that connects sessions ──
+              First session: a fuller return invitation (reflections settle
+              over days; come back in 3–4 and share how it sat). Repeat
+              sessions: the original one-line continuity note. Additive —
+              Affirmation Moment 5 above is untouched. */}
+        {isFirstSession ? (
+          <div
+            className="mt-5 rounded-xl px-5 py-5 text-center animate-fade-in"
+            style={{ background: 'rgba(42,140,122,.05)', border: '1px solid rgba(42,140,122,.18)' }}
+          >
+            <div className="text-[16px] tracking-[.13em] uppercase mb-2" style={{ color: 'var(--teal2)' }}>
+              Before you go
+            </div>
+            <p className="font-serif leading-relaxed mb-2" style={{ fontSize: '20px', color: 'var(--sand2)' }}>
+              What you set down today tends to settle over days, not minutes.
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(213,226,235,.75)' }}>
+              Come back in 3 or 4 days and notice what&apos;s shifted — and share how it sat with you.
+              {isAuthenticated && (
+                <> Soul Space will remember the shape of this visit, so your next one starts where this one ended.</>
+              )}
+            </p>
+          </div>
+        ) : (
+          <p
+            className="text-center font-serif mt-5 mb-1 leading-relaxed text-sm"
+            style={{ color: 'rgba(213,226,235,.8)' }}
+          >
+            Come back in a few days.<br />
+            Your season may already be shifting.
+          </p>
+        )}
 
         {/* Upgrade nudge — only for authenticated free users near their limit */}
         {showUpgradeNudge && (
@@ -383,7 +413,8 @@ export default function NextStep() {
                   ? "You've used your free session this month."
                   : "You've used all your free sessions this month."
                 : `You have ${FREE_SESSIONS_PER_MONTH - (subStatus?.sessionsThisMonth ?? 0)} free session${FREE_SESSIONS_PER_MONTH - (subStatus?.sessionsThisMonth ?? 0) === 1 ? '' : 's'} left this month.`}
-              {' '}Unlimited sessions from $9.99/month.
+              {' '}Essentials removes the wait — a reflection whenever something is sitting
+              heavily, plus your full history and the patterns it builds. From $9.99/month.
             </p>
             <Link href="/pricing" className="btn-primary text-xs py-2 px-4 inline-block">
               See plans →

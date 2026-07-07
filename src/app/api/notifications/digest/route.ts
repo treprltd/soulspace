@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail, checkInDigestEmail } from '@/lib/email'
+import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail, checkInDigestEmail, activationNudgeEmail, firstSessionFollowUpEmail } from '@/lib/email'
 import { decrypt } from '@/lib/encryption'
 
 // ── Re-engagement digest + admin daily digest + welcome backfill ───────────────
@@ -13,7 +13,10 @@ import { decrypt } from '@/lib/encryption'
 //   admin_digest     — send admin daily digest to ADMIN_EMAIL
 //   welcome_backfill — send welcome email to users who never received one
 //   memory_checkin   — send gentle check-in emails to opted-in users (off by default)
-//   all              — all four (default)
+//   lifecycle        — once-ever nudges: activation (signed up, never started a
+//                      session) and first-session follow-up (3–4 days after a
+//                      user's first completed session, if they haven't returned)
+//   all              — all of the above (default)
 
 export async function POST(req: NextRequest) {
   // Simple shared-secret auth so only the cron can call this
@@ -152,6 +155,127 @@ export async function POST(req: NextRequest) {
       }
     } catch (err) {
       results.userDigest = { sent: 0, error: String(err) }
+    }
+  }
+
+  // ── Lifecycle nudges — each sent AT MOST ONCE per user, ever ──────────────
+  // Two moments, mirroring the on-site journey:
+  //   A. Activation — registered 2–21 days ago, zero sessions, never nudged.
+  //      (The 21-day upper bound avoids cold-emailing long-dormant accounts.)
+  //   B. First-session follow-up — exactly one session, it produced a Mirror
+  //      (season_assigned), it finished 3–7 days ago, and they haven't been
+  //      back. Skipped entirely if that session was safety-flagged (same
+  //      crisis gate as memory check-ins).
+  // Both are stamped (activation_nudge_sent_at / first_followup_sent_at) so a
+  // user can never receive either twice — deliberately NOT a recurring drip.
+  if (mode === 'lifecycle' || mode === 'all') {
+    try {
+      const now = new Date()
+      const cutoff2d  = new Date(now.getTime() -  2 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoff21d = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoff3d  = new Date(now.getTime() -  3 * 24 * 60 * 60 * 1000).toISOString()
+      const cutoff7d  = new Date(now.getTime() -  7 * 24 * 60 * 60 * 1000).toISOString()
+
+      // Shared: one pass over all sessions → per-user session list (oldest first)
+      const { data: allSessions } = await db
+        .from('sessions')
+        .select('id, user_id, created_at, completed_at, season_assigned, safety_flagged')
+        .order('created_at', { ascending: true })
+
+      const sessionsByUser: Record<string, NonNullable<typeof allSessions>> = {}
+      for (const s of allSessions ?? []) {
+        if (!s.user_id) continue
+        ;(sessionsByUser[s.user_id] ??= []).push(s)
+      }
+
+      // ── A. Activation nudge ─────────────────────────────────────────────
+      const activation = { sent: 0, failed: 0, eligible: 0 }
+      {
+        const { data: candidates } = await db
+          .from('users')
+          .select('id, email, first_name')
+          .is('activation_nudge_sent_at', null)
+          .lt('created_at', cutoff2d)
+          .gte('created_at', cutoff21d)
+          .not('email', 'is', null)
+          .limit(50)
+
+        const eligible = (candidates ?? []).filter(u => !(sessionsByUser[u.id]?.length))
+        activation.eligible = eligible.length
+
+        for (const u of eligible) {
+          if (!u.email) continue
+          try {
+            const template = activationNudgeEmail(u.first_name)
+            await sendEmail({ to: u.email, ...template })
+            await db.from('users').update({ activation_nudge_sent_at: now.toISOString() }).eq('id', u.id)
+            activation.sent++
+            await new Promise(r => setTimeout(r, 200))
+          } catch {
+            activation.failed++
+          }
+        }
+      }
+
+      // ── B. First-session follow-up ──────────────────────────────────────
+      const followUp = { sent: 0, failed: 0, eligible: 0, skippedCrisisGate: 0 }
+      {
+        // Users with exactly one session, Mirror rendered, finished 3–7 days ago
+        const candidateIds: string[] = []
+        const crisisFlagged: string[] = []
+        for (const [uid, list] of Object.entries(sessionsByUser)) {
+          if (list.length !== 1) continue
+          const s = list[0]
+          if (!s.season_assigned) continue
+          const doneAt = s.completed_at ?? s.created_at
+          if (!(doneAt < cutoff3d && doneAt >= cutoff7d)) continue
+          if (s.safety_flagged) { crisisFlagged.push(uid); continue }
+          candidateIds.push(uid)
+        }
+        followUp.skippedCrisisGate = crisisFlagged.length
+
+        if (candidateIds.length > 0) {
+          const { data: userData } = await db
+            .from('users')
+            .select('id, email, first_name')
+            .in('id', candidateIds.slice(0, 50))
+            .is('first_followup_sent_at', null)
+            .not('email', 'is', null)
+
+          followUp.eligible = (userData ?? []).length
+
+          for (const u of userData ?? []) {
+            if (!u.email) continue
+
+            // Memory note (optional) — same decrypt-or-fall-back pattern as
+            // memory_checkin; a missing note just means the generic variant.
+            let memoryNote: string | null = null
+            try {
+              const sessionId = sessionsByUser[u.id][0].id
+              const { data: content } = await db
+                .from('session_content')
+                .select('encrypted_memory_note')
+                .eq('session_id', sessionId)
+                .maybeSingle()
+              if (content?.encrypted_memory_note) memoryNote = decrypt(content.encrypted_memory_note)
+            } catch { memoryNote = null }
+
+            try {
+              const template = firstSessionFollowUpEmail(u.first_name, memoryNote)
+              await sendEmail({ to: u.email, ...template })
+              await db.from('users').update({ first_followup_sent_at: now.toISOString() }).eq('id', u.id)
+              followUp.sent++
+              await new Promise(r => setTimeout(r, 200))
+            } catch {
+              followUp.failed++
+            }
+          }
+        }
+      }
+
+      results.lifecycle = { activation, followUp }
+    } catch (err) {
+      results.lifecycle = { error: String(err) }
     }
   }
 
@@ -324,6 +448,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     info: 'POST to this endpoint with x-cron-secret header to trigger digests.',
-    modes: ['user_digest', 'admin_digest', 'welcome_backfill', 'memory_checkin', 'all'],
+    modes: ['user_digest', 'admin_digest', 'welcome_backfill', 'memory_checkin', 'lifecycle', 'all'],
   })
 }

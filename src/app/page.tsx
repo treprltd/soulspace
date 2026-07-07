@@ -48,25 +48,25 @@ export default function Home() {
 
       {/* ── Hero — one clear value proposition, one call to action ── */}
       <section className="flex flex-col items-center text-center px-6 pt-20 pb-16 max-w-2xl mx-auto">
-        <div className="eyebrow mb-6 justify-center">
+        <div className="eyebrow mb-6 justify-center rise-in">
           <span>Guided emotional reflection</span>
         </div>
 
         <h1
-          className="font-serif font-light leading-tight mb-6"
+          className="font-serif font-light leading-tight mb-6 rise-in-1"
           style={{ fontSize: 'clamp(36px, 8vw, 68px)', color: 'var(--sand2)' }}
         >
           Understand what you feel —<br />
           <em className="text-gold2">before you act on it.</em>
         </h1>
 
-        <p className="text-lg text-sand max-w-lg mb-10 leading-relaxed">
+        <p className="text-lg text-sand max-w-lg mb-10 leading-relaxed rise-in-2">
           Soul Space is a private, guided space for emotional reflection. Take a few
           quiet minutes, and get back a clearer view of what&apos;s really going on inside.
         </p>
 
         {isAuthenticated ? (
-          <div className="flex flex-col items-center gap-3 w-full max-w-sm">
+          <div className="flex flex-col items-center gap-3 w-full max-w-sm rise-in-3">
             {emailPrefix && (
               <p className="text-sm text-mist">
                 Welcome back, <span className="text-sand">{emailPrefix}</span>.
@@ -80,7 +80,7 @@ export default function Home() {
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 w-full max-w-sm">
+          <div className="flex flex-col items-center gap-3 w-full max-w-sm rise-in-3">
             <Link href="/age-gate" className="btn-primary px-10 py-4 w-full text-center">
               Try a free reflection →
             </Link>
@@ -122,19 +122,19 @@ export default function Home() {
           you shared. Not advice. Not a diagnosis. Just what seems to be underneath.
         </p>
 
-        <div className="mirror-card">
+        <div className="mirror-card card-lift">
           <div className="mirror-label text-gold mb-2">What you&apos;re carrying</div>
           <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '22px', lineHeight: '1.8' }}>
             {MIRROR_EXAMPLE.carrying}
           </p>
         </div>
-        <div className="mirror-card">
+        <div className="mirror-card card-lift">
           <div className="mirror-label text-gold mb-2">What appears underneath</div>
           <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '22px', lineHeight: '1.8' }}>
             {MIRROR_EXAMPLE.underneath}
           </p>
         </div>
-        <div className="rounded-xl p-5" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
+        <div className="rounded-xl p-5 card-lift" style={{ background: 'rgba(42,140,122,.08)', border: '1px solid rgba(42,140,122,.2)' }}>
           <div className="mirror-label mb-2" style={{ color: 'var(--teal2)' }}>One question back to you</div>
           <p className="font-serif italic text-sand2 leading-snug" style={{ fontSize: '22px' }}>
             {MIRROR_EXAMPLE.question}

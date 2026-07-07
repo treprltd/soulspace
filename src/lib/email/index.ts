@@ -332,6 +332,61 @@ export function reEngagementEmail(daysSinceLastSession: number): { subject: stri
 }
 
 /**
+ * Lifecycle nudge #1 — sent ONCE to a registered user who has never started
+ * a session, ~2 days after signup. Tone rules follow the locked check-in
+ * research (src/lib/copy/memory.ts): no elapsed-time guilt, no "we miss you",
+ * no streaks. Convince by lowering the barrier, not by pressure.
+ */
+export function activationNudgeEmail(firstName?: string | null): { subject: string; htmlContent: string; textContent: string } {
+  const name = firstName?.trim()
+  return {
+    subject: 'Your first reflection is ready when you are.',
+    htmlContent: emailShell(
+      `${heading(name ? `${name}, whenever you&rsquo;re ready —` : 'Whenever you&rsquo;re ready —')}
+       ${para('You created a Soul Space account, which usually means something was sitting with you that day. It may still be. It may have changed shape. Either way, your first reflection is here when you want it.')}
+       ${para('It takes 3–5 minutes. There\'s nothing to prepare and nothing to get right — you pick what feels closest, answer a few gentle questions, and the Mirror reflects back what seems to be underneath. No advice. No judgment. No diagnosis.')}
+       ${alertBox('Your first reflection is free, and everything you share is encrypted before it\'s stored. We can\'t read it — and we never try.')}
+       ${btn('Take your first reflection →', `${APP_URL}/age-gate`)}`,
+      'Your first Soul Space reflection takes 3–5 minutes. Nothing to prepare.',
+      'You received this once because you created a Soul Space account and haven\'t tried a session yet. We won\'t send it again.',
+    ),
+    textContent: `${name ? `${name}, whenever` : 'Whenever'} you're ready —\n\nYou created a Soul Space account, which usually means something was sitting with you that day. Your first reflection is here when you want it.\n\nIt takes 3–5 minutes. Nothing to prepare, nothing to get right. No advice, no judgment, no diagnosis.\n\nTake your first reflection: ${APP_URL}/age-gate\n\nYou'll only receive this note once.`,
+  }
+}
+
+/**
+ * Lifecycle nudge #2 — sent ONCE, 3–4 days after a user's FIRST completed
+ * session, if they haven't returned. Mirrors the on-site "come back in 3–4
+ * days" invitation shown at the end of the first session, and mentions the
+ * memory greeting so the return feels continuous rather than starting over.
+ * Includes exactly one quiet line about Essentials (no hard sell).
+ */
+export function firstSessionFollowUpEmail(
+  firstName?: string | null,
+  memoryNote?: string | null,
+): { subject: string; htmlContent: string; textContent: string } {
+  const name = firstName?.trim()
+  const note = memoryNote?.trim()
+  const opening = note
+    ? `A few days ago, you set something down here — something about ${note}. Reflections like that tend to settle over days, not minutes.`
+    : 'A few days ago, you set something down here. Reflections like that tend to settle over days, not minutes.'
+  return {
+    subject: 'How has it sat with you?',
+    htmlContent: emailShell(
+      `${heading(name ? `${name} —` : 'Hello again —')}
+       ${para(opening)}
+       ${para('If you\'d like a few quiet minutes to notice what\'s shifted — or what hasn\'t — the space is here. Soul Space remembers the shape of your last visit, so your next reflection starts where that one ended, not from zero.')}
+       ${para('There\'s no right amount of time to wait, and nothing to report back. This is simply an open door.')}
+       ${btn('Return and see what\'s shifted →', `${APP_URL}/age-gate`)}
+       ${para(`<span style="font-size:12px;color:#9AA8B5;">Your free reflection renews monthly. If you\'d like one whenever something feels heavy, Essentials is $9.99/month — unlimited reflections, full history.</span>`)}`,
+      'What you set down a few days ago may have settled. The space is here.',
+      'You received this once because you completed your first Soul Space session. We won\'t send it again.',
+    ),
+    textContent: `${name ? `${name} —` : 'Hello again —'}\n\n${note ? `A few days ago, you set something down here — something about ${note}.` : 'A few days ago, you set something down here.'} Reflections like that tend to settle over days, not minutes.\n\nIf you'd like a few quiet minutes to notice what's shifted, the space is here. Soul Space remembers the shape of your last visit, so your next reflection starts where that one ended.\n\nReturn: ${APP_URL}/age-gate\n\nYour free reflection renews monthly. Essentials is $9.99/month — unlimited reflections, full history.\n\nYou'll only receive this note once.`,
+  }
+}
+
+/**
  * Sent only to users who opted in via check_in_frequency (off by default).
  * Wraps the locked copy from src/lib/copy/memory.ts (checkInEmail) into the
  * email-shell template. The copy itself is frozen — do not alter wording here;

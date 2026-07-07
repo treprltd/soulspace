@@ -454,6 +454,10 @@ export default function Dashboard() {
                 <Link href="/pricing" className="btn-primary text-xs w-full block text-center py-2">
                   Upgrade for unlimited sessions →
                 </Link>
+                <p className="text-[16px] leading-relaxed mt-2 text-center" style={{ color: 'rgba(213,226,235,.6)' }}>
+                  Reflect whenever something is sitting heavily — not once a month.
+                  Your history and patterns build with every visit.
+                </p>
               </div>
             ) : (
               /* Paid tier */

@@ -102,7 +102,7 @@ export default function Pricing() {
 
           {/* Free */}
           <div
-            className="rounded-xl p-5 flex flex-col"
+            className="rounded-xl p-5 flex flex-col card-lift"
             style={{
               background: 'rgba(15,30,46,.5)',
               border: isCurrentPlan('free') ? '1px solid rgba(201,168,76,.4)' : '1px solid rgba(245,237,216,.06)',
@@ -141,14 +141,15 @@ export default function Pricing() {
             )}
           </div>
 
-          {/* Essentials */}
+          {/* Essentials — visually elevated as the recommended plan */}
           <div
-            className="rounded-xl pt-9 px-5 pb-5 flex flex-col relative"
+            className="rounded-xl pt-9 px-5 pb-5 flex flex-col relative card-lift md:scale-[1.03]"
             style={{
-              background: isCurrentPlan('essentials') ? 'rgba(201,168,76,.06)' : 'rgba(15,30,46,.7)',
+              background: isCurrentPlan('essentials') ? 'rgba(201,168,76,.06)' : 'rgba(15,30,46,.8)',
               border: isCurrentPlan('essentials')
                 ? '1px solid rgba(201,168,76,.5)'
-                : '1px solid rgba(201,168,76,.25)',
+                : '1px solid rgba(201,168,76,.35)',
+              boxShadow: '0 12px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(201,168,76,.08)',
             }}
           >
             {!isCurrentPlan('essentials') && (
@@ -195,7 +196,7 @@ export default function Pricing() {
 
           {/* Insights */}
           <div
-            className="rounded-xl p-5 flex flex-col"
+            className="rounded-xl p-5 flex flex-col card-lift"
             style={{
               background: isCurrentPlan('insights') ? 'rgba(201,168,76,.06)' : 'rgba(15,30,46,.5)',
               border: isCurrentPlan('insights')
@@ -234,6 +235,26 @@ export default function Pricing() {
                 Get Insights →
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Why members upgrade — the value behind the price */}
+        <div
+          className="mt-10 rounded-2xl px-6 py-7"
+          style={{ background: 'rgba(201,168,76,.04)', border: '1px solid rgba(201,168,76,.14)' }}
+        >
+          <div className="eyebrow mb-4 justify-center">Why members upgrade</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5 text-center sm:text-left">
+            {([
+              ['No monthly wait', 'The free plan gives you one reflection a month. Members return whenever something is sitting heavily — that day, that hour.'],
+              ['Your history builds meaning', 'Each saved session adds to your pattern over time. The more you return, the more clearly Soul Space can reflect what keeps coming back.'],
+              ['A season you can watch shift', 'Insights members see their season trend across visits — the long arc of what they\'ve been carrying, not just one snapshot.'],
+            ] as [string, string][]).map(([title, body]) => (
+              <div key={title}>
+                <div className="font-serif text-gold2 mb-1.5" style={{ fontSize: '21px' }}>{title}</div>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(213,226,235,.72)' }}>{body}</p>
+              </div>
+            ))}
           </div>
         </div>
 
