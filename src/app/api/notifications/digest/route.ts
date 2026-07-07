@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendEmail, welcomeEmail, reEngagementEmail, adminDailyDigestEmail, checkInDigestEmail, activationNudgeEmail, firstSessionFollowUpEmail } from '@/lib/email'
+import { signInLink } from '@/lib/email/signInLink'
 import { decrypt } from '@/lib/encryption'
 
 // ── Re-engagement digest + admin daily digest + welcome backfill ───────────────
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
               // Days since last session
               const lastAt = latestSession[u.id]
               const daysSince = Math.round((now.getTime() - new Date(lastAt).getTime()) / (1000 * 60 * 60 * 24))
-              const template = reEngagementEmail(daysSince)
+              const template = reEngagementEmail(daysSince, await signInLink(db, u.email))
               await sendEmail({ to: u.email, ...template })
 
               // Stamp the send time so we don't re-send within the cooldown window
@@ -206,7 +207,7 @@ export async function POST(req: NextRequest) {
         for (const u of eligible) {
           if (!u.email) continue
           try {
-            const template = activationNudgeEmail(u.first_name)
+            const template = activationNudgeEmail(u.first_name, await signInLink(db, u.email))
             await sendEmail({ to: u.email, ...template })
             await db.from('users').update({ activation_nudge_sent_at: now.toISOString() }).eq('id', u.id)
             activation.sent++
@@ -261,7 +262,7 @@ export async function POST(req: NextRequest) {
             } catch { memoryNote = null }
 
             try {
-              const template = firstSessionFollowUpEmail(u.first_name, memoryNote)
+              const template = firstSessionFollowUpEmail(u.first_name, memoryNote, await signInLink(db, u.email))
               await sendEmail({ to: u.email, ...template })
               await db.from('users').update({ first_followup_sent_at: now.toISOString() }).eq('id', u.id)
               followUp.sent++
@@ -360,7 +361,7 @@ export async function POST(req: NextRequest) {
             const firstName = u.first_name?.trim() || 'there'
             // Rotate subject lines by total sends so the same person doesn't
             // always see the same one — purely cosmetic per checkInEmail's contract.
-            const template = checkInDigestEmail(firstName, memoryNote, sent)
+            const template = checkInDigestEmail(firstName, memoryNote, sent, await signInLink(db, u.email))
             await sendEmail({ to: u.email, ...template })
 
             await db
@@ -412,7 +413,7 @@ export async function POST(req: NextRequest) {
         for (const u of pendingUsers) {
           if (!u.email) continue
           try {
-            const template = welcomeEmail()
+            const template = welcomeEmail(await signInLink(db, u.email))
             await sendEmail({ to: u.email, ...template })
 
             // Stamp so we never send twice

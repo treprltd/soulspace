@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/supabase/getAuthUser'
 import { sendEmail, welcomeEmail } from '@/lib/email'
+import { signInLink } from '@/lib/email/signInLink'
 
 // Called client-side after the very first sign-in (new account).
 // Idempotent — checks welcome_email_sent_at column (set at first send).
@@ -36,7 +37,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ skipped: true, reason: 'no_email' })
     }
 
-    const template = welcomeEmail()
+    // CTA carries a one-time sign-in token — the welcome email is often opened
+    // on a different device than the one the user registered on.
+    const template = welcomeEmail(await signInLink(service, email))
     await sendEmail({ to: email, ...template })
 
     // Mark as sent — prevents duplicate sends on future sign-ins

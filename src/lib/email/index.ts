@@ -193,8 +193,12 @@ function alertBox(text: string, borderColor = '#C9A84C'): string {
 
 // ── Email templates ───────────────────────────────────────────────────────────
 
-/** Sent when a user signs in for the very first time (new account created). */
-export function welcomeEmail(): { subject: string; htmlContent: string; textContent: string } {
+/**
+ * Sent when a user signs in for the very first time (new account created).
+ * `ctaUrl` may carry a one-time sign-in link (see /auth/email) so the click
+ * lands the reader already authenticated; defaults to the plain page.
+ */
+export function welcomeEmail(ctaUrl = `${APP_URL}/age-gate`): { subject: string; htmlContent: string; textContent: string } {
   return {
     subject: 'You found a quiet place.',
     htmlContent: emailShell(
@@ -202,11 +206,11 @@ export function welcomeEmail(): { subject: string; htmlContent: string; textCont
        ${para('You do not need to have it figured out yet. Soul Space is a quiet 5–10 minute space to hear what you are carrying — without judgment, without advice, without a diagnosis.')}
        ${para('Pick what feels closest. The Mirror reflects it back. That\'s it.')}
        ${alertBox('Everything you share is end-to-end encrypted. We can\'t read it — and we never try.')}
-       ${btn('Begin your first session →', `${APP_URL}/age-gate`)}`,
+       ${btn('Begin your first session →', ctaUrl)}`,
       'Your Soul Space account is ready.',
       'You received this because you created a Soul Space account.',
     ),
-    textContent: `Whatever brought you here — you do not need to have it figured out yet.\n\nSoul Space is a quiet 5–10 minute space to hear what you are carrying. No judgment, no advice, no diagnosis.\n\nBegin your first session: ${APP_URL}/age-gate`,
+    textContent: `Whatever brought you here — you do not need to have it figured out yet.\n\nSoul Space is a quiet 5–10 minute space to hear what you are carrying. No judgment, no advice, no diagnosis.\n\nBegin your first session: ${ctaUrl}`,
   }
 }
 
@@ -309,7 +313,7 @@ export function accountDeletionEmail(): { subject: string; htmlContent: string; 
 }
 
 /** Sent to inactive users who haven't had a session in 7+ days. */
-export function reEngagementEmail(daysSinceLastSession: number): { subject: string; htmlContent: string; textContent: string } {
+export function reEngagementEmail(daysSinceLastSession: number, ctaUrl = `${APP_URL}/age-gate`): { subject: string; htmlContent: string; textContent: string } {
   const subjects = [
     'Whenever you\'re ready.',
     'The pause is still here.',
@@ -323,11 +327,11 @@ export function reEngagementEmail(daysSinceLastSession: number): { subject: stri
       `${heading('You don\'t need to have it figured out.')}
        ${para('Soul Space isn\'t something you need to use every day. There\'s no schedule. No streak to maintain.')}
        ${para('But if something\'s been sitting with you — something you haven\'t quite been able to name — this is a quiet place to put it down for a moment.')}
-       ${btn('Return whenever you\'re ready →', `${APP_URL}/age-gate`)}`,
+       ${btn('Return whenever you\'re ready →', ctaUrl)}`,
       'Soul Space is here whenever you\'re ready.',
       'To stop receiving these emails, visit your account settings.',
     ),
-    textContent: `Soul Space is here whenever you're ready.\n\nNo schedule. No streak to maintain. Just a quiet place for what you're carrying.\n\nReturn: ${APP_URL}/age-gate\n\nTo unsubscribe: ${APP_URL}/settings`,
+    textContent: `Soul Space is here whenever you're ready.\n\nNo schedule. No streak to maintain. Just a quiet place for what you're carrying.\n\nReturn: ${ctaUrl}\n\nTo unsubscribe: ${APP_URL}/settings`,
   }
 }
 
@@ -337,7 +341,7 @@ export function reEngagementEmail(daysSinceLastSession: number): { subject: stri
  * research (src/lib/copy/memory.ts): no elapsed-time guilt, no "we miss you",
  * no streaks. Convince by lowering the barrier, not by pressure.
  */
-export function activationNudgeEmail(firstName?: string | null): { subject: string; htmlContent: string; textContent: string } {
+export function activationNudgeEmail(firstName?: string | null, ctaUrl = `${APP_URL}/age-gate`): { subject: string; htmlContent: string; textContent: string } {
   const name = firstName?.trim()
   return {
     subject: 'Your first reflection is ready when you are.',
@@ -346,11 +350,11 @@ export function activationNudgeEmail(firstName?: string | null): { subject: stri
        ${para('You created a Soul Space account, which usually means something was sitting with you that day. It may still be. It may have changed shape. Either way, your first reflection is here when you want it.')}
        ${para('It takes 3–5 minutes. There\'s nothing to prepare and nothing to get right — you pick what feels closest, answer a few gentle questions, and the Mirror reflects back what seems to be underneath. No advice. No judgment. No diagnosis.')}
        ${alertBox('Your first reflection is free, and everything you share is encrypted before it\'s stored. We can\'t read it — and we never try.')}
-       ${btn('Take your first reflection →', `${APP_URL}/age-gate`)}`,
+       ${btn('Take your first reflection →', ctaUrl)}`,
       'Your first Soul Space reflection takes 3–5 minutes. Nothing to prepare.',
       'You received this once because you created a Soul Space account and haven\'t tried a session yet. We won\'t send it again.',
     ),
-    textContent: `${name ? `${name}, whenever` : 'Whenever'} you're ready —\n\nYou created a Soul Space account, which usually means something was sitting with you that day. Your first reflection is here when you want it.\n\nIt takes 3–5 minutes. Nothing to prepare, nothing to get right. No advice, no judgment, no diagnosis.\n\nTake your first reflection: ${APP_URL}/age-gate\n\nYou'll only receive this note once.`,
+    textContent: `${name ? `${name}, whenever` : 'Whenever'} you're ready —\n\nYou created a Soul Space account, which usually means something was sitting with you that day. Your first reflection is here when you want it.\n\nIt takes 3–5 minutes. Nothing to prepare, nothing to get right. No advice, no judgment, no diagnosis.\n\nTake your first reflection: ${ctaUrl}\n\nYou'll only receive this note once.`,
   }
 }
 
@@ -364,6 +368,7 @@ export function activationNudgeEmail(firstName?: string | null): { subject: stri
 export function firstSessionFollowUpEmail(
   firstName?: string | null,
   memoryNote?: string | null,
+  ctaUrl = `${APP_URL}/age-gate`,
 ): { subject: string; htmlContent: string; textContent: string } {
   const name = firstName?.trim()
   const note = memoryNote?.trim()
@@ -377,12 +382,12 @@ export function firstSessionFollowUpEmail(
        ${para(opening)}
        ${para('If you\'d like a few quiet minutes to notice what\'s shifted — or what hasn\'t — the space is here. Soul Space remembers the shape of your last visit, so your next reflection starts where that one ended, not from zero.')}
        ${para('There\'s no right amount of time to wait, and nothing to report back. This is simply an open door.')}
-       ${btn('Return and see what\'s shifted →', `${APP_URL}/age-gate`)}
+       ${btn('Return and see what\'s shifted →', ctaUrl)}
        ${para(`<span style="font-size:12px;color:#9AA8B5;">Your free reflection renews monthly. If you\'d like one whenever something feels heavy, Essentials is $9.99/month — unlimited reflections, full history.</span>`)}`,
       'What you set down a few days ago may have settled. The space is here.',
       'You received this once because you completed your first Soul Space session. We won\'t send it again.',
     ),
-    textContent: `${name ? `${name} —` : 'Hello again —'}\n\n${note ? `A few days ago, you set something down here — something about ${note}.` : 'A few days ago, you set something down here.'} Reflections like that tend to settle over days, not minutes.\n\nIf you'd like a few quiet minutes to notice what's shifted, the space is here. Soul Space remembers the shape of your last visit, so your next reflection starts where that one ended.\n\nReturn: ${APP_URL}/age-gate\n\nYour free reflection renews monthly. Essentials is $9.99/month — unlimited reflections, full history.\n\nYou'll only receive this note once.`,
+    textContent: `${name ? `${name} —` : 'Hello again —'}\n\n${note ? `A few days ago, you set something down here — something about ${note}.` : 'A few days ago, you set something down here.'} Reflections like that tend to settle over days, not minutes.\n\nIf you'd like a few quiet minutes to notice what's shifted, the space is here. Soul Space remembers the shape of your last visit, so your next reflection starts where that one ended.\n\nReturn: ${ctaUrl}\n\nYour free reflection renews monthly. Essentials is $9.99/month — unlimited reflections, full history.\n\nYou'll only receive this note once.`,
   }
 }
 
@@ -395,7 +400,8 @@ export function firstSessionFollowUpEmail(
 export function checkInDigestEmail(
   firstName: string,
   memoryNote: string | null | undefined,
-  subjectIndex = 0
+  subjectIndex = 0,
+  ctaUrl = `${APP_URL}/age-gate`,
 ): { subject: string; htmlContent: string; textContent: string } {
   const content = checkInEmail(firstName, memoryNote, subjectIndex)
   const paragraphs = content.body.split('\n\n')
@@ -405,11 +411,11 @@ export function checkInDigestEmail(
     htmlContent: emailShell(
       `${heading(content.greeting)}
        ${paragraphs.map(p => para(p)).join('\n')}
-       ${btn(content.cta, `${APP_URL}/age-gate`)}`,
+       ${btn(content.cta, ctaUrl)}`,
       content.subject,
       content.footer,
     ),
-    textContent: `${content.greeting}\n\n${content.body}\n\n${content.cta.replace(' →', '')}: ${APP_URL}/age-gate\n\n${content.footer}`,
+    textContent: `${content.greeting}\n\n${content.body}\n\n${content.cta.replace(' →', '')}: ${ctaUrl}\n\n${content.footer}`,
   }
 }
 
