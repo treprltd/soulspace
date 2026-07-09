@@ -104,6 +104,12 @@ const nextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      {
+        // Apple Universal Links: the AASA file is extensionless, so Next would
+        // otherwise serve it as octet-stream. Apple's CDN requires JSON.
+        source: '/.well-known/apple-app-site-association',
+        headers: [{ key: 'Content-Type', value: 'application/json' }],
+      },
     ]
   },
   // Embed server-side secrets at build time so they are available in the

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { FooterWrapper } from '@/components/ui/FooterWrapper'
 import { FeedbackWrapper } from '@/components/ui/FeedbackWrapper'
+import { PwaRegister } from '@/components/ui/PwaRegister'
 import './globals.css'
 
 // Self-hosted via next/font — eliminates the render-blocking Google Fonts
@@ -27,6 +28,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5, // allow user zoom for accessibility
+  themeColor: '#060E18', // status bar / installed-app chrome color
 }
 
 export const metadata: Metadata = {
@@ -38,6 +40,15 @@ export const metadata: Metadata = {
     description: 'The structured pause between emotional overload and consequential action.',
     type: 'website',
   },
+  // Installed-app (PWA / home screen) identity — manifest.ts carries the rest.
+  appleWebApp: {
+    capable: true,
+    title: 'Soul Space',
+    statusBarStyle: 'black-translucent',
+  },
+  icons: {
+    apple: '/icons/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="flex-1 flex flex-col">{children}</div>
         <FooterWrapper />
         <FeedbackWrapper />
+        <PwaRegister />
       </body>
     </html>
   )
