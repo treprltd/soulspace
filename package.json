@@ -25,18 +25,21 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
     "@capacitor/core": "^8.4.1",
-    "@getbrevo/brevo": "^2.0.0",
     "@sentry/nextjs": "^10.53.1",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.4",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
-    "next": "14.2.5",
+    "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
     "resend": "^3.2.0",
     "stripe": "^16.2.0",
     "zod": "^3.23.8"
+  },
+  "overrides": {
+    "@next/eslint-plugin-next": { "glob": "^10.5.0" },
+    "next": { ".": "14.2.35", "postcss": "^8.5.10" }
   },
   "devDependencies": {
     "@capacitor/cli": "^8.4.1",
@@ -48,7 +51,7 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5",
+    "eslint-config-next": "14.2.35",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
