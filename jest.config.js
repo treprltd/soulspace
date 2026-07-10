@@ -22,6 +22,11 @@ const config = {
   // Run them explicitly with: npm run test:safety  or  npm run test:mirror
   testPathIgnorePatterns: [
     '/node_modules/',
+    // Ignore spawned agent worktrees (.claude/worktrees/*): each holds a full
+    // copy of the repo, so testMatch would otherwise discover a duplicate suite
+    // there — doubling counts and surfacing failures from in-progress branches.
+    // jest's testMatch does not honor .gitignore.
+    '/\\.claude/',
     ...(!process.env.ANTHROPIC_API_KEY
       ? ['/__tests__/safety/', '/__tests__/mirror/']
       : []),
