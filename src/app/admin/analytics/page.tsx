@@ -179,10 +179,14 @@ function FunnelChart({ steps }: { steps: Array<{ step: string; count: number }> 
               <span style={{ fontSize: '16px', color: 'var(--sand)', minWidth: '140px' }}>
                 {FUNNEL_LABELS[s.step] ?? s.step}
               </span>
-              <div style={{ flex: 1, height: '20px', background: 'rgba(245,237,216,.04)', borderRadius: '3px', position: 'relative' }}>
+              <div style={{ flex: 1, height: '20px', background: 'rgba(245,237,216,.04)', borderRadius: '3px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{
                   height: '100%', borderRadius: '3px',
-                  width: `${pct}%`, background: color,
+                  // A later step can exceed the baseline (step 0) — e.g. the Mirror
+                  // re-rendering fires mirror_rendered more than once per session.
+                  // Cap the fill at a full track so it never overflows the card;
+                  // the true percentage is still shown in the numeric label.
+                  width: `${Math.min(pct, 100)}%`, background: color,
                   opacity: 0.7, transition: 'width .5s ease',
                 }} />
               </div>
