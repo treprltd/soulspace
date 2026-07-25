@@ -50,3 +50,6 @@ soulspace-feedback-export.xlsx
 
 # Generated E2E test reports (written by scripts/e2e-test.js)
 e2e-report*.md
+
+# Contact cleanup backups — may contain contact data, NEVER commit
+contact-test-backup-*.json
