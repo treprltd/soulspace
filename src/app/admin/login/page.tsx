@@ -9,7 +9,10 @@ export default function AdminLogin() {
   const params = useSearchParams()
   const from = params.get('from') ?? '/admin'
 
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [totp, setTotp] = useState('')
+  const [mfaRequired, setMfaRequired] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -21,13 +24,18 @@ export default function AdminLogin() {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({
+          email: email.trim() || undefined,
+          password,
+          totp: totp.trim() || undefined,
+        }),
       })
       if (res.ok) {
         router.push(from)
       } else {
-        const { error: msg } = await res.json()
-        setError(msg ?? 'Invalid password')
+        const data = await res.json() as { error?: string; mfa_required?: boolean }
+        if (data.mfa_required) setMfaRequired(true)
+        setError(data.error ?? 'Invalid credentials')
       }
     } catch {
       setError('Network error — try again')
@@ -61,15 +69,14 @@ export default function AdminLogin() {
               display: 'block', fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em',
               textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px',
             }}>
-              Admin Password
+              Email <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(leave blank for break-glass)</span>
             </label>
             <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoFocus
-              placeholder="Enter admin secret"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              autoComplete="username"
+              placeholder="you@soulspacehealth.org"
               style={{
                 width: '100%', padding: '12px 14px', fontSize: 'var(--fs-sm)',
                 fontFamily: 'var(--font-sans)', color: 'var(--sand)',
@@ -78,6 +85,54 @@ export default function AdminLogin() {
                 marginBottom: '16px',
               }}
             />
+
+            <label style={{
+              display: 'block', fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em',
+              textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px',
+            }}>
+              {email.trim() ? 'Password' : 'Admin Password'}
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              placeholder={email.trim() ? 'Your password' : 'Enter admin secret'}
+              style={{
+                width: '100%', padding: '12px 14px', fontSize: 'var(--fs-sm)',
+                fontFamily: 'var(--font-sans)', color: 'var(--sand)',
+                background: 'rgba(245,237,216,.04)', border: '1px solid rgba(245,237,216,.14)',
+                borderRadius: 'var(--r-md)', outline: 'none', boxSizing: 'border-box',
+                marginBottom: '16px',
+              }}
+            />
+
+            {(mfaRequired || email.trim()) && (
+              <>
+                <label style={{
+                  display: 'block', fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px',
+                }}>
+                  Authentication code <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(if MFA is enabled)</span>
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={totp}
+                  onChange={e => setTotp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  style={{
+                    width: '100%', padding: '12px 14px', fontSize: 'var(--fs-sm)',
+                    fontFamily: 'var(--font-sans)', color: 'var(--sand)', letterSpacing: '0.3em',
+                    background: 'rgba(245,237,216,.04)', border: '1px solid rgba(245,237,216,.14)',
+                    borderRadius: 'var(--r-md)', outline: 'none', boxSizing: 'border-box',
+                    marginBottom: '16px',
+                  }}
+                />
+              </>
+            )}
 
             {error && (
               <p style={{

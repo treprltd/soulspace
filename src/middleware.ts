@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminToken } from '@/lib/admin/session'
 
 // ---------------------------------------------------------------------------
 // Rate limiting via Upstash Redis + @upstash/ratelimit
@@ -127,7 +128,14 @@ export async function middleware(req: NextRequest) {
     const secret = process.env.ADMIN_SECRET
     const token  = req.cookies.get(ADMIN_COOKIE)?.value
 
-    if (!secret || token !== secret) {
+    // Accept EITHER a valid signed session token (per-person / break-glass
+    // logins) OR a legacy raw-secret cookie from a pre-rollout session
+    // (compliance finding #1 — the raw-secret path is the transitional
+    // break-glass, removed once everyone is on per-person accounts).
+    const legacyOk = !!secret && token === secret
+    const signedOk = token ? (await verifyAdminToken(token)) !== null : false
+
+    if (!legacyOk && !signedOk) {
       const loginUrl = req.nextUrl.clone()
       loginUrl.pathname = '/admin/login'
       loginUrl.searchParams.set('from', pathname)
