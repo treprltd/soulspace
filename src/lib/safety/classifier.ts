@@ -37,9 +37,12 @@ export async function classifySafety(text: string): Promise<SafetyResult> {
     messages: [{ role: 'user', content: text }],
   })
 
-  const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-
   try {
+    // Extract inside the try so an empty/unexpected completion shape (e.g. no
+    // content blocks) also routes to the fail-safe path below rather than
+    // throwing an uncaught TypeError.
+    const first = response.content[0]
+    const raw = first && first.type === 'text' ? first.text : ''
     const jsonMatch = raw.match(/\{[\s\S]*\}/)
     if (!jsonMatch) throw new Error('No JSON found in response')
     const parsed = JSON.parse(jsonMatch[0]) as SafetyResult
@@ -49,7 +52,13 @@ export async function classifySafety(text: string): Promise<SafetyResult> {
       confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
     }
   } catch {
-    // Parse failure: err on the side of caution — do not flag unless clear signal
-    return { flagged: false, flagType: null, confidence: 0 }
+    // FAIL SAFE (compliance finding #3): a malformed / unparseable classifier
+    // response must NOT be treated as "safe". For a crisis classifier the
+    // dangerous failure is a false negative — a real crisis let through with no
+    // handling. When we cannot get a definitive read, route to the flagged path
+    // so the Mirror is suppressed and crisis resources are shown. A false
+    // positive (crisis UI for a non-crisis) is the acceptable side of this
+    // trade-off; a missed crisis is not.
+    return { flagged: true, flagType: 'acute_crisis', confidence: 0 }
   }
 }
