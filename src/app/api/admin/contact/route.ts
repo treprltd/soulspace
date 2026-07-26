@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
 import { getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
 import { getDefaultAdminEnv } from '@/lib/admin/env'
+import { logAdminAction, clientIp } from '@/lib/admin/audit'
 import { sendEmail, contactReplyEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
@@ -88,6 +89,12 @@ export async function POST(req: NextRequest) {
     .eq('id', id)
 
   if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 })
+
+  void logAdminAction({
+    env, action: 'contact.reply',
+    targetType: 'contact_submission', targetId: id,
+    metadata: { to: sub.email, category: sub.category }, ip: clientIp(req),
+  })
 
   return NextResponse.json({ ok: true })
 }

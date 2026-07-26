@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
 import { getAdminClientSafe, AdminEnv } from '@/lib/admin/db'
 import { getDefaultAdminEnv } from '@/lib/admin/env'
+import { logAdminAction, clientIp } from '@/lib/admin/audit'
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -91,6 +92,12 @@ export async function PATCH(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  void logAdminAction({
+    env, action: 'user.plan_change',
+    targetType: 'user', targetId: id,
+    metadata: { plan_tier }, ip: clientIp(req),
+  })
 
   return NextResponse.json({ ok: true })
 }

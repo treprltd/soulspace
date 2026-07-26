@@ -11,8 +11,8 @@ Core loop: Affirm → Ask → Reflect. Every session follows this sequence.
 - AI Mirror: Claude Sonnet 4.6 (claude-sonnet-4-6)
 - AI Safety: Claude Haiku (claude-haiku-4-5-20251001)
 - Encryption: AES-256-GCM via Node crypto module
-- Hosting: Vercel (frontend) + Supabase (backend)
-- Email: Resend
+- Hosting: AWS Amplify (frontend, Gen 1 SSR) + Supabase (backend)
+- Email: Brevo (transactional, called via REST API in src/lib/email)
 - Auth: Supabase magic link (email only, no passwords)
 - Analytics: Self-hosted event table in Supabase only (no 3rd party)
 

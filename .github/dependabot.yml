@@ -1,0 +1,28 @@
+# Automated dependency updates (compliance finding #8).
+# Weekly PRs for npm and GitHub Actions; production runtime deps are grouped
+# so review stays manageable. Security updates from GitHub's advisory database
+# are raised regardless of schedule.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "ci"

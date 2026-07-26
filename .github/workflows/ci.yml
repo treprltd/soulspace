@@ -45,20 +45,29 @@ jobs:
           cache: 'npm'
       - run: npm ci
 
-      - name: Dependency vulnerability audit (high+critical only)
-        # --audit-level=high — warn on high, fail on critical
+      - name: Dependency vulnerability audit (blocks on critical)
+        # Blocks the pipeline if any CRITICAL advisory is present (compliance
+        # finding #8). High/moderate transitive vulns still surface in the log
+        # but do not fail — those are triaged via the Dependabot PRs configured
+        # in .github/dependabot.yml.
         run: npm audit --audit-level=critical
-        continue-on-error: true   # don't block PRs on transitive vulns; review manually
 
-      - name: Check for secrets in source code
+  # ── Secret scanning (gitleaks) ────────────────────────────────────────────
+  # Real secret-scanning tool in place of the previous hand-written regex
+  # (compliance finding #9). Runs in its own job with NO `npm ci`, so
+  # node_modules never exists to scan. Allowlist for fixtures/CI stubs lives in
+  # .gitleaks.toml.
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run gitleaks
         run: |
-          # Hard-fail if any API key pattern appears in src/
-          # (catches accidental commits of real keys)
-          if grep -rE "(sk-ant-api|sk_live_|sk_test_|ENCRYPTION_KEY\s*=\s*[0-9a-f]{64})" src/ --include="*.ts" --include="*.tsx"; then
-            echo "❌ Potential secret found in src/ — commit rejected"
-            exit 1
-          fi
-          echo "✓ No secret patterns found in src/"
+          VERSION=8.21.2
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect --no-git --source . --redact --no-banner --config .gitleaks.toml
 
   # ── Build + Bundle size check ─────────────────────────────────────────────
   build:

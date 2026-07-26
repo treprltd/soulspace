@@ -1,0 +1,26 @@
+title = "Soul Space gitleaks config"
+
+# Use gitleaks' built-in rule set, then allowlist the things that look like
+# secrets but are not (test fixtures, example files, CI stub values). Tune this
+# file if the first CI run flags a known-safe placeholder.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures, examples, docs, and CI stub values are not real secrets"
+paths = [
+  '''(^|/)__tests__/''',
+  '''\.example$''',
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)docs/''',
+  # Never scan generated/vendored trees (defensive — the CI job runs without
+  # npm ci, but keep this so local `gitleaks detect` stays clean too).
+  '''(^|/)node_modules/''',
+  '''(^|/)\.next/''',
+]
+regexes = [
+  # CI stub values in .github/workflows/ci.yml
+  '''ci_stub[_a-z0-9]*''',
+  # Documented reserved test domains, never real credentials
+  '''@example\.(com|org|net)''',
+]
