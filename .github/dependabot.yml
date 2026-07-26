@@ -10,36 +10,20 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 10
-    # Framework/tooling majors require a coordinated manual migration (tracked
-    # separately, e.g. Next 14→16 / React 19). Auto-PRs for those only break CI,
-    # so ignore semver-major for them — minor/patch (incl. security) still flow.
     ignore:
-      - dependency-name: "next"
+      # Block ALL major bumps repo-wide. Majors need a deliberate, tested
+      # migration (Next 14→16 / React 19, Tailwind 3→4, TypeScript 5→7, Stripe,
+      # Resend, …) — an auto-PR only breaks CI. Minor/patch, including security
+      # fixes, still flow and are safe to merge.
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "eslint-config-next"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "react-dom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "eslint"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "jest-environment-jsdom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@testing-library/react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@testing-library/jest-dom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@supabase/ssr"
-        update-types: ["version-update:semver-major"]
+      # 0.x packages: for these, "minor" carries breaking changes, so restrict
+      # to patch-only — avoids breaking jumps like @supabase/ssr 0.3→0.12 and
+      # @anthropic-ai/sdk 0.24→0.115, both of which need a manual migration.
       - dependency-name: "@anthropic-ai/sdk"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "@supabase/ssr"
+        update-types: ["version-update:semver-minor"]
     groups:
       production-dependencies:
         dependency-type: "production"
