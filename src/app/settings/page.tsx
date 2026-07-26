@@ -42,6 +42,7 @@ export default function Settings() {
   const [deleting, setDeleting] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
@@ -217,6 +218,32 @@ export default function Settings() {
     } catch {
       setDeleting(false)
       setConfirmDelete(false)
+    }
+  }
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+      const res = await fetch('/api/user/data', { headers })
+      if (!res.ok) throw new Error('export failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `soul-space-data-export-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      // best-effort — nothing sensitive to surface on failure
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -679,6 +706,30 @@ export default function Settings() {
           )}
         </div>
 
+        {/* ── Export data ── */}
+        <div
+          className="rounded-xl p-4 mb-4"
+          style={{ background: 'rgba(15,30,46,.6)', border: '1px solid rgba(245,237,216,.05)' }}
+        >
+          <div
+            className="text-[17px] tracking-[.11em] uppercase text-mist mb-3 pb-1.5"
+            style={{ borderBottom: '1px solid rgba(245,237,216,.04)' }}
+          >
+            Export your data
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="w-full py-2.5 text-sm rounded-lg text-center mb-2 transition-opacity hover:opacity-80 disabled:opacity-50"
+            style={{ border: '1px solid rgba(201,168,76,.3)', color: 'var(--gold2)', background: 'transparent' }}
+          >
+            {exporting ? 'Preparing your download…' : 'Download my data →'}
+          </button>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
+            A complete copy of your account and reflections as a JSON file — decrypted for you. GDPR &amp; CCPA compliant.
+          </p>
+        </div>
+
         {/* ── Delete data ── */}
         <div
           className="rounded-xl p-4 mb-4"
@@ -714,7 +765,7 @@ export default function Settings() {
         </div>
 
         <p className="text-xs leading-relaxed" style={{ color: 'rgba(213,226,235,.60)' }}>
-          Phase 2 will add: toggle controls per data type, export, assessment reset, notification preferences.
+          Phase 2 will add: toggle controls per data type, assessment reset, notification preferences.
         </p>
       </div>
     </main>
