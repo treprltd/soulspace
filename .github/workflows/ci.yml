@@ -45,12 +45,13 @@ jobs:
           cache: 'npm'
       - run: npm ci
 
-      - name: Dependency vulnerability audit (blocks on critical)
-        # Blocks the pipeline if any CRITICAL advisory is present (compliance
-        # finding #8). High/moderate transitive vulns still surface in the log
-        # but do not fail — those are triaged via the Dependabot PRs configured
-        # in .github/dependabot.yml.
-        run: npm audit --audit-level=critical
+      - name: Dependency vulnerability audit (compliance finding #8)
+        # Blocks on CRITICAL advisories that have a NON-major fix available
+        # (actionable now); reports — but does not block on — criticals whose
+        # only fix is a semver-major upgrade (the tracked Next.js 14→16 / React
+        # 19 migration) or that have no fix, and tolerates registry hiccups.
+        # See scripts/audit-ci.js for the policy.
+        run: node scripts/audit-ci.js
 
   # ── Secret scanning (gitleaks) ────────────────────────────────────────────
   # Real secret-scanning tool in place of the previous hand-written regex

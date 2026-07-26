@@ -26,9 +26,10 @@ name: E2E API Tests
 #   and fires every notification path — check the inbox after the run.
 
 on:
+  # E2E tests run against the DEPLOYED URL (E2E_BASE_URL), so they only make
+  # sense after a merge deploys — not on PRs, which have not deployed and which
+  # (for Dependabot PRs) receive no secrets, so the preflight would always fail.
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   workflow_dispatch:
     inputs:
