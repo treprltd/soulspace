@@ -125,17 +125,14 @@ export async function middleware(req: NextRequest) {
   // 2. Admin route protection (unchanged from before)
   // ------------------------------------------------------------------
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const secret = process.env.ADMIN_SECRET
-    const token  = req.cookies.get(ADMIN_COOKIE)?.value
+    const token = req.cookies.get(ADMIN_COOKIE)?.value
 
-    // Accept EITHER a valid signed session token (per-person / break-glass
-    // logins) OR a legacy raw-secret cookie from a pre-rollout session
-    // (compliance finding #1 — the raw-secret path is the transitional
-    // break-glass, removed once everyone is on per-person accounts).
-    const legacyOk = !!secret && token === secret
+    // Signed session token only (compliance finding #1 — the legacy raw-secret
+    // cookie is no longer accepted). Break-glass logins also issue a signed
+    // token, so an emergency session still passes here.
     const signedOk = token ? (await verifyAdminToken(token)) !== null : false
 
-    if (!legacyOk && !signedOk) {
+    if (!signedOk) {
       const loginUrl = req.nextUrl.clone()
       loginUrl.pathname = '/admin/login'
       loginUrl.searchParams.set('from', pathname)

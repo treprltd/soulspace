@@ -13,13 +13,9 @@ export async function isAdminAuthenticated(): Promise<boolean> {
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return false
 
-  // Break-glass: a legacy raw-secret cookie from a session that predates the
-  // signed-token rollout (compliance finding #1). Kept so existing admins are
-  // not logged out on deploy; remove once everyone uses per-person accounts.
-  const secret = process.env.ADMIN_SECRET
-  if (secret && token === secret) return true
-
-  // Signed per-person / break-glass session token.
+  // Signed session token only. The legacy raw-secret cookie is no longer
+  // accepted (compliance finding #1 — break-glass retired). Emergency
+  // break-glass logins still issue a signed token, so they verify here too.
   return (await verifyAdminToken(token)) !== null
 }
 

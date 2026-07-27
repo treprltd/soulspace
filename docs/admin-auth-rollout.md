@@ -34,12 +34,31 @@ keeps working as a break-glass login until you deliberately retire it.*
    the 6-digit code. Confirm you reach the panel and that `admin_audit_log` shows
    an `admin.login` row with your email as `actor`.
 5. **Create the other admins** the same way. Each enrols their own MFA.
-6. **Only once everyone can log in per-person**, retire break-glass:
-   - Remove the two `token === secret` / `password === secret` break-glass
-     branches (in `auth.ts`, `middleware.ts`, and the auth route), and
-   - rotate `ADMIN_SECRET` to a fresh random value kept offline as a true
-     emergency key (or drop it entirely).
-   Do this as a separate small PR after step 5 is proven.
+6. **Only once everyone can log in per-person**, retire break-glass — done on
+   branch `retire-break-glass` (see below).
+
+## Break-glass retirement (branch `retire-break-glass`)
+
+Once per-person login is proven, this branch:
+- stops `isAdminAuthenticated` and the middleware from accepting a raw-secret
+  cookie — **signed tokens only**, and
+- disables the shared-secret login unless `ADMIN_BREAK_GLASS=on` is explicitly set.
+
+**Do not merge until:** `rema@` + MFA has logged in cleanly a few times, and
+ideally a **second** admin account exists (so one lost authenticator isn't a
+lock-out). Recovery if fully locked out is re-running `scripts/create-admin.js`
+with the Supabase service key.
+
+### Emergency break-glass (after retirement)
+If nobody can log in per-person:
+1. Set `ADMIN_BREAK_GLASS=on` in Amplify env vars → redeploy.
+2. Go to `/admin/login`, **leave email blank**, enter `ADMIN_SECRET`, sign in.
+3. Fix accounts (reset a password / re-run `create-admin.js`).
+4. **Remove `ADMIN_BREAK_GLASS`** (or set it to anything but `on`) → redeploy.
+
+The raw-secret cookie is never accepted again, so a leaked/guessed cookie can't
+authenticate even while break-glass is enabled — the emergency login still
+issues a normal signed token.
 
 ## Testing notes / limits
 

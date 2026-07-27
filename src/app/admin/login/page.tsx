@@ -69,13 +69,14 @@ export default function AdminLogin() {
               display: 'block', fontSize: 'var(--fs-3xs)', letterSpacing: '0.12em',
               textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '8px',
             }}>
-              Email <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(leave blank for break-glass)</span>
+              Email
             </label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               autoComplete="username"
+              autoFocus
               placeholder="you@soulspacehealth.org"
               style={{
                 width: '100%', padding: '12px 14px', fontSize: 'var(--fs-sm)',
@@ -158,7 +159,7 @@ export default function AdminLogin() {
           textAlign: 'center', marginTop: '16px',
           fontSize: 'var(--fs-3xs)', color: 'var(--mist-35)',
         }}>
-          Set <code style={{ fontFamily: 'monospace' }}>ADMIN_SECRET</code> in your environment to enable access.
+          Sign in with your admin account. Locked out? See the break-glass runbook.
         </p>
       </div>
     </main>
