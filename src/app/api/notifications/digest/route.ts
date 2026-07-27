@@ -258,7 +258,7 @@ export async function POST(req: NextRequest) {
                 .select('encrypted_memory_note')
                 .eq('session_id', sessionId)
                 .maybeSingle()
-              if (content?.encrypted_memory_note) memoryNote = decrypt(content.encrypted_memory_note)
+              if (content?.encrypted_memory_note) memoryNote = await decrypt(content.encrypted_memory_note)
             } catch { memoryNote = null }
 
             try {
@@ -351,7 +351,7 @@ export async function POST(req: NextRequest) {
               .eq('session_id', lastSession.id)
               .maybeSingle()
             if (content?.encrypted_memory_note) {
-              memoryNote = decrypt(content.encrypted_memory_note)
+              memoryNote = await decrypt(content.encrypted_memory_note)
             }
           } catch {
             memoryNote = null // fall back to the generic variant rather than fail the send

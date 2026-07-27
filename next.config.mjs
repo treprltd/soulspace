@@ -123,6 +123,12 @@ const nextConfig = {
     SUPABASE_SERVICE_ROLE_KEY:     _supabaseServiceKey,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
+    // KMS envelope encryption (compliance finding #4). When set, new writes use
+    // AWS KMS data keys; unset = legacy static-key path (no behaviour change).
+    // Must be baked in here — Amplify Gen 1 doesn't inject env vars into the
+    // Lambda at runtime. (AWS role credentials + AWS_REGION are injected by the
+    // Lambda platform itself, so the KMS SDK still authenticates via the role.)
+    ENCRYPTION_KMS_KEY_ID: process.env.ENCRYPTION_KMS_KEY_ID,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_ESSENTIALS_PRICE_ID: process.env.STRIPE_ESSENTIALS_PRICE_ID,

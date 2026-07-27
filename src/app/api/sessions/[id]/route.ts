@@ -42,10 +42,10 @@ export async function GET(
 
     if (content) {
       try {
-        if (content.encrypted_context) contextText = decrypt(content.encrypted_context)
+        if (content.encrypted_context) contextText = await decrypt(content.encrypted_context)
       } catch { /* decryption error — omit field */ }
       try {
-        if (content.encrypted_mirror_output) mirrorOutput = decrypt(content.encrypted_mirror_output)
+        if (content.encrypted_mirror_output) mirrorOutput = await decrypt(content.encrypted_mirror_output)
       } catch { /* decryption error — omit field */ }
     }
 

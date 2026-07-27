@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     if (content?.encrypted_memory_note) {
       try {
-        memoryNote = decrypt(content.encrypted_memory_note)
+        memoryNote = await decrypt(content.encrypted_memory_note)
       } catch {
         memoryNote = null // never let a decrypt failure surface or break the page
       }

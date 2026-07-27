@@ -99,8 +99,8 @@ export async function recoverSession(
   if (sessionError) return { ok: false, status: 500, error: sessionError.message }
 
   // ── Encrypt and save session content ───────────────────────────────────────
-  const { ciphertext: encryptedContext, keyRef } = encrypt(parsed.contextText)
-  const { ciphertext: encryptedMirror }           = encrypt(parsed.mirrorOutput)
+  const { ciphertext: encryptedContext, keyRef } = await encrypt(parsed.contextText)
+  const { ciphertext: encryptedMirror }           = await encrypt(parsed.mirrorOutput)
 
   await db.from('session_content').insert({
     session_id:              newSession.id,
