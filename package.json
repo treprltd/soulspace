@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
+    "@aws-sdk/client-kms": "^3.1095.0",
     "@capacitor/core": "^8.4.1",
     "@sentry/nextjs": "^10.53.1",
     "@supabase/ssr": "^0.3.0",
@@ -38,8 +39,13 @@
     "zod": "^3.23.8"
   },
   "overrides": {
-    "@next/eslint-plugin-next": { "glob": "^10.5.0" },
-    "next": { ".": "14.2.35", "postcss": "^8.5.10" }
+    "@next/eslint-plugin-next": {
+      "glob": "^10.5.0"
+    },
+    "next": {
+      ".": "14.2.35",
+      "postcss": "^8.5.10"
+    }
   },
   "devDependencies": {
     "@capacitor/cli": "^8.4.1",

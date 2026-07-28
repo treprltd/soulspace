@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
       const db = createServiceClient()
 
       // Encrypt and store session content
-      const { ciphertext: encryptedContext, keyRef } = encrypt(input.contextText)
-      const { ciphertext: encryptedMirror } = encrypt(JSON.stringify(mirrorOutput))
+      const { ciphertext: encryptedContext, keyRef } = await encrypt(input.contextText)
+      const { ciphertext: encryptedMirror } = await encrypt(JSON.stringify(mirrorOutput))
 
       // memoryNote is narrative-derived (a paraphrase of what the person
       // shared) — it must be encrypted at rest like everything else here.
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       // is suppressed for these, and so is memory.
       const encryptedMemoryNote = mirrorOutput.safetyFlagged || !mirrorOutput.memoryNote
         ? null
-        : encrypt(mirrorOutput.memoryNote).ciphertext
+        : (await encrypt(mirrorOutput.memoryNote)).ciphertext
 
       await db.from('session_content').insert({
         session_id: input.sessionId,

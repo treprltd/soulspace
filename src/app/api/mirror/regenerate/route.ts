@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
     if (user) {
       const db = createServiceClient()
 
-      const { ciphertext: encryptedMirror, keyRef } = encrypt(JSON.stringify(mirrorOutput))
+      const { ciphertext: encryptedMirror, keyRef } = await encrypt(JSON.stringify(mirrorOutput))
 
       // Crisis gate: never seed memory from a safety-flagged session — Season
       // is suppressed for these, and so is memory.
       const encryptedMemoryNote = mirrorOutput.safetyFlagged || !mirrorOutput.memoryNote
         ? null
-        : encrypt(mirrorOutput.memoryNote).ciphertext
+        : (await encrypt(mirrorOutput.memoryNote)).ciphertext
 
       await db
         .from('session_content')

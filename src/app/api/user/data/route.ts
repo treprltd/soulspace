@@ -31,9 +31,9 @@ export async function GET(req: NextRequest) {
     const sessionIds = (sessions ?? []).map(s => s.id)
 
     // Decrypt each content row for the export; never let one bad row abort it.
-    const decode = (c: string | null): string | null => {
+    const decode = async (c: string | null): Promise<string | null> => {
       if (!c) return null
-      try { return decrypt(c) } catch { return '[unable to decrypt]' }
+      try { return await decrypt(c) } catch { return '[unable to decrypt]' }
     }
     let sessionContent: Array<Record<string, unknown>> = []
     if (sessionIds.length > 0) {
@@ -41,19 +41,19 @@ export async function GET(req: NextRequest) {
         .from('session_content')
         .select('session_id, encrypted_context, encrypted_mirror_output, created_at')
         .in('session_id', sessionIds)
-      sessionContent = (rows ?? []).map(r => {
-        const mirror = decode(r.encrypted_mirror_output)
+      sessionContent = await Promise.all((rows ?? []).map(async r => {
+        const mirror = await decode(r.encrypted_mirror_output)
         let mirrorParsed: unknown = mirror
         if (mirror && mirror !== '[unable to decrypt]') {
           try { mirrorParsed = JSON.parse(mirror) } catch { /* keep raw */ }
         }
         return {
           session_id:    r.session_id,
-          context:       decode(r.encrypted_context),
+          context:       await decode(r.encrypted_context),
           mirror_output: mirrorParsed,
           created_at:    r.created_at,
         }
-      })
+      }))
     }
 
     const payload = {
