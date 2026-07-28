@@ -7,7 +7,7 @@ pending a deliberate merge/rollout.*
 | # | Finding | Priority | Status |
 |---|---|---|---|
 | 3 | Safety classifier fails open on parse error | High | ✅ Live |
-| 1 | Shared admin password; cookie = raw secret; no MFA | High | ✅ Live (per-person + MFA); break-glass retirement on branch |
+| 1 | Shared admin password; cookie = raw secret; no MFA | High | ✅ Live (per-person + MFA; break-glass retired) |
 | 2 | No admin action audit log | High | ✅ Live (migration 020 applied) |
 | 6 | Data export is a manual email process | Med | ✅ Live (endpoint + Settings button) |
 | 8 | CI audit informational; no automated dep updates | Low | ✅ Live |
@@ -19,9 +19,8 @@ pending a deliberate merge/rollout.*
 | 10 | No teen/student-specific privacy review | Med | ⚖️ Legal — not code |
 | 12 | PCI SAQ-A eligibility unconfirmed | Low | ⚖️ Confirm with Stripe |
 
-**All 9 code-actionable findings are live in production**, except the break-glass retirement
-(#1 cleanup, staged on `retire-break-glass` pending a 2nd admin). Only the 3 legal items
-(#5, #10, #12) remain outside code.
+**All 9 code-actionable findings are live in production.** Only the 3 legal items
+(#5, #10, #12) remain, and those are outside code.
 
 ---
 
@@ -29,11 +28,12 @@ pending a deliberate merge/rollout.*
 
 - **#3 — Safety fail-safe.** `src/lib/safety/classifier.ts` returns `flagged: true`
   (`acute_crisis`) on any unparseable/empty classifier response. 5 mocked tests.
-- **#1 — Per-person admin accounts + MFA.** `admin_users` table (migration 021), scrypt
-  passwords, RFC 6238 TOTP, HMAC-signed session cookie verified in both the Node routes and
-  the Edge middleware. Confirmed working end-to-end (per-person login + MFA). The shared
-  `ADMIN_SECRET` still works as break-glass — **retiring that is the one remaining step**
-  (branch `retire-break-glass`).
+- **#1 — Per-person admin accounts + MFA + break-glass retired.** `admin_users` table
+  (migration 021), scrypt passwords, RFC 6238 TOTP, HMAC-signed session cookie verified in both
+  the Node routes and the Edge middleware. Confirmed working end-to-end (per-person login +
+  MFA), with two admins provisioned. The shared secret is **retired** — no longer a standing
+  login, and the raw-secret cookie is no longer accepted (signed tokens only). `ADMIN_SECRET`
+  remains an emergency-only re-enable via `ADMIN_BREAK_GLASS=on` (see `docs/admin-auth-rollout.md`).
 - **#2 — Admin audit log.** `admin_audit_log` (migration 020, applied), best-effort writer,
   wired into admin login (incl. failed attempts), plan changes, contact replies.
 - **#6 — Self-service export.** `GET /api/user/data` + a "Download my data" button in Settings.
@@ -48,16 +48,7 @@ pending a deliberate merge/rollout.*
   blob); legacy `v1` blobs still decrypt unchanged. Dev-tested, then verified on prod (new
   `kms-v1` row reads back cleanly). Enable annual rotation on the KMS key if not already on.
 
-## On branch — pending rollout
-
-### #1 cleanup — retire break-glass (`retire-break-glass` branch)
-Removes the shared-secret as a live login and stops the middleware/`isAdminAuthenticated` from
-accepting a raw-secret cookie (signed tokens only). `ADMIN_SECRET` becomes an emergency-only
-re-enable (env flag) rather than a standing credential. **Do not merge until `rema@` + MFA is
-confirmed reliable and ideally a second admin exists** — recovery if locked out is re-running
-`scripts/create-admin.js` with the Supabase service key.
-
-### #5, #10, #12 — Legal / organizational (no code)
+## Legal / organizational (no code — counsel)
 - **#5** Signed BAAs (Supabase, Anthropic; Stripe likely N/A — no PHI) + DPA (Brevo, AWS if
   HIPAA in scope). First question for counsel: is Soul Space even a HIPAA-covered entity given
   its non-clinical positioning?
@@ -68,10 +59,10 @@ confirmed reliable and ideally a second admin exists** — recovery if locked ou
 - [x] Apply migration `020_admin_audit_log.sql` (prod + dev).
 - [x] Apply migration `021_admin_users.sql` and provision the first admin (prod).
 - [x] Add a "Download my data" button in Settings.
+- [x] Dev-test and roll out KMS envelope encryption (#4) — verified live on prod.
+- [x] Provision a second admin, then retire break-glass (#1) — live on prod.
+- [ ] Confirm both admins can still sign in post-retirement (final smoke check).
+- [ ] Enable annual rotation on the KMS key (KMS console → Key rotation) if not already on.
 - [ ] Watch a CI run for gitleaks false positives; tune `.gitleaks.toml` if needed.
 - [ ] Fill in roles/contacts/RTO/RPO in `docs/incident-response-plan.md`; confirm Supabase PITR.
-- [x] Dev-test and roll out KMS envelope encryption (#4) — verified live on prod.
-- [ ] Enable annual rotation on the KMS key (KMS console → Key rotation) if not already on.
-- [ ] Provision a **second** admin account (removes the single-point-of-failure before retiring break-glass).
-- [ ] Merge `retire-break-glass` once the 2nd admin is confirmed.
 - [ ] Legal: BAAs/DPAs (#5), teen-privacy review (#10), PCI SAQ-A confirmation (#12).
