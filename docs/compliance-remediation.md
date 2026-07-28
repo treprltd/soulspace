@@ -14,12 +14,14 @@ pending a deliberate merge/rollout.*
 | 9 | Secret scanning is a hand-written regex | Low | ✅ Live (gitleaks) |
 | 11 | CLAUDE.md names Vercel/Resend (actual: Amplify/Brevo) | Low | ✅ Live |
 | 7 | No IR / DR / BC plan in repo | Med | ✅ Live (`docs/incident-response-plan.md`) |
-| 4 | Static encryption key, no rotation/KMS | Med | 🔶 Code complete on `kms-encryption` branch — pending dev test |
+| 4 | Static encryption key, no rotation/KMS | Med | ✅ Live (KMS envelope encryption, verified on prod) |
 | 5 | No signed BAAs/DPAs with sub-processors | Med | ⚖️ Legal — not code |
 | 10 | No teen/student-specific privacy review | Med | ⚖️ Legal — not code |
 | 12 | PCI SAQ-A eligibility unconfirmed | Low | ⚖️ Confirm with Stripe |
 
-**9 of 9 code-actionable findings are code-complete.** Only the 3 legal items (#5, #10, #12) remain outside code.
+**All 9 code-actionable findings are live in production**, except the break-glass retirement
+(#1 cleanup, staged on `retire-break-glass` pending a 2nd admin). Only the 3 legal items
+(#5, #10, #12) remain outside code.
 
 ---
 
@@ -40,16 +42,13 @@ pending a deliberate merge/rollout.*
 - **#9 — Secret scanning.** gitleaks in a dedicated CI job; `.gitleaks.toml` allowlist.
 - **#11 — Docs.** CLAUDE.md says AWS Amplify + Brevo.
 - **#7 — IR/DR/BC.** `docs/incident-response-plan.md` (roles/contacts marked `[FILL IN]`).
+- **#4 — KMS envelope encryption.** AES-256-GCM envelope encryption via AWS KMS
+  (`GenerateDataKey`/`Decrypt`), `ENCRYPTION_KMS_KEY_ID` set on prod. New session content is
+  written under a per-record KMS data key (`encryption_key_ref = kms-v1`, `kms:`-prefixed
+  blob); legacy `v1` blobs still decrypt unchanged. Dev-tested, then verified on prod (new
+  `kms-v1` row reads back cleanly). Enable annual rotation on the KMS key if not already on.
 
 ## On branch — pending rollout
-
-### #4 — KMS envelope encryption (`kms-encryption` branch)
-AES-256-GCM envelope encryption via AWS KMS, gated behind `ENCRYPTION_KMS_KEY_ID`, fully
-backward compatible (legacy `v1` blobs still decrypt; unset env var = no change). AWS side is
-provisioned (KMS key `54510eb2-…`, Amplify compute role is a key user). **Mandatory dev test
-before prod** — see `docs/kms-encryption-rollout.md`. The KMS path cannot be exercised without
-live AWS, so it must be proven on dev (new session writes a `kms:` blob and reads back; old
-data still decrypts) before promotion.
 
 ### #1 cleanup — retire break-glass (`retire-break-glass` branch)
 Removes the shared-secret as a live login and stops the middleware/`isAdminAuthenticated` from
@@ -71,6 +70,8 @@ confirmed reliable and ideally a second admin exists** — recovery if locked ou
 - [x] Add a "Download my data" button in Settings.
 - [ ] Watch a CI run for gitleaks false positives; tune `.gitleaks.toml` if needed.
 - [ ] Fill in roles/contacts/RTO/RPO in `docs/incident-response-plan.md`; confirm Supabase PITR.
+- [x] Dev-test and roll out KMS envelope encryption (#4) — verified live on prod.
+- [ ] Enable annual rotation on the KMS key (KMS console → Key rotation) if not already on.
 - [ ] Provision a **second** admin account (removes the single-point-of-failure before retiring break-glass).
-- [ ] Dev-test and roll out KMS (`docs/kms-encryption-rollout.md`), then merge `retire-break-glass`.
+- [ ] Merge `retire-break-glass` once the 2nd admin is confirmed.
 - [ ] Legal: BAAs/DPAs (#5), teen-privacy review (#10), PCI SAQ-A confirmation (#12).
