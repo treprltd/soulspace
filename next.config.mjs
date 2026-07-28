@@ -137,6 +137,10 @@ const nextConfig = {
     // Admin panel — was missing; Amplify Gen 1 does not inject env vars into
     // Lambda at runtime so every server-only secret must be listed here.
     ADMIN_SECRET: process.env.ADMIN_SECRET,
+    // Emergency-only break-glass re-enable (compliance finding #1). Unset in
+    // normal operation → shared-secret login is disabled; set to 'on' + redeploy
+    // to temporarily restore it if locked out of every per-person account.
+    ADMIN_BREAK_GLASS: process.env.ADMIN_BREAK_GLASS,
     // Admin multi-env Supabase clients (dev / qa / prod projects)
     SUPABASE_DEV_URL: process.env.SUPABASE_DEV_URL,
     SUPABASE_DEV_SERVICE_KEY: process.env.SUPABASE_DEV_SERVICE_KEY,

@@ -1,145 +1,87 @@
 /**
- * Unit tests — src/lib/admin/auth.ts
+ * Unit tests — src/lib/admin/auth.ts (isAdminAuthenticated)
  *
- * Tests isAdminAuthenticated() across all cases:
- *   - ADMIN_SECRET not configured → always false
- *   - Correct cookie value → true
- *   - Wrong cookie value → false
- *   - No cookie present → false
- *   - Empty ADMIN_SECRET → false (even if cookie matches)
+ * After the break-glass retirement (compliance finding #1) the ONLY accepted
+ * credential is a valid signed session token. A raw-secret cookie — which used
+ * to authenticate — must now be rejected.
  *
  * next/headers is mocked so we never touch real cookies.
- *
- * Run: npm test -- admin-auth
  */
 
-// ── Mocks ────────────────────────────────────────────────────────────────────
 const mockGet = jest.fn()
-
 jest.mock('next/headers', () => ({
-  cookies: jest.fn(() => ({
-    get: mockGet,
-  })),
+  cookies: jest.fn(() => ({ get: mockGet })),
 }))
 
-// ── SUT ──────────────────────────────────────────────────────────────────────
 import { isAdminAuthenticated } from '@/lib/admin/auth'
+import { signAdminToken } from '@/lib/admin/session'
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 const SECRET = 'super-secret-admin-password-123'
 
 function withEnv(secret: string | undefined, fn: () => Promise<void>) {
   const original = process.env.ADMIN_SECRET
-  if (secret === undefined) {
-    delete process.env.ADMIN_SECRET
-  } else {
-    process.env.ADMIN_SECRET = secret
-  }
+  delete process.env.ADMIN_SESSION_SECRET // force sessionSecret() to fall back to ADMIN_SECRET
+  if (secret === undefined) delete process.env.ADMIN_SECRET
+  else process.env.ADMIN_SECRET = secret
   return fn().finally(() => {
-    if (original === undefined) {
-      delete process.env.ADMIN_SECRET
-    } else {
-      process.env.ADMIN_SECRET = original
-    }
+    if (original === undefined) delete process.env.ADMIN_SECRET
+    else process.env.ADMIN_SECRET = original
   })
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+describe('isAdminAuthenticated() — signed-token only (break-glass retired)', () => {
+  beforeEach(() => mockGet.mockReset())
 
-describe('isAdminAuthenticated()', () => {
-
-  beforeEach(() => {
-    mockGet.mockReset()
-  })
-
-  describe('when ADMIN_SECRET is not set', () => {
-    it('returns false even when cookie is present', async () => {
-      await withEnv(undefined, async () => {
-        mockGet.mockReturnValue({ value: 'anything' })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
-    })
-
-    it('returns false when cookie is absent', async () => {
-      await withEnv(undefined, async () => {
-        mockGet.mockReturnValue(undefined)
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
+  it('returns false when no cookie is present', async () => {
+    await withEnv(SECRET, async () => {
+      mockGet.mockReturnValue(undefined)
+      expect(await isAdminAuthenticated()).toBe(false)
     })
   })
 
-  describe('when ADMIN_SECRET is empty string', () => {
-    it('returns false (empty secret is treated as unconfigured)', async () => {
-      await withEnv('', async () => {
-        mockGet.mockReturnValue({ value: '' })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
+  it('REJECTS a raw-secret cookie (legacy break-glass no longer accepted)', async () => {
+    await withEnv(SECRET, async () => {
+      mockGet.mockReturnValue({ value: SECRET })
+      expect(await isAdminAuthenticated()).toBe(false)
     })
   })
 
-  describe('when ADMIN_SECRET is configured', () => {
-    it('returns true when cookie matches the secret exactly', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue({ value: SECRET })
-        expect(await isAdminAuthenticated()).toBe(true)
-      })
-    })
-
-    it('returns false when cookie value is wrong', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue({ value: 'wrong-password' })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
-    })
-
-    it('returns false when cookie is absent (get() returns undefined)', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue(undefined)
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
-    })
-
-    it('returns false when cookie value is empty string', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue({ value: '' })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
-    })
-
-    it('is case-sensitive — uppercase secret does not match lowercase cookie', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue({ value: SECRET.toUpperCase() })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
-    })
-
-    it('does not match a secret with trailing whitespace', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockReturnValue({ value: `${SECRET} ` })
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
+  it('rejects a garbage cookie', async () => {
+    await withEnv(SECRET, async () => {
+      mockGet.mockReturnValue({ value: 'not-a-token' })
+      expect(await isAdminAuthenticated()).toBe(false)
     })
   })
 
-  describe('cookie name', () => {
-    it('reads from admin_session cookie (not any other name)', async () => {
-      await withEnv(SECRET, async () => {
-        // Simulate cookies().get() returning undefined for 'admin_session'
-        // but returning something for any other key
-        mockGet.mockImplementation((name: string) =>
-          name === 'admin_session' ? undefined : { value: SECRET }
-        )
-        expect(await isAdminAuthenticated()).toBe(false)
-      })
+  it('accepts a valid signed session token', async () => {
+    await withEnv(SECRET, async () => {
+      const token = await signAdminToken({ sub: 'admin-1', email: 'a@b.com', exp: Math.floor(Date.now() / 1000) + 60 })
+      mockGet.mockReturnValue({ value: token })
+      expect(await isAdminAuthenticated()).toBe(true)
     })
+  })
 
-    it('reads admin_session cookie by name', async () => {
-      await withEnv(SECRET, async () => {
-        mockGet.mockImplementation((name: string) =>
-          name === 'admin_session' ? { value: SECRET } : undefined
-        )
-        expect(await isAdminAuthenticated()).toBe(true)
-      })
+  it('rejects an expired signed token', async () => {
+    await withEnv(SECRET, async () => {
+      const token = await signAdminToken({ sub: 'admin-1', email: 'a@b.com', exp: Math.floor(Date.now() / 1000) - 1 })
+      mockGet.mockReturnValue({ value: token })
+      expect(await isAdminAuthenticated()).toBe(false)
+    })
+  })
+
+  it('rejects a valid token once the signing secret is gone', async () => {
+    const token = await signAdminToken({ sub: 'x', email: 'x', exp: Math.floor(Date.now() / 1000) + 60 }, SECRET)
+    await withEnv(undefined, async () => {
+      mockGet.mockReturnValue({ value: token })
+      expect(await isAdminAuthenticated()).toBe(false)
+    })
+  })
+
+  it('reads specifically the admin_session cookie', async () => {
+    await withEnv(SECRET, async () => {
+      const token = await signAdminToken({ sub: 'admin-1', email: 'a@b.com', exp: Math.floor(Date.now() / 1000) + 60 })
+      mockGet.mockImplementation((name: string) => (name === 'admin_session' ? { value: token } : undefined))
+      expect(await isAdminAuthenticated()).toBe(true)
     })
   })
 })

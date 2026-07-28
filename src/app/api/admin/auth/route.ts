@@ -73,10 +73,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 
-  // ── Break-glass path (shared secret) ──────────────────────────────────────
-  // Retained until per-person accounts are provisioned and proven, then removed
-  // (see docs/admin-auth-rollout.md). The cookie is now a SIGNED token, not the
-  // raw secret — the shared password never travels in the cookie.
+  // ── Break-glass path (shared secret) — RETIRED, emergency-only ────────────
+  // No longer a standing credential (compliance finding #1). It works only when
+  // ADMIN_BREAK_GLASS=on is explicitly set in the environment — an emergency
+  // re-enable for when nobody can log in per-person: set the flag, redeploy,
+  // sign in with ADMIN_SECRET (leave email blank), fix accounts, then unset it.
+  if (process.env.ADMIN_BREAK_GLASS !== 'on') {
+    void logAdminAction({ env, action: 'admin.login_failed', ip })
+    return NextResponse.json({ error: 'Email and password are required.' }, { status: 401 })
+  }
   const secret = process.env.ADMIN_SECRET
   if (!secret) {
     return NextResponse.json({ error: 'Admin access not configured' }, { status: 503 })
@@ -85,7 +90,7 @@ export async function POST(req: NextRequest) {
     void logAdminAction({ env, action: 'admin.login_failed', ip })
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
   }
-  void logAdminAction({ env, action: 'admin.login', actor: 'break-glass', ip })
+  void logAdminAction({ env, action: 'admin.break_glass_login', actor: 'break-glass', ip })
   return issueSession('break-glass', 'break-glass')
 }
 
