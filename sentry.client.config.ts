@@ -31,15 +31,23 @@ Sentry.init({
     // Benign browser-internal noise
     'ResizeObserver loop limit exceeded',
     'ResizeObserver loop completed with undelivered notifications',
+    // "…reading 'getReader'": getReader is a ReadableStream method our app
+    // NEVER calls — there is no streaming / getReader / EventSource anywhere in
+    // src. It surfaces when an extension or ad-blocker intercepts a fetch and
+    // returns a body-less response that injected/Next-internal code then reads
+    // with .getReader(). Not our code; safe to drop while we use no streams.
+    'getReader',
   ],
   // Drop any event whose stack originates in an extension. Safari masks
-  // extension script URLs as webkit-masked-url://, so include that too.
+  // extension script URLs as webkit-masked-url://, and some extensions bundle
+  // Deno (ext:core/…) — include those origins too.
   denyUrls: [
     /^chrome-extension:\/\//i,
     /^moz-extension:\/\//i,
     /^safari-extension:\/\//i,
     /^safari-web-extension:\/\//i,
     /^webkit-masked-url:\/\//i,
+    /^ext:/i,
   ],
 
   // Strip PII from breadcrumbs automatically.
