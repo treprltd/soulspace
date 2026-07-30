@@ -7,7 +7,6 @@ import { NavBar } from '@/components/ui/NavBar'
 import { ResonanceTap as ResonanceTapComponent } from '@/components/session/ResonanceTap'
 import { createClient } from '@/lib/supabase/client'
 import { logEvent } from '@/lib/analytics'
-import { IconBadge, CarryingIcon, UnderneathIcon, MirrorQuestionIcon } from '@/components/session/SectionIcons'
 
 export default function MirrorOutputPage() {
   const router = useRouter()
@@ -125,7 +124,7 @@ export default function MirrorOutputPage() {
 
         {/* Emotion echo */}
         {mirror.patternTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-6">
+          <div className="flex flex-wrap gap-1.5 mb-8">
             {mirror.patternTags.map(tag => (
               <span key={tag} className="emotion-tag selected">{tag}</span>
             ))}
@@ -142,60 +141,49 @@ export default function MirrorOutputPage() {
         {/* ── Mirror cards — staged reveal: each layer fades in after the previous ── */}
         {/* Body paragraphs: serif upright (not italic) at 16px — easier to read */}
         {/* key={mirrorVersion} forces a remount so the fade-in replays after a correction */}
+        {/* ── Reflection — deliberate hierarchy so the eye lands on one thing ──
+            Same content and labels as before; re-weighted, not rewritten:
+            carrying = quiet lead-in, underneath = the insight (hero), question =
+            calm anchor. Boxes are replaced with typographic weight + whitespace
+            so an overwhelmed reader isn't met with three equal walls of text. */}
         <div key={mirrorVersion}>
-          <div
-            className="mirror-card mb-3"
-            style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}
-          >
-            <div className="flex items-center gap-2 mb-2.5">
-              <IconBadge background="rgba(201,168,76,.1)">
-                <CarryingIcon color="var(--gold)" />
-              </IconBadge>
-              <div className="mirror-label text-gold uppercase">
-                What you&apos;re carrying
-              </div>
+          {/* Carrying — the context. Lighter and smaller: read as the set-up, not
+              the conclusion. */}
+          <div className="mb-6" style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}>
+            <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', opacity: 0.8, marginBottom: '7px' }}>
+              What you&apos;re carrying
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '21px', lineHeight: '1.85' }}>
+            <p className="font-serif" style={{ fontSize: '16px', lineHeight: '1.75', color: 'rgba(213,226,235,.6)' }}>
               {mirror.carrying}
             </p>
           </div>
 
-          <div
-            className="mirror-card mb-3"
-            style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}
-          >
-            <div className="flex items-center gap-2 mb-2.5">
-              <IconBadge background="rgba(201,168,76,.1)">
-                <UnderneathIcon color="var(--gold)" />
-              </IconBadge>
-              <div className="mirror-label text-gold uppercase">
-                What appears underneath
-              </div>
+          {/* Underneath — the insight. The visual centre of gravity: largest,
+              brightest, framed by whitespace rather than a box. */}
+          <div className="mb-7" style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}>
+            <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', opacity: 0.8, marginBottom: '10px' }}>
+              What appears underneath
             </div>
-            <p className="font-serif text-sand leading-relaxed" style={{ fontSize: '21px', lineHeight: '1.85' }}>
+            <p className="font-serif" style={{ fontSize: '25px', lineHeight: '1.5', color: 'rgba(245,237,216,.95)' }}>
               {mirror.underneath}
             </p>
           </div>
 
+          {/* Question — the calm anchor. Kept italic and teal; a light border-left
+              instead of a full box so it doesn't compete with the insight. */}
           <div
-            className="rounded-xl p-4 mb-5"
+            className="mb-5"
             style={{
-              background: 'rgba(42,140,122,.08)',
-              border: '1px solid rgba(42,140,122,.2)',
               opacity: 0,
               animation: 'mirrorFadeIn 0.6s ease 2.6s forwards',
+              borderLeft: '2px solid rgba(61,175,150,.5)',
+              paddingLeft: '16px',
             }}
           >
-            <div className="flex items-center gap-2 mb-2.5">
-              <IconBadge background="rgba(61,175,150,.12)">
-                <MirrorQuestionIcon color="var(--teal2)" />
-              </IconBadge>
-              <div className="mirror-label uppercase" style={{ color: 'var(--teal2)' }}>
-                One question back to you
-              </div>
+            <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--teal2)', marginBottom: '7px' }}>
+              One question back to you
             </div>
-            {/* Question stays italic — the contemplative moment */}
-            <p className="font-serif italic text-sand2 leading-relaxed" style={{ fontSize: '21px' }}>
+            <p className="font-serif italic text-sand2" style={{ fontSize: '20px', lineHeight: '1.6' }}>
               {mirror.question}
             </p>
           </div>
