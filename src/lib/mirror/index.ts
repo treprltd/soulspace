@@ -6,7 +6,7 @@ import { BRANCH_B_PROMPT } from './prompts/branchB'
 import { BRANCH_C_PROMPT } from './prompts/branchC'
 import { BRANCH_D_PROMPT } from './prompts/branchD'
 
-const PROMPT_VERSION = '1.2.0'
+const PROMPT_VERSION = '1.3.0'
 
 const BRANCH_PROMPTS: Record<Branch, string> = {
   A: BRANCH_A_PROMPT,
@@ -134,6 +134,7 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
   if (!jsonMatch) throw new Error('Mirror did not return valid JSON')
 
   const parsed = JSON.parse(jsonMatch[0]) as {
+    insight?: string
     carrying: string
     underneath: string
     question: string
@@ -143,6 +144,10 @@ export async function runMirror(input: MirrorInput): Promise<MirrorOutput> {
   const season = assignSeason(input.emotionTags, input.intensity, input.branch)
 
   return {
+    // Distilled lead line. Defensive fallback: a missing/blank insight must
+    // never break the session — the reflection screen falls back to leading
+    // with `underneath` when this is empty.
+    insight: (parsed.insight ?? '').trim(),
     carrying: parsed.carrying,
     underneath: parsed.underneath,
     question: parsed.question,

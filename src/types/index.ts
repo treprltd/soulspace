@@ -26,6 +26,15 @@ export interface SafetyResult {
 }
 
 export interface MirrorOutput {
+  /**
+   * A single distilled sentence (≤16 words) — the one thing that appears
+   * true, said plainly. Rendered as the lead line the reader lands on first,
+   * with carrying/underneath/question as the supporting explanation beneath.
+   * Introduced in prompt v1.3.0; may be an empty string for reflections
+   * generated before then (the UI then falls back to leading with
+   * `underneath`), so treat "" as "no distilled insight for this reflection."
+   */
+  insight: string
   carrying: string
   underneath: string
   question: string

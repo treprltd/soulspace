@@ -3,12 +3,15 @@
  * 30 test cases — 25/30 must pass all 5 criteria
  * Run: npm run test:mirror
  *
- * 5 criteria per output:
+ * Criteria per output:
  * 1. Specificity — names a specific tension, not a category
  * 2. Non-clinical language — zero clinical terms
  * 3. Question quality — one open, genuinely curious question
  * 4. Three paragraphs returned
  * 5. No prescriptions or advice
+ * 6. Anchoring — carrying references something concrete the person wrote
+ * 7. memoryNote — short, third-person, safe, paraphrased
+ * 8. insight (v1.3.0+) — present, ≤~16 words, anchored, non-clinical, no advice
  */
 
 import { runMirror } from '@/lib/mirror'
@@ -86,11 +89,12 @@ function significantWords(text: string): string[] {
 }
 
 function checkCriteria(
-  output: { carrying: string; underneath: string; question: string; memoryNote?: string },
+  output: { insight?: string; carrying: string; underneath: string; question: string; memoryNote?: string },
   input: MirrorInput
 ): { passed: boolean; failures: string[] } {
   const failures: string[] = []
-  const fullText = [output.carrying, output.underneath, output.question].join(' ').toLowerCase()
+  // Insight is folded in so the clinical/advice scans below cover it too.
+  const fullText = [output.insight ?? '', output.carrying, output.underneath, output.question].join(' ').toLowerCase()
 
   // Criterion 1: three paragraphs
   if (!output.carrying || output.carrying.length < 20) failures.push('carrying paragraph too short or missing')
@@ -144,6 +148,24 @@ function checkCriteria(
     if (noteClinicalHits.length > 0) failures.push(`memoryNote contains clinical terms: ${noteClinicalHits.join(', ')}`)
     if (noteLower.includes(input.contextText.toLowerCase().trim()) && input.contextText.length > 20) {
       failures.push('memoryNote appears to quote the raw input verbatim rather than paraphrasing')
+    }
+  }
+
+  // Criterion 8: insight — the distilled lead line (prompt v1.3.0+). It is the
+  // first thing the person reads, so it must be present, short (a single line,
+  // ≤ ~16 words with a little slack), and anchored to something concrete they
+  // wrote (the same #1 trust lever as `carrying`). Clinical/advice/banned-string
+  // scanning is already covered above because insight is folded into fullText.
+  if (!output.insight || output.insight.trim().length < 10) {
+    failures.push('insight missing or too short')
+  } else {
+    const insightWords = output.insight.trim().split(/\s+/).length
+    if (insightWords > 18) failures.push(`insight too long (${insightWords} words, expected ≤16)`)
+    const insightAnchors = significantWords(input.contextText)
+    const insightLower = output.insight.toLowerCase()
+    const insightMatched = insightAnchors.some(w => insightLower.includes(w.slice(0, Math.min(w.length, 6))))
+    if (insightAnchors.length > 0 && !insightMatched) {
+      failures.push(`insight not anchored to specific input (expected one of: ${insightAnchors.slice(0, 6).join(', ')})`)
     }
   }
 

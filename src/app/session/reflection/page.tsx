@@ -110,6 +110,12 @@ export default function MirrorOutputPage() {
 
   if (!mirror) return null
 
+  // Lever 2: when the Mirror produced a distilled insight, lead with it and
+  // step the explanation below it down in weight. Empty for reflections made
+  // before prompt v1.3.0 — those fall back to the Lever 1 hierarchy (underneath
+  // as the hero), so nothing already stored breaks.
+  const hasInsight = Boolean(mirror.insight?.trim())
+
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
       <NavBar right={<span style={{ color: 'var(--gold)' }}>Your reflection</span>} />
@@ -142,14 +148,26 @@ export default function MirrorOutputPage() {
         {/* Body paragraphs: serif upright (not italic) at 16px — easier to read */}
         {/* key={mirrorVersion} forces a remount so the fade-in replays after a correction */}
         {/* ── Reflection — deliberate hierarchy so the eye lands on one thing ──
-            Same content and labels as before; re-weighted, not rewritten:
-            carrying = quiet lead-in, underneath = the insight (hero), question =
-            calm anchor. Boxes are replaced with typographic weight + whitespace
-            so an overwhelmed reader isn't met with three equal walls of text. */}
+            Lever 2: a distilled `insight` leads (largest, brightest, alone),
+            and carrying/underneath/question follow as the shorter explanation.
+            When no insight is present (reflections from before prompt v1.3.0),
+            the layout falls back to the Lever 1 hierarchy — `underneath` as the
+            hero. Boxes are replaced with typographic weight + whitespace so an
+            overwhelmed reader isn't met with equal walls of text. */}
         <div key={mirrorVersion}>
+          {/* Insight — the one distilled line. The eye lands here first: largest
+              and brightest, standing alone above the explanation. */}
+          {hasInsight && (
+            <div className="mb-8" style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}>
+              <p className="font-serif" style={{ fontSize: '28px', lineHeight: '1.4', color: 'rgba(245,237,216,.97)', fontWeight: 500 }}>
+                {mirror.insight}
+              </p>
+            </div>
+          )}
+
           {/* Carrying — the context. Lighter and smaller: read as the set-up, not
               the conclusion. */}
-          <div className="mb-6" style={{ animation: 'mirrorFadeIn 0.6s ease forwards' }}>
+          <div className="mb-6" style={{ opacity: 0, animation: `mirrorFadeIn 0.6s ease ${hasInsight ? '0.9s' : '0s'} forwards` }}>
             <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', opacity: 0.8, marginBottom: '7px' }}>
               What you&apos;re carrying
             </div>
@@ -158,13 +176,14 @@ export default function MirrorOutputPage() {
             </p>
           </div>
 
-          {/* Underneath — the insight. The visual centre of gravity: largest,
-              brightest, framed by whitespace rather than a box. */}
-          <div className="mb-7" style={{ opacity: 0, animation: 'mirrorFadeIn 0.6s ease 1.4s forwards' }}>
+          {/* Underneath — the explanation. When an insight leads above, this steps
+              down from hero to supporting detail; without one it stays the visual
+              centre of gravity (Lever 1). Framed by whitespace, never a box. */}
+          <div className="mb-7" style={{ opacity: 0, animation: `mirrorFadeIn 0.6s ease ${hasInsight ? '1.7s' : '1.4s'} forwards` }}>
             <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', opacity: 0.8, marginBottom: '10px' }}>
               What appears underneath
             </div>
-            <p className="font-serif" style={{ fontSize: '25px', lineHeight: '1.5', color: 'rgba(245,237,216,.95)' }}>
+            <p className="font-serif" style={{ fontSize: hasInsight ? '18px' : '25px', lineHeight: hasInsight ? '1.65' : '1.5', color: hasInsight ? 'rgba(245,237,216,.82)' : 'rgba(245,237,216,.95)' }}>
               {mirror.underneath}
             </p>
           </div>
