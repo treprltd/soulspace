@@ -9,6 +9,7 @@ import { logEvent } from '@/lib/analytics'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import type { MirrorOutput } from '@/types'
 import { IconBadge, CarryingIcon, MattersIcon, ConsiderWeekIcon, TodayIcon } from '@/components/session/SectionIcons'
+import { PhasePreview } from '@/components/session/PhasePreview'
 
 // One reframe per resonance branch — a cognitive shift, not an action
 const BRANCH_REFRAMES: Record<string, string> = {
@@ -55,6 +56,7 @@ interface SubStatus {
   planTier: string
   sessionsThisMonth: number | null
   limit: number | null
+  betaFullAccess?: boolean
 }
 
 export default function NextStep() {
@@ -208,6 +210,11 @@ export default function NextStep() {
     subStatus &&
     subStatus.planTier === 'free' &&
     (subStatus.sessionsThisMonth ?? 0) >= nudgeThreshold
+
+  // Phase 2/3 concept previews: shown to beta-access users, plus everyone on
+  // non-production so the founder can review them on dev before they go live.
+  const showPhasePreview =
+    Boolean(subStatus?.betaFullAccess) || process.env.NEXT_PUBLIC_ENV !== 'production'
 
   return (
     <main style={{ background: '#060E18', minHeight: '100vh' }}>
@@ -465,6 +472,9 @@ export default function NextStep() {
             </button>
           </div>
         )}
+
+        {/* ── A look ahead — Phase 2/3 concept previews + reactions ─────────── */}
+        <PhasePreview visible={showPhasePreview} />
       </div>
     </main>
   )

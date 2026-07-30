@@ -21,14 +21,15 @@ export async function GET(req: NextRequest) {
     // data for implicit-flow users because auth.uid() is null → RLS blocks reads
     const db = createServiceClient()
 
-    // Get user's plan tier
+    // Get user's plan tier + beta access flag
     const { data: userData } = await db
       .from('users')
-      .select('plan_tier')
+      .select('plan_tier, beta_full_access')
       .eq('id', user.id)
       .single()
 
     const planTier = userData?.plan_tier ?? 'free'
+    const betaFullAccess = userData?.beta_full_access === true
 
     // Count sessions this calendar month — only ones where a Mirror actually
     // rendered (season_assigned set). Matches the gate in /api/mirror so this
@@ -58,8 +59,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       planTier,
+      betaFullAccess,
       sessionsThisMonth: count ?? 0,
-      limit: planTier === 'free' ? FREE_SESSIONS_PER_MONTH : null,
+      // Beta full-access users have no monthly cap, same as a paid plan.
+      limit: betaFullAccess || planTier !== 'free' ? null : FREE_SESSIONS_PER_MONTH,
       authenticated: true,
       subscription: subscription ?? null,
     })

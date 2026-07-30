@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { FREE_SESSIONS_PER_MONTH } from '@/lib/stripe/plans'
 import { GENDER_OPTIONS } from '@/components/ui/ProfileFields'
 import { SETTINGS_MEMORY_SECTION } from '@/lib/copy/memory'
+import { CHECK_IN_SCHEDULE_OPTIONS, WEEKDAY_OPTIONS, type CheckInFrequency } from '@/lib/copy/scheduleOptions'
 import type { User } from '@supabase/supabase-js'
 
 interface SubscriptionStatus {
@@ -50,7 +51,8 @@ export default function Settings() {
   // ── Memory & check-ins ─────────────────────────────────────────────────────
   // Memory itself (the "welcome back" greeting) is always-on and needs no
   // setting here. The only configurable piece is the opt-in check-in cadence.
-  const [checkInFrequency, setCheckInFrequency] = useState<'off' | 'biweekly' | 'monthly'>('off')
+  const [checkInFrequency, setCheckInFrequency] = useState<CheckInFrequency>('off')
+  const [checkInDays, setCheckInDays] = useState<number[]>([])
   const [checkInLoaded, setCheckInLoaded] = useState(false)
   const [checkInSaving, setCheckInSaving] = useState(false)
   const [checkInSaved, setCheckInSaved] = useState(false)
@@ -87,9 +89,13 @@ export default function Settings() {
 
       if (subData) setSubStatus(subData as SubscriptionStatus)
 
-      const loadedFrequency = (memoryPrefsData as { checkInFrequency?: string } | null)?.checkInFrequency
-      if (loadedFrequency === 'off' || loadedFrequency === 'biweekly' || loadedFrequency === 'monthly') {
-        setCheckInFrequency(loadedFrequency)
+      const prefs = memoryPrefsData as { checkInFrequency?: string; checkInDays?: number[] } | null
+      const loadedFrequency = prefs?.checkInFrequency
+      if (loadedFrequency && CHECK_IN_SCHEDULE_OPTIONS.some(o => o.value === loadedFrequency)) {
+        setCheckInFrequency(loadedFrequency as CheckInFrequency)
+      }
+      if (Array.isArray(prefs?.checkInDays)) {
+        setCheckInDays(prefs.checkInDays.filter(d => Number.isInteger(d)))
       }
       setCheckInLoaded(true)
 
@@ -166,9 +172,13 @@ export default function Settings() {
     }
   }
 
-  async function saveCheckInFrequency(value: 'off' | 'biweekly' | 'monthly') {
-    const previous = checkInFrequency
-    setCheckInFrequency(value)   // optimistic — this is a low-stakes preference
+  // Persist a cadence (+ chosen weekdays for custom_days). Optimistic — this is
+  // a low-stakes preference — with a revert snapshot if the write fails.
+  async function persistSchedule(
+    freq: CheckInFrequency,
+    days: number[],
+    revert: { freq: CheckInFrequency; days: number[] },
+  ) {
     setCheckInSaving(true)
     setCheckInSaved(false)
     try {
@@ -180,19 +190,44 @@ export default function Settings() {
       const res = await fetch('/api/user/memory-preferences', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ checkInFrequency: value }),
+        body: JSON.stringify({ checkInFrequency: freq, checkInDays: days }),
       })
       if (!res.ok) {
-        setCheckInFrequency(previous)  // revert on failure
+        setCheckInFrequency(revert.freq)  // revert on failure
+        setCheckInDays(revert.days)
       } else {
         setCheckInSaved(true)
         setTimeout(() => setCheckInSaved(false), 2500)
       }
     } catch {
-      setCheckInFrequency(previous)
+      setCheckInFrequency(revert.freq)
+      setCheckInDays(revert.days)
     } finally {
       setCheckInSaving(false)
     }
+  }
+
+  // Choosing a cadence. For custom_days we reveal the weekday picker and only
+  // persist once at least one day is chosen (the API rejects an empty set).
+  function selectFrequency(value: CheckInFrequency) {
+    const revert = { freq: checkInFrequency, days: checkInDays }
+    setCheckInFrequency(value)
+    if (value === 'custom_days') {
+      if (checkInDays.length > 0) persistSchedule(value, checkInDays, revert)
+      return
+    }
+    setCheckInDays([])
+    persistSchedule(value, [], revert)
+  }
+
+  // Toggling a weekday (only reachable while custom_days is selected).
+  function toggleDay(day: number) {
+    const revert = { freq: checkInFrequency, days: checkInDays }
+    const next = checkInDays.includes(day)
+      ? checkInDays.filter(d => d !== day)
+      : [...checkInDays, day].sort((a, b) => a - b)
+    setCheckInDays(next)
+    if (next.length > 0) persistSchedule('custom_days', next, revert)
   }
 
   const handleSignOut = async () => {
@@ -679,7 +714,7 @@ export default function Settings() {
 
           <div className="text-xs text-mist mb-2">{SETTINGS_MEMORY_SECTION.toggleLabel}</div>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={SETTINGS_MEMORY_SECTION.toggleLabel}>
-            {SETTINGS_MEMORY_SECTION.frequencyOptions.map(opt => {
+            {CHECK_IN_SCHEDULE_OPTIONS.map(opt => {
               const active = checkInFrequency === opt.value
               return (
                 <button
@@ -688,7 +723,7 @@ export default function Settings() {
                   role="radio"
                   aria-checked={active}
                   disabled={!checkInLoaded || checkInSaving}
-                  onClick={() => saveCheckInFrequency(opt.value as 'off' | 'biweekly' | 'monthly')}
+                  onClick={() => selectFrequency(opt.value)}
                   className="px-3.5 py-2 text-xs rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
                   style={{
                     border: active ? '1px solid rgba(201,168,76,.4)' : '1px solid rgba(245,237,216,.08)',
@@ -701,6 +736,43 @@ export default function Settings() {
               )
             })}
           </div>
+
+          {/* Weekday picker — only when "On days I choose" is selected */}
+          {checkInFrequency === 'custom_days' && (
+            <div className="mt-3">
+              <div className="text-xs text-mist mb-2">Which days?</div>
+              <div className="flex gap-1.5 flex-wrap" role="group" aria-label="Check-in days">
+                {WEEKDAY_OPTIONS.map(d => {
+                  const on = checkInDays.includes(d.value)
+                  return (
+                    <button
+                      key={d.value}
+                      type="button"
+                      aria-pressed={on}
+                      aria-label={d.label}
+                      disabled={!checkInLoaded || checkInSaving}
+                      onClick={() => toggleDay(d.value)}
+                      className="px-2.5 py-2 text-xs rounded-lg transition-opacity hover:opacity-80 disabled:opacity-50"
+                      style={{
+                        minWidth: '44px',
+                        border: on ? '1px solid rgba(201,168,76,.4)' : '1px solid rgba(245,237,216,.08)',
+                        background: on ? 'rgba(201,168,76,.1)' : 'transparent',
+                        color: on ? 'var(--gold2)' : 'rgba(245,237,216,.76)',
+                      }}
+                    >
+                      {d.short}
+                    </button>
+                  )
+                })}
+              </div>
+              {checkInDays.length === 0 && (
+                <p className="text-xs mt-2" style={{ color: 'rgba(245,237,216,.45)' }}>
+                  Pick at least one day to turn this on.
+                </p>
+              )}
+            </div>
+          )}
+
           {checkInSaved && (
             <p className="text-xs mt-2" style={{ color: 'rgba(201,168,76,.6)' }}>Saved.</p>
           )}

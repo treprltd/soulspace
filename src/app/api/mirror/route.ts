@@ -42,11 +42,16 @@ export async function POST(req: NextRequest) {
       const gate = createServiceClient()
       const { data: userData } = await gate
         .from('users')
-        .select('plan_tier')
+        .select('plan_tier, beta_full_access')
         .eq('id', user.id)
         .single()
 
-      if (!userData?.plan_tier || userData.plan_tier === 'free') {
+      // Beta participants get the full Phase 1 experience (unlimited reflections)
+      // without a paid plan — see migration 022. The flag is independent of
+      // plan_tier so Stripe webhooks never clobber it.
+      const betaUnlimited = userData?.beta_full_access === true
+
+      if (!betaUnlimited && (!userData?.plan_tier || userData.plan_tier === 'free')) {
         const startOfMonth = new Date()
         startOfMonth.setDate(1)
         startOfMonth.setHours(0, 0, 0, 0)

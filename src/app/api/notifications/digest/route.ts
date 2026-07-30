@@ -285,8 +285,12 @@ export async function POST(req: NextRequest) {
   // src/lib/copy/memory.ts CHECK_IN_CONSENT). Mirrors the user_digest
   // cooldown-stamping pattern via last_check_in_sent_at, but the cooldown
   // window depends on the user's chosen cadence:
-  //   biweekly → don't resend within 13 days   ("about once every couple of weeks, at most")
-  //   monthly  → don't resend within 27 days   ("about monthly")
+  //   weekly      → don't resend within 6 days
+  //   biweekly    → don't resend within 13 days  ("every few weeks")
+  //   monthly     → don't resend within 27 days  ("about monthly")
+  //   custom_days → fire only on the chosen weekdays (users.check_in_days, UTC);
+  //                 same-day double-send guarded by a 20h cutoff
+  // weekly is the tightest cadence offered — nothing daily, to stay "gentle".
   //
   // Crisis gate: if the user's most recent session was safety-flagged, skip
   // them entirely this run — Season is suppressed for these, and so is memory
@@ -295,13 +299,18 @@ export async function POST(req: NextRequest) {
   if (mode === 'memory_checkin' || mode === 'all') {
     try {
       const now = new Date()
+      const todayWeekday   = now.getUTCDay() // 0=Sun..6=Sat, matches users.check_in_days
+      const cutoffWeekly   = new Date(now.getTime() -  6 * 24 * 60 * 60 * 1000).toISOString()
       const cutoffBiweekly = new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString()
       const cutoffMonthly  = new Date(now.getTime() - 27 * 24 * 60 * 60 * 1000).toISOString()
+      // custom_days fires on the user's chosen weekdays; this cutoff only stops
+      // a same-day double-send (the cron runs once daily anyway).
+      const cutoffSameDay  = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
 
       const { data: optedInUsers } = await db
         .from('users')
-        .select('id, email, first_name, check_in_frequency, last_check_in_sent_at')
-        .in('check_in_frequency', ['biweekly', 'monthly'])
+        .select('id, email, first_name, check_in_frequency, check_in_days, last_check_in_sent_at')
+        .in('check_in_frequency', ['weekly', 'biweekly', 'monthly', 'custom_days'])
         .not('email', 'is', null)
         .limit(50) // cap per run, mirrors user_digest
 
@@ -311,13 +320,24 @@ export async function POST(req: NextRequest) {
         let sent = 0
         let failed = 0
         let skippedCooldown = 0
+        let skippedNotToday = 0
         let skippedCrisisGate = 0
         let skippedNoSession = 0
 
         for (const u of optedInUsers) {
           if (!u.email) continue
 
-          const cutoff = u.check_in_frequency === 'monthly' ? cutoffMonthly : cutoffBiweekly
+          // custom_days: only fire on the weekdays the user picked (UTC day).
+          if (u.check_in_frequency === 'custom_days') {
+            const days: number[] = Array.isArray(u.check_in_days) ? u.check_in_days : []
+            if (!days.includes(todayWeekday)) { skippedNotToday++; continue }
+          }
+
+          const cutoff =
+            u.check_in_frequency === 'monthly'  ? cutoffMonthly  :
+            u.check_in_frequency === 'biweekly' ? cutoffBiweekly :
+            u.check_in_frequency === 'weekly'   ? cutoffWeekly   :
+            cutoffSameDay // custom_days — only guards against a same-day repeat
           if (u.last_check_in_sent_at && u.last_check_in_sent_at > cutoff) {
             skippedCooldown++
             continue
@@ -377,7 +397,7 @@ export async function POST(req: NextRequest) {
         }
 
         results.memoryCheckin = {
-          sent, failed, skippedCooldown, skippedCrisisGate, skippedNoSession,
+          sent, failed, skippedCooldown, skippedNotToday, skippedCrisisGate, skippedNoSession,
           eligible: optedInUsers.length,
         }
       }
