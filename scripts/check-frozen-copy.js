@@ -86,7 +86,7 @@ const MEMORY_FROZEN = [
   {
     id: 'check-in-consent',
     segments: [
-      "Soul Space will always gently remember the shape of your last visit when you return — that's just how it works here. If you'd also like to hear from us between visits, every so often, you can turn that on below. Off by default. Change your mind any time in Settings.",
+      "Soul Space will always gently remember the shape of your last visit when you return — that's just how it works here. We'll also send you a gentle check-in between visits, about once every couple of weeks. It's on to begin with; you can turn it off any time, here or in Settings.",
       'About once every couple of weeks, at most. Never more than that.',
     ],
     hint: 'CHECK_IN_CONSENT body + toggleHint (src/lib/copy/memory.ts)',
@@ -94,7 +94,7 @@ const MEMORY_FROZEN = [
   {
     id: 'settings-memory-section',
     segments: [
-      "Soul Space gently remembers the shape of your last visit, so you never have to start from zero. If you'd also like an occasional note between visits, you can turn that on here — off by default, and changeable any time.",
+      "Soul Space gently remembers the shape of your last visit, so you never have to start from zero. We'll also send an occasional gentle check-in between visits — on by default, and you can turn it off any time.",
     ],
     hint: 'SETTINGS_MEMORY_SECTION body (src/lib/copy/memory.ts)',
   },
@@ -118,7 +118,7 @@ const MEMORY_FROZEN = [
   {
     id: 'check-in-email-footer',
     segments: [
-      "You're receiving this because you asked Soul Space to check in with you occasionally. Adjust how often, or turn this off, any time in Settings.",
+      "You're receiving this because check-ins are on by default in Soul Space. Adjust how often, or turn this off, any time in Settings.",
     ],
     hint: 'checkInEmail() — CHECK_IN_FOOTER (src/lib/copy/memory.ts)',
   },

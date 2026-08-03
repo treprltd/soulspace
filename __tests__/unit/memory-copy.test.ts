@@ -131,10 +131,11 @@ describe('checkInEmail', () => {
   })
 })
 
-describe('CHECK_IN_CONSENT (single opt-in toggle — memory itself needs no consent)', () => {
-  it('frames memory as default/always-on, not something to switch on', () => {
+describe('CHECK_IN_CONSENT (single check-in toggle — on by default, one-tap off)', () => {
+  it('frames memory as always-on and check-ins as on-by-default with an off-ramp', () => {
     expect(CHECK_IN_CONSENT.body).toMatch(/always gently remember/i)
-    expect(CHECK_IN_CONSENT.body).toMatch(/off by default/i)
+    expect(CHECK_IN_CONSENT.body).toMatch(/on to begin with/i)
+    expect(CHECK_IN_CONSENT.body).toMatch(/turn it off any time/i)
   })
 
   it('caps the cadence promise at "every couple of weeks" — no higher-frequency option implied', () => {

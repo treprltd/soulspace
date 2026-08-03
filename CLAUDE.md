@@ -74,9 +74,11 @@ Welcome screen: "Whatever brought you here — you do not need to have it figure
 ## Frozen Memory & Check-in Copy (locked 2026-06-06 — same weight as affirmations above)
 Source of truth: `src/lib/copy/memory.ts` (guarded by `scripts/check-frozen-copy.js`).
 Memory ("welcome back" greeting) is always-on/read-only for all returning users.
-Check-ins (emails) are the only opt-in piece — off by default.
+Check-ins (emails) are ON by default (opt-out) for NEW accounts as of 2026-08-02
+(founder sign-off) — gentle biweekly, one-tap off, copy is transparent about it;
+existing accounts keep their prior choice. (Was opt-in/off-by-default 2026-06-06.)
 - `memoryGreeting()` — three gap-band templates ("recent" / "medium" / universal fallback)
-- `CHECK_IN_CONSENT` — the single opt-in toggle copy (headline, body, toggleLabel, toggleHint)
+- `CHECK_IN_CONSENT` — the single check-in toggle copy (headline, body, toggleLabel, toggleHint)
 - `SETTINGS_MEMORY_SECTION` — Settings-page framing of the same control + frequency options
 - `checkInEmail()` — the gentle check-in email, memory-anchored + generic variants, plus footer
 Do not change wording, punctuation, or tone of any of these without the same review

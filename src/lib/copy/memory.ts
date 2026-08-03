@@ -62,20 +62,22 @@ export function memoryGreeting(
 }
 
 /**
- * The single check-in consent toggle copy (opt-in; off by default).
- * Memory itself needs no consent surface — only being *contacted* does.
+ * The single check-in toggle copy. ON by default (opt-out) as of 2026-08-02
+ * with the founder's sign-off — the copy is transparent about this and every
+ * email carries a one-tap off. Memory itself needs no consent surface — only
+ * being *contacted* does.
  */
 export const CHECK_IN_CONSENT = {
-  headline: 'Would you like the occasional check-in?',
-  body: "Soul Space will always gently remember the shape of your last visit when you return — that's just how it works here. If you'd also like to hear from us between visits, every so often, you can turn that on below. Off by default. Change your mind any time in Settings.",
+  headline: 'Gentle check-ins between visits',
+  body: "Soul Space will always gently remember the shape of your last visit when you return — that's just how it works here. We'll also send you a gentle check-in between visits, about once every couple of weeks. It's on to begin with; you can turn it off any time, here or in Settings.",
   toggleLabel: 'Check in with me sometimes',
-  toggleHint: 'About once every couple of weeks, at most. Never more than that.',
+  toggleHint: 'About once every couple of weeks, at most. Never more than that. On to begin with — turn it off any time.',
 } as const
 
 /** Settings-page copy for the same control, framed as a permanent home for it. */
 export const SETTINGS_MEMORY_SECTION = {
   heading: 'Memory & check-ins',
-  body: "Soul Space gently remembers the shape of your last visit, so you never have to start from zero. If you'd also like an occasional note between visits, you can turn that on here — off by default, and changeable any time.",
+  body: "Soul Space gently remembers the shape of your last visit, so you never have to start from zero. We'll also send an occasional gentle check-in between visits — on by default, and you can turn it off any time.",
   toggleLabel: 'Check in with me sometimes',
   frequencyOptions: [
     { value: 'off', label: 'Off' },
@@ -99,7 +101,7 @@ const CHECK_IN_SUBJECTS = [
 ] as const
 
 const CHECK_IN_FOOTER =
-  "You're receiving this because you asked Soul Space to check in with you occasionally. Adjust how often, or turn this off, any time in Settings."
+  "You're receiving this because check-ins are on by default in Soul Space. Adjust how often, or turn this off, any time in Settings."
 
 /**
  * Builds the gentle check-in email. `subjectIndex` lets the digest cron
